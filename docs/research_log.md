@@ -25,3 +25,17 @@ Desde este momento, `paper/primary/sections/problem_formulation.tex` será el do
 `docs/literature/primary_novelty_review.md` será el documento de trabajo para falsar la novedad y `docs/theory/primary_notes.md` recogerá derivaciones, intentos fallidos, hipótesis y resultados intermedios todavía no incorporables al paper. La base bibliográfica común será `references/bibliography.bib`.
 
 Ninguna afirmación de novedad se incorporará al paper mientras no sobreviva a la revisión bibliográfica de falsación. Esta decisión no modifica las líneas científicas ni la prioridad de la revisión previa a la implementación.
+
+## Decision 003 — Refinamiento tras la segunda revisión de falsación
+
+Fecha: 2026-09-10.
+
+La hipótesis inicial ha sobrevivido a la segunda revisión de falsación únicamente en una forma más estrecha, según los resultados comunicados por el investigador. La trazabilidad mediante referencias verificadas sigue pendiente en `docs/literature/primary_novelty_review.md`; la bibliografía del repositorio permanece vacía.
+
+Future value por sí solo no es nuevo. La reducción de error futuro sensible al coste ya existe en Active Learning / Value of Information. Sequential L2D puede considerar efectos a largo plazo y no debe describirse universalmente L2D como myopic. Active Knowledge Distillation ya combina coste de consulta al teacher y mejora del student.
+
+La hipótesis candidata restante es la decisión operativa unificada en la que la misma consulta costosa tiene valor de inferencia inmediata y valor futuro de aprendizaje mediante la adaptación del predictor barato. No se ha identificado todavía un equivalente directo en la revisión comunicada; esto no demuestra su ausencia. La línea primaria permanece activa y no se ha establecido su novedad.
+
+El objeto central de estudio teórico es ahora $\Delta_{\mathrm{learn}}(S_t,x_t)$. Se define conceptualmente mediante una diferencia de valor futuro con y sin actualización, con valores menores correspondientes a menor pérdida/coste futuro. Esta convención incluye costes futuros cuando forman parte del objetivo; no debe confundirse con una reducción exclusiva de riesgo predictivo.
+
+El proyecto no afirmará un umbral Bayesiano en forma cerrada salvo que esa estructura se derive realmente. La siguiente tarea teórica es determinar si $\Delta_{\mathrm{learn}}$ puede calcularse o aproximarse para un modelo mínimo tratable y si ello permite una regla de routing interpretable. La descomposición candidata, su equivalencia con la comparación secuencial general, la suboptimalidad myopic y las garantías de aproximación son objetivos pendientes, no contribuciones demostradas.

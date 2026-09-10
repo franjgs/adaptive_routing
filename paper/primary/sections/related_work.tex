@@ -1,7 +1,42 @@
 \section{Related work}
 
-This section will be completed from the following project files once the
-references have been verified:
+This is a provisional conceptual organization, not a completed literature
+review or a claim of novelty. The second falsification review reported in
+the project notes motivates the following distinctions; source-level
+verification and citations remain pending.
+
+\begin{itemize}
+  \item \textbf{Learning to Defer and model routing:} operational choice
+    between predictors and the role of consultation cost.
+  \item \textbf{Sequential Learning to Defer:} long-term consequences of
+    current deferral decisions. Learning to Defer must not be characterized
+    universally as myopic. Whether future value specifically arises from
+    updating the autonomous predictor requires further comparison.
+  \item \textbf{Active Learning and Expected Error Reduction:} supervision
+    acquisition and expected future predictive error after updating the
+    learner. These approaches are not limited to uncertainty sampling;
+    cost-aware future error reduction is not itself a novelty claim.
+  \item \textbf{Value of Information:} general valuation of information
+    within decision problems. These frameworks may express the proposed
+    problem; a tractable specialization is a research objective.
+  \item \textbf{Active Knowledge Distillation / teacher querying:}
+    teacher-query costs and student improvement, without assuming that
+    such methods are necessarily offline or pool-based.
+  \item \textbf{Dual control and sequential decision making:} actions
+    with current and future effects. Generic computational difficulty
+    does not establish novelty; a simpler rule exploiting routing structure
+    remains to be derived.
+\end{itemize}
+
+These neighboring literatures motivate a more specific question: whether
+an operational routing decision can explicitly account for the future
+improvement of the cheap predictor induced by the same costly prediction
+used to solve the current instance. Any distinction from existing work
+remains subject to falsification. Computability, interpretability, and
+guarantees are objectives, not established contributions.
+
+The full review will be completed from the following project files once
+the references have been verified:
 \begin{quote}
 \texttt{docs/literature/primary\_novelty\_review.md}\\
 \texttt{references/bibliography.bib}

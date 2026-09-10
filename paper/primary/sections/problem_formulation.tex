@@ -3,7 +3,7 @@
 \subsection{Observations, predictors, and state}
 
 Let $x_t\in\mathcal{X}$ denote the observation at step $t$, and let
-$y_t\in\mathcal{Y}$ denote its target. The cheap adaptive predictor is
+$Y_t\in\mathcal{Y}$ denote its random target. The cheap adaptive predictor is
 $M_F(x_t;\theta_t)$, while $M_D(x_t)$ denotes the expensive teacher
 predictor. The routing action is $a_t\in\{F,D\}$, with prediction
 \begin{equation}
@@ -13,7 +13,7 @@ predictor. The routing action is $a_t\in\{F,D\}$, with prediction
     M_D(x_t), & a_t=D.
   \end{cases}
 \end{equation}
-Let $\ell(\widehat y_t,y_t)$ be a predictive loss. Write
+Let $\ell(\widehat y_t,Y_t)$ be a predictive loss. Write
 $C_D(S_t,x_t)\geq 0$ for the incremental cost of consulting $M_D$, expressed
 in units compatible with the loss; the incremental consultation cost of
 choosing $F$ is zero.
@@ -25,15 +25,16 @@ available history; no finite-dimensional sufficient state is asserted.
 The target is used to define risk, but its availability for adaptation is
 not assumed.
 
-Let $z_t^D$ denote information obtained by consulting $M_D$, including its
-prediction. A general update map permits
+If the expensive predictor is queried, let $Z_t=M_D(x_t)$. A general
+update map on the full state permits
 \begin{equation}
-  \theta_{t+1}=U(\theta_t,\mathcal{I}_t,x_t,z_t^D)
+  S_t^+=U(S_t,x_t,Z_t)
   \qquad\text{when }a_t=D.
 \end{equation}
-This map may leave the parameters unchanged. Information is subsequently
-incorporated into $\mathcal{I}_{t+1}$. Neither the update mechanism nor the
-feedback available under either action is specified at this stage.
+This map can adapt $\theta_t$ using the teacher response but may leave it
+unchanged. The post-query state $S_t^+$ need not be the complete next-step
+state $S_{t+1}$. Neither the update mechanism nor the feedback available
+under either action is specified at this stage.
 
 \subsection{Sequential objective and action values}
 
@@ -44,7 +45,7 @@ conceptual objective is to minimize
 \begin{equation}
   J(\pi)=\mathbb{E}_{\pi}\!\left[
     \sum_{t=1}^{T}\gamma^{t-1}
-    \left\{\ell(\widehat y_t,y_t)
+    \left\{\ell(\widehat y_t,Y_t)
       +\mathbf{1}_{\{a_t=D\}}C_D(S_t,x_t)\right\}
   \right].
 \end{equation}
@@ -55,8 +56,8 @@ $\mathcal{I}_t$.
 
 Define the current conditional predictive risks by
 \begin{align}
-  r_F(S_t,x_t)&=\mathbb{E}[\ell(M_F(x_t;\theta_t),y_t)\mid S_t,x_t],\\
-  r_D(S_t,x_t)&=\mathbb{E}[\ell(M_D(x_t),y_t)\mid S_t,x_t].
+  r_F(S_t,x_t)&=\mathbb{E}[\ell(M_F(x_t;\theta_t),Y_t)\mid S_t,x_t],\\
+  r_D(S_t,x_t)&=\mathbb{E}[\ell(M_D(x_t),Y_t)\mid S_t,x_t].
 \end{align}
 Let $V^*(S_{t+1},x_{t+1})$ denote the optimal remaining expected objective
 from the next observation, with continuation value zero after $T$.
@@ -79,28 +80,68 @@ Ties do not impose a preference between the two actions.
 
 The current expected risk reduction is
 \begin{equation}
-  \Delta_{\mathrm{immediate}}=r_F(S_t,x_t)-r_D(S_t,x_t).
+  \Delta_{\mathrm{pred}}(S_t,x_t)=r_F(S_t,x_t)-r_D(S_t,x_t).
 \end{equation}
-Let $\Delta_{\mathrm{learning}}$ conceptually denote the expected reduction
-in future predictive risk caused by updating the cheap predictor using
-the consultation information. No closed-form expression or positive
-sign is assumed. The motivating comparison is
+Let $V_{\mathrm{future}}(S)$ denote expected future cumulative loss/cost,
+with lower values preferred. For a common future horizon, input law, and
+continuation criterion, define conceptually
+\begin{align}
+  \Delta_{\mathrm{learn}}(S_t,x_t)
+    &=V_{\mathrm{future}}(S_t)\notag\\
+    &\quad-\mathbb{E}_{Z_t}\!\left[
+      V_{\mathrm{future}}(U(S_t,x_t,Z_t))\mid S_t,x_t\right].
+\end{align}
+Here $S_t$ is the reference state without the teacher-induced update;
+both terms evaluate the same future period, excluding the current loss
+and consultation cost. Dependence of the continuation evaluation on
+the current time and observation is implicit and must be made explicit
+in a model specialization. If the teacher response is deterministic and
+known conditional on $(S_t,x_t)$, the expectation over $Z_t$ is degenerate.
+
+This term represents the expected reduction in future cost/risk caused
+specifically by using the teacher response to update the cheap predictor.
+It is not a computable closed form, and its sign is not fixed. If future
+consultation costs are included in $V_{\mathrm{future}}$, it is not solely
+a reduction in predictive loss.
+
+The central candidate decomposition emerging from the sequential
+formulation is
 \begin{equation}
-  \Delta_{\mathrm{immediate}}
-    +\gamma\Delta_{\mathrm{learning}}>C_D(S_t,x_t).
+  \Delta_{\mathrm{pred}}(S_t,x_t)
+    +\gamma\Delta_{\mathrm{learn}}(S_t,x_t)>C_D(S_t,x_t).
 \end{equation}
-This is a conceptual decomposition, not a theorem. In the action values
-above, the difference between continuation terms concerns the full future
-objective, including future consultation costs. Identifying that difference
-with a learning-induced reduction in predictive risk requires additional
-assumptions and an explicit accounting of future costs. Those conditions
-remain unresolved. No scalar routing threshold or sufficiency of the cheap
-predictor's confidence is asserted.
+This is not a theorem. Comparing the general action values gives the
+immediate predictive advantage plus the discounted difference of their
+continuation terms, against consultation cost. Identifying that
+continuation difference with $\Delta_{\mathrm{learn}}$ requires compatible
+continuation policies, dynamics, information, and horizons, with the
+action-dependent difference represented by $U$. Other action effects or
+updates under $F$ must be accounted for in the reference continuation;
+otherwise the more general $Q_D<Q_F$ comparison must be retained. The
+precise sufficient assumptions and any computational guarantees remain
+to be derived.
+
+\subsection{No assumed scalar confidence threshold}
+
+A scalar confidence threshold requires additional structural assumptions.
+Neither its existence nor the sign or functional form of a threshold
+correction is established. Learning value need not depend only on
+epistemic uncertainty: a highly uncertain sample may have little future
+value if its region is rarely encountered again, whereas a moderately
+uncertain sample may be valuable in a high-probability future region.
+These are conceptual possibilities, not demonstrated results for a
+specified model.
+
+Thus $\Delta_{\mathrm{learn}}$ may depend on $x_t$, $S_t$ and $\theta_t$,
+the future input distribution, teacher behaviour and error structure,
+the update operator $U$, the effective future horizon, and other state
+variables. No Gaussian uncertainty model or sufficiency of the cheap
+predictor's confidence is assumed.
 
 \subsection{Open theoretical questions}
 
 \begin{enumerate}
-  \item Under what assumptions can $\Delta_{\mathrm{learning}}$ be computed
+  \item Under what assumptions can $\Delta_{\mathrm{learn}}$ be computed
     or approximated locally?
   \item When can the optimal policy be reduced to an interpretable
     decision rule?
@@ -108,8 +149,16 @@ predictor's confidence is asserted.
     active learning, knowledge distillation, learning to defer, and
     contextual bandits?
   \item Under what conditions is a myopic policy that ignores
-    $\Delta_{\mathrm{learning}}$ suboptimal?
+    $\Delta_{\mathrm{learn}}$ strictly suboptimal? In particular, can a
+    specified model admit $\Delta_{\mathrm{pred}}<C_D$ but
+    $\Delta_{\mathrm{pred}}+\gamma\Delta_{\mathrm{learn}}>C_D$?
   \item Can bounds be obtained for approximations of future value?
   \item What minimal family of models permits analytical results without
     turning the problem into an intractable generic Markov decision process?
 \end{enumerate}
+
+The connections to myopic cost-aware routing when
+$\Delta_{\mathrm{learn}}=0$, and to active acquisition when immediate
+predictive benefit is ignored, remain to be formalized within the
+sequential model. No novelty claim or theoretical contribution is
+established by this candidate formulation.
