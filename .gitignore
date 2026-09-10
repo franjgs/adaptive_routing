@@ -226,3 +226,8 @@ __marimo__/
 
 # Local research literature
 docs/literature/*.pdf
+
+# Google Drive document placeholders
+*.gdoc
+*.gsheet
+*.gslides
