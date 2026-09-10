@@ -17,7 +17,7 @@ versus
 cost of using the expensive model
 ```
 
-Se ha completado una segunda revisión de falsación de la línea primaria, registrada en Decision 003 de `docs/research_log.md`. La hipótesis inicial de novedad se ha estrechado: future value por sí solo no constituye novedad; cost-aware future error reduction aparece ya en Active Learning / Value of Information; Sequential Learning to Defer puede considerar consecuencias futuras; y Active Knowledge Distillation puede combinar coste de consulta al teacher con mejora del student. La trazabilidad mediante referencias verificadas sigue pendiente en `docs/literature/primary_novelty_review.md`.
+Se ha completado una segunda revisión de falsación de la línea primaria, registrada en Decision 003 de `docs/research_log.md`. La hipótesis inicial de novedad se ha estrechado: future value por sí solo no constituye novedad; cost-aware future error reduction aparece ya en Active Learning / Value of Information; Sequential Learning to Defer puede considerar consecuencias futuras; y Active Knowledge Distillation puede combinar coste de consulta al teacher con mejora del student. Decision 004 incorpora dos antecedentes verificados en `docs/literature/primary_novelty_review.md`: Gao & Koller (2011), sobre adquisición de clasificadores sensible al coste para la instancia actual, y Roy & McCallum (2001), sobre reducción esperada del error futuro tras actualizar el aprendiz. Ninguno de estos principios por separado constituye novedad; la verificación de los demás antecedentes sigue pendiente.
 
 La hipótesis que permanece bajo investigación es la combinación, dentro de una misma decisión operacional, de:
 
@@ -29,6 +29,8 @@ La hipótesis que permanece bajo investigación es la combinación, dentro de un
 Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a falsación. Si no se identifica una diferencia metodológica clara y defendible respecto a learning-to-defer, model routing, contextual bandits, active learning, knowledge distillation y trabajos relacionados, se reconsiderará esta línea antes de implementar algoritmos o invertir esfuerzo experimental.
 
 El principal objeto teórico de estudio es actualmente $\Delta_{\mathrm{learn}}(S_t,x_t)$, entendido de forma general como la reducción esperada del coste futuro acumulado inducida por la actualización del predictor barato. Este valor puede incluir pérdida predictiva y costes futuros de consulta; no representa exclusivamente una reducción del riesgo predictivo. Determinar cómo calcularlo o aproximarlo y si la política óptima puede reducirse a una regla interpretable de umbral son objetivos teóricos pendientes. No se ha establecido una regla de umbral cerrada.
+
+Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback (Decision 004): si el verdadero $Y_t$ se observa tras cada predicción, con retraso u ocasionalmente, o no está disponible operacionalmente. También queda abierta la forma de supervisión del teacher. Sus salidas pueden ser imperfectas y no se presupone que $\Delta_{\mathrm{learn}}$ sea no negativo. La hipótesis de acoplar ambos beneficios mediante la misma consulta continúa bajo falsación activa.
 
 ### Current research overview
 
@@ -59,6 +61,6 @@ La primera etapa se centra en la revisión bibliográfica y la formulación cien
 - `docs/literature/`: documentación de la revisión bibliográfica.
 - `docs/theory/`: documentación de la formulación teórica.
 - `docs/research_log.md`: registro de decisiones científicas.
-- `references/bibliography.bib`: bibliografía, inicialmente vacía.
+- `references/bibliography.bib`: bibliografía común con dos antecedentes verificados incorporados en Decision 004.
 - `references/papers/`: PDFs locales, excluidos del control de versiones.
 - `code/`: directorio vacío; no se añaden algoritmos ni dependencias Python.

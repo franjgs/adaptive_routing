@@ -4,13 +4,37 @@ Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing wit
 
 ## Evidencia comunicada de la segunda revisión
 
-Este registro recoge los resultados de la revisión aportados por el investigador. No constituye una nueva búsqueda ni una verificación independiente: `references/bibliography.bib` sigue vacío y falta incorporar las referencias verificadas que permitan auditar cada observación. Se distinguen estos antecedentes comunicados de la interpretación y de las hipótesis del proyecto.
+Este apartado recoge los resultados de la segunda revisión aportados por el investigador, originalmente sin verificación independiente. La actualización asociada a Decision 004 incorpora abajo dos trabajos verificados y sus entradas en `references/bibliography.bib`; la trazabilidad de los demás antecedentes sigue pendiente. Se distinguen los antecedentes comunicados, la evidencia verificada, la interpretación y las hipótesis del proyecto.
 
 - **Active Learning** no se limita a uncertainty sampling ni a incertidumbre epistémica. Expected Error Reduction y enfoques de Value of Information pueden evaluar explícitamente la reducción esperada del error predictivo futuro tras adquirir supervisión y actualizar el aprendiz. El principio «coste de consulta + reducción esperada del error futuro» ya existe y no es una afirmación de novedad.
 - **Sequential Learning to Defer** puede considerar consecuencias a largo plazo de las decisiones actuales. No debe caracterizarse universalmente L2D como myopic.
 - **Active Knowledge Distillation** incluye consultas al teacher sensibles al coste y mejora del student. No es necesariamente offline ni pool-based.
 - **Value of Information y teoría secuencial de decisión** pueden ser suficientemente generales para representar el problema propuesto; no se afirma que sean incapaces de hacerlo.
 - **Dual Control / POMDP** proporciona marcos generales de decisión secuencial. La dificultad computacional de sus soluciones genéricas no constituye evidencia de novedad.
+
+## Evidencia verificada — actualización asociada a Decision 004
+
+### Gao & Koller (2011)
+
+**Active Classification based on Value of Classifier** (`gao2011active`). El artículo realiza selección específica por instancia, en tiempo de inferencia, entre clasificadores heterogéneos previamente entrenados. Evaluarlos tiene un coste computacional explícito. El criterio value-of-classifier contrapone el beneficio esperado para el estado de clasificación actual al coste de evaluación. Observar una respuesta modifica el posterior de la instancia actual; el procedimiento no actualiza los parámetros de un predictor barato para instancias futuras. Véanse las secciones 1 y 3 del [artículo](https://proceedings.neurips.cc/paper_files/paper/2011/file/303ed4c69846ab36c2904d3ba8573050-Paper.pdf).
+
+**Interpretación conceptual:** `Delta_immediate - C`. Es una correspondencia con nuestra notación, no una reproducción literal: el artículo valora el estado posterior y pondera el coste; expresar mejora supone compararlo con el estado actual. La adquisición de clasificadores para la instancia actual sensible al coste no es novedosa.
+
+### Roy & McCallum (2001)
+
+**Toward Optimal Active Learning through Monte Carlo Estimation of Error Reduction** (`roy2001toward`). Selecciona consultas de etiquetado según el error futuro esperado tras incorporar la etiqueta y reentrenar/actualizar el aprendiz. La reducción explícita del error predictivo futuro causada por aprender es, por tanto, un antecedente establecido y no debe reivindicarse como novedosa. La consulta adquiere datos para aprender; no elige operativamente entre un predictor barato y otro costoso para resolver la instancia actual. Véanse las secciones 1 y 2 del [artículo](https://groups.csail.mit.edu/rrg/papers/icml01.pdf).
+
+**Interpretación conceptual:** `Delta_learning - C_label`. El término de coste expresa aquí el recurso de etiquetado en nuestra comparación conceptual; no atribuye al artículo una ecuación literal de beneficio menos coste variable por consulta. Su criterio selecciona el menor error futuro esperado tras actualizar.
+
+### Hipótesis de acoplamiento, todavía bajo falsación
+
+La comparación candidata del proyecto es `Delta_immediate + gamma * Delta_learning - C_teacher`: la **misma consulta costosa** puede mejorar la predicción de la instancia operacional actual y aportar supervisión que actualiza el predictor barato, cambiando su rendimiento/coste futuro. Los nombres conceptuales `Delta_immediate` y `Delta_learning` corresponden a `Delta_pred` y `Delta_learn` en la formulación del proyecto; no se identifica el error predictivo de los antecedentes con todo nuestro coste futuro acumulado.
+
+Ni el valor futuro del aprendizaje ni la adquisición de clasificadores para la instancia actual son novedosos por sí solos. Su acoplamiento descrito sigue siendo únicamente un posible vacío metodológico bajo falsación activa; estos dos trabajos no demuestran su novedad. Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback indicado en Decision 004.
+
+### Verificación bibliográfica
+
+Los títulos y autores se comprobaron en los artículos. Año y publicación se corroboraron en los [proceedings de NIPS 2011](https://proceedings.neurips.cc/paper_files/paper/2011/hash/303ed4c69846ab36c2904d3ba8573050-Abstract.html) y en la [lista de publicaciones de McCallum](https://people.cs.umass.edu/~mccallum/publications-by-topic.html), que identifica ICML-2001. Esta última usa la variante de título «Sampling Estimation»; la entrada conserva «Monte Carlo Estimation», impreso en el PDF. Se omiten DOI, páginas, número de fascículo, editorial y editores al no haberse verificado en las fuentes consultadas. Las URLs incluidas son las de los artículos consultados.
 
 ## Interpretación actual y comparación conceptual
 

@@ -39,3 +39,15 @@ La hipótesis candidata restante es la decisión operativa unificada en la que l
 El objeto central de estudio teórico es ahora $\Delta_{\mathrm{learn}}(S_t,x_t)$. Se define conceptualmente mediante una diferencia de valor futuro con y sin actualización, con valores menores correspondientes a menor pérdida/coste futuro. Esta convención incluye costes futuros cuando forman parte del objetivo; no debe confundirse con una reducción exclusiva de riesgo predictivo.
 
 El proyecto no afirmará un umbral Bayesiano en forma cerrada salvo que esa estructura se derive realmente. La siguiente tarea teórica es determinar si $\Delta_{\mathrm{learn}}$ puede calcularse o aproximarse para un modelo mínimo tratable y si ello permite una regla de routing interpretable. La descomposición candidata, su equivalencia con la comparación secuencial general, la suboptimalidad myopic y las garantías de aproximación son objetivos pendientes, no contribuciones demostradas.
+
+## Decision 004 — Antecedentes verificados y protocolo de feedback pendiente
+
+Fecha: 2026-09-10.
+
+La actualización de `docs/literature/primary_novelty_review.md` y las entradas `roy2001toward` y `gao2011active` de `references/bibliography.bib` documentan que el valor futuro del aprendizaje no es novedoso por sí mismo, ni tampoco lo es la adquisición de clasificadores sensible al coste para la instancia actual.
+
+La contribución candidata restante es su acoplamiento en una única acción operacional de routing: la información devuelta por la misma consulta al teacher puede mejorar la inferencia actual y actualizar el predictor barato para modificar rendimiento/coste futuro. Sigue siendo una hipótesis bajo falsación activa, no una contribución establecida.
+
+Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback. Sigue sin decidirse si el verdadero $Y_t$ se observa después de cada predicción, se observa con retraso u ocasionalmente, o no está disponible operacionalmente. La salida del teacher puede ser una etiqueta dura, un vector de probabilidades/logits u otra señal de supervisión; no se selecciona todavía una opción.
+
+Las salidas del teacher pueden ser imperfectas, de modo que no debe suponerse que $\Delta_{\mathrm{learn}}$ sea no negativo. La formulación en `paper/primary/sections/problem_formulation.tex` permanece sin cambios hasta decidir el protocolo. Esta prioridad precede a la siguiente tarea teórica registrada en Decision 003; no establece un nuevo modelo ni un resultado.
