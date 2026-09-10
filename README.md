@@ -30,6 +30,15 @@ Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a
 
 El principal objeto teórico de estudio es actualmente $\Delta_{\mathrm{learn}}(S_t,x_t)$, entendido de forma general como la reducción esperada del coste futuro acumulado inducida por la actualización del predictor barato. Este valor puede incluir pérdida predictiva y costes futuros de consulta; no representa exclusivamente una reducción del riesgo predictivo. Determinar cómo calcularlo o aproximarlo y si la política óptima puede reducirse a una regla interpretable de umbral son objetivos teóricos pendientes. No se ha establecido una regla de umbral cerrada.
 
+### Current research overview
+
+The following diagram summarizes the current interpretation of the problem,
+the neighboring research areas, and the candidate methodological gap.
+It is a working research overview and does not imply that novelty has been
+established.
+
+![Primary research overview](docs/graphics/primary_research_overview.png)
+
 ## Línea secundaria: Bayesian Cost-Aware Routing under Changing Operating Conditions
 
 Esta línea estudia modelos inicialmente fijos y separa explícitamente:
