@@ -1,0 +1,115 @@
+\section{Problem formulation}
+
+\subsection{Observations, predictors, and state}
+
+Let $x_t\in\mathcal{X}$ denote the observation at step $t$, and let
+$y_t\in\mathcal{Y}$ denote its target. The cheap adaptive predictor is
+$M_F(x_t;\theta_t)$, while $M_D(x_t)$ denotes the expensive teacher
+predictor. The routing action is $a_t\in\{F,D\}$, with prediction
+\begin{equation}
+  \widehat y_t =
+  \begin{cases}
+    M_F(x_t;\theta_t), & a_t=F,\\
+    M_D(x_t), & a_t=D.
+  \end{cases}
+\end{equation}
+Let $\ell(\widehat y_t,y_t)$ be a predictive loss. Write
+$C_D(S_t,x_t)\geq 0$ for the incremental cost of consulting $M_D$, expressed
+in units compatible with the loss; the incremental consultation cost of
+choosing $F$ is zero.
+
+The state $S_t=(\theta_t,\mathcal{I}_t)$ includes the cheap predictor's
+parameters and the information available before routing the current
+observation. The decision uses $(S_t,x_t)$. The information may retain the
+available history; no finite-dimensional sufficient state is asserted.
+The target is used to define risk, but its availability for adaptation is
+not assumed.
+
+Let $z_t^D$ denote information obtained by consulting $M_D$, including its
+prediction. A general update map permits
+\begin{equation}
+  \theta_{t+1}=U(\theta_t,\mathcal{I}_t,x_t,z_t^D)
+  \qquad\text{when }a_t=D.
+\end{equation}
+This map may leave the parameters unchanged. Information is subsequently
+incorporated into $\mathcal{I}_{t+1}$. Neither the update mechanism nor the
+feedback available under either action is specified at this stage.
+
+\subsection{Sequential objective and action values}
+
+For notation, consider a finite horizon $T$ and a discount factor
+$0\leq\gamma\leq 1$, with $\gamma=1$ giving the undiscounted objective.
+A policy $\pi$ selects actions using the available information. The
+conceptual objective is to minimize
+\begin{equation}
+  J(\pi)=\mathbb{E}_{\pi}\!\left[
+    \sum_{t=1}^{T}\gamma^{t-1}
+    \left\{\ell(\widehat y_t,y_t)
+      +\mathbf{1}_{\{a_t=D\}}C_D(S_t,x_t)\right\}
+  \right].
+\end{equation}
+The expectation is over observations, targets, and any randomness in
+prediction, routing, and updating. Their probabilistic specification
+remains open. Time and the remaining horizon can be included in
+$\mathcal{I}_t$.
+
+Define the current conditional predictive risks by
+\begin{align}
+  r_F(S_t,x_t)&=\mathbb{E}[\ell(M_F(x_t;\theta_t),y_t)\mid S_t,x_t],\\
+  r_D(S_t,x_t)&=\mathbb{E}[\ell(M_D(x_t),y_t)\mid S_t,x_t].
+\end{align}
+Let $V^*(S_{t+1},x_{t+1})$ denote the optimal remaining expected objective
+from the next observation, with continuation value zero after $T$.
+For a specified probabilistic model and state update, action values can
+be written formally as
+\begin{align}
+  Q_F(S_t,x_t)&=r_F(S_t,x_t)
+    +\gamma\mathbb{E}[V^*(S_{t+1},x_{t+1})\mid S_t,x_t,a_t=F],\\
+  Q_D(S_t,x_t)&=r_D(S_t,x_t)+C_D(S_t,x_t)\notag\\
+    &\quad+\gamma\mathbb{E}[V^*(S_{t+1},x_{t+1})\mid S_t,x_t,a_t=D].
+\end{align}
+These expressions specify an objective, not a tractable solution or an
+algorithm. The optimal choice is $D$ when
+\begin{equation}
+  Q_D(S_t,x_t)<Q_F(S_t,x_t).
+\end{equation}
+Ties do not impose a preference between the two actions.
+
+\subsection{Conceptual predictive and learning value}
+
+The current expected risk reduction is
+\begin{equation}
+  \Delta_{\mathrm{immediate}}=r_F(S_t,x_t)-r_D(S_t,x_t).
+\end{equation}
+Let $\Delta_{\mathrm{learning}}$ conceptually denote the expected reduction
+in future predictive risk caused by updating the cheap predictor using
+the consultation information. No closed-form expression or positive
+sign is assumed. The motivating comparison is
+\begin{equation}
+  \Delta_{\mathrm{immediate}}
+    +\gamma\Delta_{\mathrm{learning}}>C_D(S_t,x_t).
+\end{equation}
+This is a conceptual decomposition, not a theorem. In the action values
+above, the difference between continuation terms concerns the full future
+objective, including future consultation costs. Identifying that difference
+with a learning-induced reduction in predictive risk requires additional
+assumptions and an explicit accounting of future costs. Those conditions
+remain unresolved. No scalar routing threshold or sufficiency of the cheap
+predictor's confidence is asserted.
+
+\subsection{Open theoretical questions}
+
+\begin{enumerate}
+  \item Under what assumptions can $\Delta_{\mathrm{learning}}$ be computed
+    or approximated locally?
+  \item When can the optimal policy be reduced to an interpretable
+    decision rule?
+  \item What is the relationship with value of information, dual control,
+    active learning, knowledge distillation, learning to defer, and
+    contextual bandits?
+  \item Under what conditions is a myopic policy that ignores
+    $\Delta_{\mathrm{learning}}$ suboptimal?
+  \item Can bounds be obtained for approximations of future value?
+  \item What minimal family of models permits analytical results without
+    turning the problem into an intractable generic Markov decision process?
+\end{enumerate}
