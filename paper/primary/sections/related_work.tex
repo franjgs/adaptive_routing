@@ -1,7 +1,7 @@
 \section{Related work}
 
 This is a provisional conceptual organization, not a completed literature
-review or a claim of novelty. The consolidation checkpoint in Decision 005 motivates the following
+review or a claim of novelty. The consolidation checkpoint in Decision 006 motivates the following
 distinctions. Bibliographic coverage remains incomplete; the project
 inventory distinguishes local papers from verified BibTeX entries.
 
@@ -33,11 +33,37 @@ inventory distinguishes local papers from verified BibTeX entries.
     deferrals. Routing uses predicted teacher agreement/confidence and a
     parity constraint, without explicitly valuing the expected future
     surrogate improvement from the particular call.
-  \item \textbf{Online active learning, selective sampling, and abstention:}
-    the highest-priority unresolved threat to novelty. Querying may both
-    avoid current prediction loss and supply a label for learner updates.
-    Mathematical equivalence must be audited, including the feedback model
-    and the treatment of cumulative prediction loss and query cost.
+  \item \textbf{Noisy-oracle active learning:} Sogawa et al.
+    ~\cite{sogawa2013active} use pool-based expected-error-reduction with an
+    asymptotic expected estimation-error criterion under a noisy oracle.
+    Future learning value with noisy supervision is therefore not novel;
+    the query does not replace an operational response on the current sample.
+  \item \textbf{Selective sampling and interactive imitation learning:}
+    Sekhari et al.\ \cite{sekhari2023selective}, published at NeurIPS 2023,
+    combine noisy feedback, queried-sample online regression updates, and
+    regret/query-complexity guarantees. SAGE predicts before querying;
+    RAVIOLI executes the learner action and transitions before querying
+    expert feedback. Margin/uncertainty governs querying, without an explicit
+    prospective update-induced continuation-value term.
+  \item \textbf{Cumulative mistakes versus queries:} Hanneke and Yang
+    ~\cite{hanneke2021toward} study the optimal trade-off and information-seeking
+    strategies including PickyActive and PickySplitting. The main formulation
+    predicts before optionally querying a true label and is realizable.
+    It does not replace the current prediction. Selective sampling cannot
+    be characterized globally as myopic or as ignoring future learning.
+  \item \textbf{Stochastic and locally competent teachers:} Dekel et al.
+    ~\cite{dekel2012selective} study adaptive/adversarial instances, online
+    updates, explicit query cost, and single stochastic or multiple locally
+    competent teachers. Additional labels can be empirically detrimental;
+    their reported significance is limited to few-teacher scenarios.
+    Prediction precedes querying, which uses uncertainty/stability rather
+    than an explicit update-induced continuation-value difference.
+    Harmful supervision is not itself a novelty claim.
+  \item \textbf{Abstention with limited feedback:} the previously reviewed
+    Gangrade et al.\ \cite{gangrade2021online} receive labels only on
+    abstention and compare cumulative mistakes and excess abstentions.
+    This does not by itself establish an operational teacher response or an
+    explicit value of a particular learner update in the routing decision.
   \item \textbf{Dual control and sequential decision making:} actions
     with current and future effects. Generic computational difficulty
     does not establish novelty; a simpler rule exploiting routing structure
@@ -45,14 +71,16 @@ inventory distinguishes local papers from verified BibTeX entries.
 \end{itemize}
 
 These neighboring literatures motivate a more specific question: whether
-an operational routing decision can explicitly account for the future
+a routing decision before the final operational response can explicitly
+account for both its immediate predictive consequence and the future
 predictive/routing cost change of the cheap predictor induced by the same costly prediction
 used to solve the current instance. Any distinction from existing work
 remains subject to falsification. Computability, interpretability, and
 guarantees are objectives, not established contributions.
 
-The full review will be completed from the following project files once
-the references have been verified:
+Broad search is paused following the targeted audit. The exact operational
+and feedback protocol must be defined before mathematical development.
+The documented comparisons and bibliographic provenance are maintained in:
 \begin{quote}
 \texttt{docs/literature/primary\_novelty\_review.md}\\
 \texttt{references/bibliography.bib}

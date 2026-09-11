@@ -6,7 +6,11 @@ El documento matemático principal es `paper/primary/sections/problem_formulatio
 
 ## Evidencia e interpretación
 
-El estado vigente se registra en Decision 005 y `docs/literature/primary_novelty_review.md`. Future value por sí solo no es nuevo, y TRACER y ThriftyDAgger ya combinan servicio operacional actual con aprendizaje posterior. La cuestión PRIMARY es si la decisión de consulta valora explícitamente el cambio de coste futuro causado por actualizar el predictor barato con esa misma consulta. Online active learning / selective sampling / abstention es la amenaza pendiente prioritaria. Esta interpretación no establece novedad ni resultados teóricos; el feedback permanece abierto y el teacher es falible. Las ecuaciones siguientes conservan su carácter candidato.
+El estado vigente se registra en Decision 006 y `docs/literature/primary_novelty_review.md`. La auditoría dirigida de Sogawa, Sekhari et al., Hanneke & Yang y Dekel et al. confirma antecedentes de valor futuro de aprendizaje, ruido, consultas selectivas, compromisos errores/consultas, actualización online, múltiples experts locales y perjuicio empírico por información adicional. No se caracteriza selective sampling globalmente como myopic ni como ajeno al aprendizaje futuro.
+
+La conjunción candidata exige decisión antes de la respuesta final, sustitución operacional de F por D, actualización de F con esa misma respuesta, valoración de la consecuencia inmediata, valoración explícita de la diferencia de continuación causada por esa actualización particular, y teacher falible con valor de adaptación potencialmente negativo. No direct equivalent has yet been identified after targeted audit satisfying all six properties jointly; no se establece novedad.
+
+La búsqueda amplia queda pausada. El siguiente paso es definir el protocolo operacional/de feedback antes del desarrollo matemático. No se fijan la observación de ground truth, la definición exacta de Delta_adapt, U ni un modelo particular. Las ecuaciones siguientes conservan su carácter conceptual candidato y no se modifican en esta consolidación.
 
 ## Formulación candidata e hipótesis de trabajo
 
@@ -50,6 +54,8 @@ Una política escalar $s(x_t)<\tau$ exige supuestos estructurales adicionales. N
 Como posibilidades conceptuales, una muestra muy incierta puede tener poco valor futuro si su región apenas aparece después; otra moderadamente incierta puede tener mucho valor si representa una región de alta probabilidad futura. Por tanto, $\Delta_{\mathrm{learn}}$ puede depender de $x_t$, $S_t/\theta_t$, la distribución futura de entradas, el comportamiento y estructura de errores del teacher, $U$, el horizonte futuro efectivo y otras variables de estado. La existencia y la forma de un umbral son cuestiones teóricas abiertas.
 
 ## Programa teórico ordenado — resultados pendientes
+
+Programa condicionado a definir primero el protocolo operacional/de feedback (Decision 006); no constituye la siguiente acción inmediata. «Myopic» abajo designa la política candidata que omite el término de aprendizaje, no a la literatura de selective sampling.
 
 1. **Derivación secuencial.** Derivar rigurosamente la formulación y establecer bajo qué supuestos la comparación de acciones se descompone en valor predictivo inmediato más valor futuro de aprendizaje menos coste de consulta.
 2. **Familia mínima tratable.** Identificar una familia en la que $\Delta_{\mathrm{learn}}$ sea calculable exactamente o admita una aproximación analítica controlada. Posibilidades, sin seleccionar ninguna: clasificación/regresión lineal Bayesiana; regresión logística con actualización aproximada; otro aprendiz convexo con actualización analíticamente tratable. No se fija una distribución de incertidumbre.

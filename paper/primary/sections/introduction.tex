@@ -8,16 +8,29 @@ the cheap predictor's future competence.
 
 The provisional scientific question is: \emph{Given a cheap adaptive predictor
 and an expensive teacher predictor, how should a system decide whether to
-escalate the current sample when that same query can improve the current
+route before the final operational response, replacing the cheap prediction
+with the costly prediction, when that same query can improve the current
 operational prediction and provide information that updates the cheap
 predictor, changing future predictive and routing cost?}
 
-Novelty relative to the state of the art remains under review. A literature
-review explicitly aimed at falsifying novelty must precede algorithm
-implementation and experimental work.
+The targeted selective-sampling and noisy-expert audit is complete, without
+establishing novelty. Broad literature search is paused. The next step is to
+define the exact operational and feedback protocol before developing a
+mathematical model or proceeding to algorithms and experiments.
 
 The dual use of a teacher query for the current task and subsequent learning
 is not itself a novelty claim. The unresolved question is whether the routing
 decision explicitly values the future effect caused by that learner update.
 The feedback protocol remains open, and teacher-induced updates may harm the
 cheap predictor; their future value is not assumed nonnegative.
+
+Expected future learning value, fallible supervision, mistake--query
+trade-offs, online updates, and multiple locally competent teachers have
+prior precedents. Selective sampling must not be characterized globally as
+myopic. The candidate conjunction requires routing before the final response,
+operational replacement of F by D, updating F with that same response,
+valuation of the immediate predictive consequence, explicit valuation of the
+continuation-value change caused by that particular update, and allowance
+for fallible D and potentially negative adaptation value. No direct equivalent
+has yet been identified after targeted audit satisfying all six properties
+jointly; this is not a proof of novelty.

@@ -1,6 +1,6 @@
 # Research log
 
-Las decisiones anteriores conservan su contexto histórico. Decision 005 establece el estado científico vigente y sustituye las formulaciones de novedad más amplias de Decisions 003–004.
+Las decisiones anteriores conservan su contexto histórico. Decision 006 establece el estado científico vigente. Decisions 003–005 conservan el alcance y las prioridades de sus respectivos checkpoints, ahora refinados por la auditoría dirigida.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -86,3 +86,28 @@ No se reivindicará novedad para teacher/student routing, costly deferral, entre
 La principal amenaza pendiente de falsación es **online active learning / selective sampling / abstention**: observar $x_t$; predecir autónomamente o consultar a un oráculo con coste; la consulta evita/reduce pérdida actual y proporciona una etiqueta que actualiza al aprendiz; optimizar pérdida predictiva acumulada más coste de consulta. Puede contener un problema matemáticamente equivalente y debe auditarse antes de afirmar novedad. El PDF local de *Online Selective Classification with Limited Feedback* es un punto de partida pendiente de auditoría, no una equivalencia establecida.
 
 El modelo de feedback sigue sin decidirse: $Y_t$ nunca observado, observado con retraso/ocasionalmente o siempre observado. Esta elección es científicamente decisiva y no se fija en este checkpoint. El teacher puede equivocarse; su actualización puede perjudicar al student y $\Delta_{\mathrm{adapt}}$ NO se supone no negativo. No se modifican los supuestos ni las ecuaciones del manuscrito. La siguiente fase prioriza la falsación bibliográfica; el protocolo deberá fijarse antes de continuar el desarrollo matemático.
+
+## Decision 006 — Targeted selective-sampling audit completed
+
+Fecha: 2026-09-11.
+
+La auditoría dirigida cubrió Sogawa et al. (2013), Sekhari et al. (2023), Hanneke & Yang (2021) y Dekel et al. (2012), además de Gangrade (2021), TRACER y ThriftyDAgger previamente revisados. Los cuatro nuevos PDFs están presentes e identificados en el inventario. Sekhari et al. se registra como NeurIPS 2023, volumen 36, Main Conference Track, según los metadatos verificados aportados por el investigador; su copia local es la versión arXiv de julio de 2023. No se presenta esa copia como PDF oficial de proceedings.
+
+Los siguientes componentes ya están ocupados y no pueden reivindicarse como novedosos individualmente: valor esperado del aprendizaje futuro; supervisión ruidosa/falible; consulta selectiva; compromiso errores/consultas; actualización online del aprendiz con feedback consultado; múltiples expertos con experiencia local; coste de consulta; e información adicional de teachers empíricamente perjudicial.
+
+Sogawa establece valor de aprendizaje bajo oráculo ruidoso mediante expected-error-reduction pool-based y un criterio asintótico de error esperado de estimación, sin sustitución operacional actual. Sekhari combina feedback experto ruidoso, actualización online y garantías de regret/consultas, pero SAGE predice antes de consultar y RAVIOLI ejecuta la acción y transiciona antes del feedback. Hanneke & Yang estudian el compromiso acumulado errores/consultas con búsqueda de información no trivial, bajo un protocolo predict-first y etiquetas perfectas en la formulación realizable principal. Dekel estudia teachers estocásticos y múltiples expertos locales, coste de consulta y actualización online, e informa perjuicio por más etiquetas en sus experimentos; también predice antes de consultar y usa incertidumbre/estabilidad, no una diferencia explícita de continuación por actualización. El perjuicio observado no equivale a un valor negativo de adaptación explícitamente modelado en la consulta.
+
+Selective sampling no debe describirse globalmente como myopic. Varios métodos consultan deliberadamente para obtener información que mejora decisiones futuras. Se separan (A) el aprendizaje futuro como consecuencia buscada, (B) la exploración o carácter globalmente no myopic de la política y (C) la valoración explícita en la decisión operacional actual de la consecuencia futura esperada de la actualización específica inducida por esa consulta.
+
+La hipótesis candidata vigente es la conjunción de:
+
+1. Decisión de routing antes de la respuesta operacional final.
+2. El predictor costoso D reemplaza operacionalmente a F en la muestra actual.
+3. La misma respuesta de D actualiza F.
+4. La política valora la consecuencia predictiva inmediata.
+5. La política valora explícitamente el cambio de valor de continuación futuro causado por esa actualización particular.
+6. D puede ser falible; por tanto, el valor de adaptación puede ser negativo.
+
+**No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Esto NO prueba novedad ni autoriza afirmar «No prior method exists». Tampoco convierte la descomposición candidata en un teorema.
+
+La búsqueda bibliográfica amplia queda **pausada**. El siguiente paso es definir el protocolo operacional/de feedback exacto antes de desarrollar un modelo matemático. No se decide todavía cómo se observa ground truth, la definición exacta de Delta_adapt, la regla U ni un modelo específico como RLS o regresión logística Bayesiana. Las ecuaciones conceptuales existentes se conservan, sin nuevos supuestos ni resultados.
