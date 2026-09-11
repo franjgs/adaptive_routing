@@ -14,14 +14,17 @@ operational prediction and provide information that updates the cheap
 predictor, changing future predictive and routing cost?}
 
 The targeted selective-sampling and noisy-expert audit is complete, without
-establishing novelty. Broad literature search is paused. The next step is to
-define the exact operational and feedback protocol before developing a
-mathematical model or proceeding to algorithms and experiments.
+establishing novelty. Broad literature search is paused. The adopted protocol provides reliable
+ground truth after a fixed, routing-independent delay. The same teacher
+output replaces the cheap response and immediately pseudo-updates the cheap
+predictor; the later target can provide correction. Querying buys early
+imperfect supervision, not ground truth. A minimal vector linear analysis
+is preliminary; evolving counterfactual trajectories remain the next problem.
 
 The dual use of a teacher query for the current task and subsequent learning
 is not itself a novelty claim. The unresolved question is whether the routing
 decision explicitly values the future effect caused by that learner update.
-The feedback protocol remains open, and teacher-induced updates may harm the
+The reliable correction rule remains open, and teacher-induced updates may harm the
 cheap predictor; their future value is not assumed nonnegative.
 
 Expected future learning value, fallible supervision, mistake--query

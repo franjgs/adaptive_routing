@@ -1,6 +1,6 @@
 # Primary novelty review
 
-Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing with Learning Value**. Estado vigente: Decision 006 (2026-09-11), targeted selective-sampling audit completed. La búsqueda bibliográfica amplia queda pausada; el siguiente paso es definir el protocolo operacional/de feedback antes de desarrollar un modelo matemático. La hipótesis amplia original ya no es defendible. La línea permanece activa; su novedad no está establecida.
+Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing with Learning Value**. Estado vigente: Decision 007 (2026-09-11), delayed reliable feedback and geometric adaptation value. La auditoría dirigida de Decision 006 mantiene su alcance y la búsqueda amplia sigue pausada. El protocolo retrasado ya está fijado; el siguiente problema es la evolución contrafactual durante el retardo. La hipótesis amplia original ya no es defendible. La línea permanece activa; su novedad no está establecida.
 
 ## Evidencia comunicada de la segunda revisión
 
@@ -51,7 +51,7 @@ query D iff
 Delta_now(S_t,x_t) + gamma Delta_adapt(S_t,x_t) > C_D
 ```
 
-`Delta_now` y `Delta_adapt` corresponden a `Delta_pred` y `Delta_learn` en las notas y el manuscrito. `Delta_adapt` es una diferencia de valor de continuación causada por actualizar el predictor barato; puede incluir pérdida predictiva y costes futuros de routing. Se conserva la dependencia contextual del coste de consulta de la formulación existente. Esta descomposición es un **resultado estructural candidato, NO un teorema**; su identificación con la comparación general de valores de acción requiere las justificaciones pendientes ya descritas en el documento matemático.
+La notación vigente usa `Delta_now` para la ganancia inmediata y `Delta_adapt` para el valor acumulado/secuencial con horizonte y origen de descuento explícitos. Los antiguos `Delta_pred` y `Delta_learn` son nombres históricos, no símbolos alternativos vigentes. `Delta_R` designa exclusivamente la diferencia de riesgo poblacional tras una pseudoactualización en el modelo lineal de Decision 007. No se identifica con toda la continuación del sistema: ésta puede incluir cambios de routing y costes futuros. La comparación secuencial general sigue siendo estructural; el resultado algebraico exacto para `Delta_R` no la convierte en una política computable ni en un teorema de optimalidad.
 
 La hipótesis restante exige que la decisión de routing **valore explícitamente ambos efectos de la misma consulta**. No basta con que el sistema use esa consulta para predecir y aprender: ThriftyDAgger y TRACER ya impiden atribuir novedad a esa arquitectura general.
 
@@ -119,7 +119,7 @@ La matriz separa temporalidad, sustitución operacional, aprendizaje y valoraci�
 | Gangrade et al. 2021 | Abstención antes del feedback | Abstención sin error; no especifica respuesta de D | Sí, feedback al abstenerse | Errores/abstenciones; no diferencia de riesgo F/D explícita establecida | No término C establecido en revisión documentada | Etiqueta verdadera al abstenerse | ND | Errores y exceso de abstenciones | ND |
 | ThriftyDAgger 2021 | Sí, gating antes del control | Sí, intervención humana | Sí, demostraciones | Riesgo/novedad; no comparación explícita de riesgo F/D establecida | No explícito para la intervención particular | ND | ND | Presupuesto/carga de intervención | ND |
 | TRACER 2026 | Sí | Sí | Sí, trazas | Acuerdo/confianza y paridad; no diferencia de riesgo F/D explícita | No explícito para la consulta particular | Sí, ruido de etiquetas del teacher documentado | ND | Coste de llamadas y paridad; no equiparar a regret acumulado | ND |
-| PRIMARY candidata | Sí, requisito | Sí, requisito | Sí, requisito | Sí, consecuencia inmediata | Sí, diferencia de continuación de esa actualización | Sí | Signo no restringido; modelo exacto pendiente | Coste predictivo/de consulta secuencial candidato | Dos predictores; múltiples experts no fijados |
+| PRIMARY candidata | Sí, requisito | Sí, requisito | Sí, pseudo-update inmediato | Sí, Delta_now | Requisito secuencial; horizonte completo pendiente | Sí | Delta_R exacto del modelo mínimo admite signo negativo; continuación pendiente | Pérdida operacional y coste; aislamiento no resuelve el objetivo | Dos predictores; múltiples experts no fijados |
 
 Las familias generales (sequential L2D, information-directed routing, active knowledge distillation y dual control/POMDP) conservan las cautelas descritas arriba: no se les asigna un «no» universal por falta de una comparación individual en esta tabla. La representabilidad en un marco secuencial general no demuestra novedad.
 
@@ -142,11 +142,25 @@ Esta conclusión describe el alcance de Decision 006. Ninguno de los componentes
 
 The novelty hypothesis has been further narrowed after a targeted audit of online selective sampling, noisy-oracle active learning, and interactive imitation learning. Expected future model improvement under noisy supervision, cumulative mistake-query trade-offs, selective querying with noisy expert feedback, online learner updates, and multiple locally competent teachers are all established independently in prior work. The remaining candidate problem is more specific: a routing decision made before the final operational response, where choosing a costly predictor both replaces the cheap prediction on the current sample and produces supervision that changes the cheap predictor, while the policy explicitly values both the immediate inference consequence and the continuation-value change caused by that update. The expensive predictor may be fallible, so the adaptation value is not assumed nonnegative. No direct equivalent satisfying all of these properties jointly has yet been identified after targeted audit; this remains a candidate novelty region rather than an established novelty claim.
 
-## Protocolo pendiente y pausa de búsqueda amplia
+## Protocolo consolidado y pausa de búsqueda amplia
 
-La auditoría dirigida queda cerrada; la búsqueda bibliográfica amplia se pausa. El siguiente paso es definir el protocolo operacional/de feedback exacto antes de desarrollar un modelo matemático. Esto no certifica exhaustividad bibliográfica ni resuelve toda posible equivalencia con abstención. Gangrade (2021) permanece en la comparación como antecedente de abstención con feedback limitado, sin atribuirle una respuesta operacional de teacher ni una valoración específica de actualización no establecidas en la revisión.
+La auditoría dirigida queda cerrada; la búsqueda bibliográfica amplia se pausa. Decision 007 adopta ground truth fiable retrasado, exógeno e independiente de routing, y el modelo lineal mínimo para una pseudoactualización. Esto no certifica exhaustividad bibliográfica ni resuelve toda posible equivalencia con abstención. Gangrade (2021) permanece en la comparación como antecedente de abstención con feedback limitado, sin atribuirle una respuesta operacional de teacher ni una valoración específica de actualización no establecidas en la revisión.
 
-El feedback de $Y_t$ sigue abierto: nunca observado, retrasado/ocasional o siempre observado. No se fijan aún la definición exacta de `Delta_adapt`, el operador `U` ni una familia como RLS o regresión logística Bayesiana. El teacher es falible y actualizar con su respuesta puede perjudicar al student. Las ecuaciones existentes son conceptuales y la descomposición candidata no es un teorema.
+El predictor D sustituye operacionalmente a F y su misma salida se usa como pseudo-supervisión inmediata. Y_t llega con retardo fijo tau bajo ambas acciones; puede corregir F después. La consulta compra supervisión anticipada imperfecta, no ground truth. Se comienza con hard labels; en la especialización de regresión se usan respuestas escalares puntuales. Logits, confianza y feedback ocasional quedan como extensiones. La regla concreta de corrección fiable y la evolución secuencial acumulada siguen abiertas.
+
+### Geometría de adaptación: alcance y cautela bibliográfica
+
+El modelo mínimo da un resultado algebraico exacto para `Delta_R`, el cambio de riesgo poblacional barato tras una pseudoactualización. `Delta_now` mide calidad local de la respuesta y `Delta_R` su valor de entrenamiento; no son equivalentes. Bajo M=cI y 0<eta||x||^2<=1, superioridad inmediata implica adaptación positiva. Si M es definida positiva pero no cI, existen configuraciones de conflicto geométrico para pasos arbitrariamente pequeños. No se afirma que toda consulta anisotrópica sea perjudicial, ni que la identidad de una actualización resuelva la política secuencial.
+
+**Gradient alignment, influence functions y data valuation ya contienen el desalineamiento posible entre el gradiente individual y el poblacional. No se reivindica ese hecho general ni el perjuicio de una actualización como novedad.** Es una cautela de alcance, no el resultado de una nueva auditoría bibliográfica. TODO: incorporar citas específicas sólo tras disponer de referencias y metadata verificadas; no se inventan entradas BibTeX ni se amplía ahora la búsqueda.
+
+La región candidata sigue siendo la conjunción de seis propiedades registrada arriba. Wording vigente recomendado:
+
+> No direct antecedent was identified in the targeted review that jointly models the immediate operational value of routing to an expensive predictor and the future population-risk effect of updating the cheap predictor with that same routed output.
+
+Esta frase describe sólo lo identificado en la revisión dirigida; no demuestra novedad ni ausencia de trabajos equivalentes. Selective sampling y active learning pueden ser exploratorios y no-myopic; la distinción no consiste en negar esos efectos.
+
+La prioridad matemática es eliminar el aislamiento `Delta_adapt^(H)=B_H Delta_R` y calcular las trayectorias contrafactuales durante tau pasos con updates intermedios. La suma de riesgos poblacionales baratos, la ganancia inmediata y el objetivo total pérdida más coste de routing se mantienen separados. No se afirman regret bounds.
 
 ## Otros documentos locales
 
@@ -154,6 +168,6 @@ El feedback de $Y_t$ sigue abierto: nunca observado, retrasado/ocasional o siemp
 
 ## Resultados pendientes de demostrar
 
-El objetivo de investigación es pasar de un principio general de decisión secuencial/VoI, mediante la estructura particular del routing predictivo adaptativo, a una regla computable e interpretable con garantías. Es un objetivo, no una contribución establecida. Debe determinarse si esa estructura permite una regla analítica o aproximadamente analítica más sencilla; ni la existencia de un umbral ni las garantías están demostradas.
+El objetivo de investigación es pasar de un principio general de decisión secuencial/VoI, mediante la estructura particular del routing predictivo adaptativo, a una regla computable e interpretable con garantías. Es un objetivo, no una contribución establecida. Debe determinarse si esa estructura permite una regla analítica o aproximadamente analítica más sencilla; no se ha demostrado una regla de umbral computable ni garantías de la política secuencial; las pruebas de Decision 007 son resultados algebraicos del modelo mínimo.
 
-El contraste dirigido de los seis requisitos queda documentado arriba, sin establecer novedad. La búsqueda amplia queda pausada y la prioridad inmediata es precisar el protocolo; el programa teórico sólo podrá retomarse después. Si no se identifica una diferencia metodológica defendible, se reconsiderará la formulación antes de implementar algoritmos o invertir esfuerzo experimental. La revisión narrativa del paper sólo se completará con referencias verificadas.
+El contraste dirigido de los seis requisitos queda documentado arriba, sin establecer novedad. La búsqueda amplia queda pausada. Tras fijar el protocolo y derivar el valor de una pseudoactualización en Decision 007, la prioridad inmediata es calcular el valor contrafactual acumulado con evolución intermedia. Si no se identifica una diferencia metodológica defendible, se reconsiderará la formulación antes de implementar algoritmos o invertir esfuerzo experimental. La revisión narrativa del paper sólo se completará con referencias verificadas.

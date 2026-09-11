@@ -1,2 +1,432 @@
 \section{Theoretical analysis}
-% TODO: Add results only after the novelty review and theoretical derivation.
+
+\newtheorem{adaptationlemma}[theorem]{Lemma candidate}
+\newtheorem{adaptationproposition}[theorem]{Proposition candidate}
+
+\subsection{Minimal vector linear specialization}
+
+The following results characterize the immediate and adaptation effects of
+a single teacher-induced update. They have explicit algebraic proofs, but
+remain preliminary with respect to the complete delayed-feedback system and
+do not constitute novelty claims or sequential optimality guarantees.
+
+Under squared loss, consider
+\begin{align}
+    Y &= (w^*)^\top X + \epsilon,
+    &
+    F_\theta(x) &= \theta^\top x,
+    \\
+    D(x) &= (w^*+b)^\top x + \nu,
+    &
+    e &= \theta-w^*,
+    \\
+    M &= \mathbb E[XX^\top] \succ 0,
+    &
+    \alpha &= x^\top e,
+    \qquad
+    \beta = x^\top b .
+\end{align}
+The matrix $M$ is the second-moment matrix of the future input distribution
+and need not be a centered covariance matrix.
+
+The teacher noise satisfies, conditionally on the current input,
+\begin{equation}
+    \mathbb E[\nu\mid x]=0,
+    \qquad
+    \mathbb E[\nu^2\mid x]=\sigma_D^2.
+\end{equation}
+For the current task-loss comparison, we also assume
+\begin{equation}
+    \mathbb E[\epsilon\mid x]=0,
+    \qquad
+    \mathbb E[\epsilon\nu\mid x]=0,
+\end{equation}
+with finite second moments. These are assumptions of the present
+specialization rather than consequences of marginal noise moments. No
+Gaussian distribution or full independence assumption is required.
+
+Holding the parameters and the pre-query state fixed, the expected
+immediate gain from replacing the cheap response by the teacher response is
+\begin{equation}
+    \Delta_{\mathrm{now}}(x)
+    = \alpha^2-\beta^2-\sigma_D^2,
+    \label{eq:immediate-gain}
+\end{equation}
+where the common irreducible task-noise contribution cancels.
+
+The population excess-risk component of the cheap predictor is
+\begin{equation}
+    R(e)=e^\top M e.
+    \label{eq:population-risk}
+\end{equation}
+This quantity is not the total system objective: it excludes routing costs,
+future operational decisions, and irreducible task noise.
+
+When the teacher is queried, its same operational response is used as an
+immediate pseudo-target:
+\begin{align}
+    \theta^+
+    &= \theta+\eta x\bigl(D(x)-\theta^\top x\bigr),
+    \\
+    e^+
+    &= e-\eta x(\alpha-\beta)+\eta x\nu,
+    \qquad \eta>0.
+    \label{eq:error-update}
+\end{align}
+
+\begin{adaptationlemma}[Exact single-update adaptation value]
+Under the conditional teacher-noise assumptions above,
+\begin{align}
+    \Delta_R(x)
+    &:= R(e)-\mathbb E[R(e^+)\mid x]
+    \notag\\
+    &= 2\eta(\alpha-\beta)x^\top M e
+    -\eta^2
+    \bigl[(\alpha-\beta)^2+\sigma_D^2\bigr]
+    x^\top Mx .
+    \label{eq:exact-adaptation}
+\end{align}
+\end{adaptationlemma}
+
+\begin{proof}
+Let $d=\alpha-\beta$. From~\eqref{eq:error-update},
+\begin{equation}
+    e^+=e+\eta x(\nu-d).
+\end{equation}
+Expanding the quadratic risk gives
+\begin{equation}
+    R(e^+)
+    =
+    R(e)
+    +2\eta(\nu-d)x^\top Me
+    +\eta^2(\nu-d)^2x^\top Mx.
+\end{equation}
+Conditioning on $x$,
+\begin{equation}
+    \mathbb E[\nu-d\mid x]=-d,
+    \qquad
+    \mathbb E[(\nu-d)^2\mid x]=d^2+\sigma_D^2.
+\end{equation}
+Taking expectations and subtracting the result from $R(e)$ yields
+\eqref{eq:exact-adaptation}.
+\end{proof}
+
+Equation~\eqref{eq:exact-adaptation} is the central algebraic result of the
+minimal model. The two quantities
+$\Delta_{\mathrm{now}}$ and $\Delta_R$ describe different effects of the
+same routing action. The former measures the expected quality gain of the
+current operational response, whereas the latter measures the expected
+change in the future population risk of the cheap predictor induced by
+training on that response.
+
+Since
+\begin{equation}
+    \nabla R(e)=2Me,
+    \qquad
+    x^\top Me=\frac{1}{2}x^\top\nabla R(e),
+\end{equation}
+the first-order adaptation effect for small $\eta$ is governed by
+\begin{equation}
+    (\alpha-\beta)x^\top Me.
+    \label{eq:geometric-factor}
+\end{equation}
+Thus, local teacher quality and training value are not equivalent: a teacher
+response can improve the current prediction while inducing an update that
+increases population risk, or conversely.
+
+\subsection{Compatibility under isotropic risk geometry}
+
+The first result identifies a setting in which immediate superiority and
+positive adaptation value cannot conflict under a conservative update.
+
+\begin{adaptationproposition}[Isotropic compatibility]
+Suppose $M=cI$ with $c>0$ and define
+\begin{equation}
+    a:=\eta\|x\|^2.
+\end{equation}
+If
+\begin{equation}
+    0<a\leq1
+    \qquad\text{and}\qquad
+    \Delta_{\mathrm{now}}>0,
+\end{equation}
+then
+\begin{equation}
+    \Delta_R>0.
+\end{equation}
+\end{adaptationproposition}
+
+\begin{proof}
+From $\Delta_{\mathrm{now}}>0$,
+\begin{equation}
+    \sigma_D^2<\alpha^2-\beta^2.
+    \label{eq:teacher-better-condition}
+\end{equation}
+In particular, $|\alpha|>|\beta|$, which implies
+\begin{equation}
+    \alpha(\alpha-\beta)>0.
+\end{equation}
+Under $M=cI$, equation~\eqref{eq:exact-adaptation} becomes
+\begin{equation}
+    \Delta_R
+    =
+    c\eta
+    \left[
+        2\alpha(\alpha-\beta)
+        -a\bigl\{(\alpha-\beta)^2+\sigma_D^2\bigr\}
+    \right].
+\end{equation}
+Using~\eqref{eq:teacher-better-condition},
+\begin{align}
+    (\alpha-\beta)^2+\sigma_D^2
+    &<
+    (\alpha-\beta)^2+\alpha^2-\beta^2
+    \notag\\
+    &=
+    2\alpha(\alpha-\beta).
+\end{align}
+Since $a>0$,
+\begin{align}
+    \Delta_R
+    &>
+    2c\eta\alpha(\alpha-\beta)(1-a).
+    \label{eq:isotropic-bound}
+\end{align}
+For $0<a<1$, the right-hand side is strictly positive because
+$\alpha(\alpha-\beta)>0$. For $a=1$, the strict inequality in
+\eqref{eq:isotropic-bound} directly gives $\Delta_R>0$.
+\end{proof}
+
+The condition $0<a\leq1$ will be referred to as the conservative
+no-overshoot regime. For a repeated fixed input, the noiseless residual
+multiplier is $1-a$, whose magnitude is below one for $0<a<2$.
+The interval $1<a<2$ is therefore locally stable in this restricted sense,
+but permits overshoot. Such local stability does not imply a decrease in
+population risk in the presence of noise, anisotropic risk geometry, or
+changing inputs. The compatibility result above is therefore not extended
+to the entire interval $0<a<2$.
+
+\subsection{Geometric conflict under anisotropic risk}
+
+The isotropic result does not extend universally to anisotropic
+second-moment matrices.
+
+\begin{theorem}[Anisotropic conflict; preliminary]
+Let $M\succ0$ be symmetric and not proportional to the identity. Then there
+exist $x$ and $e$, together with a noisy teacher unbiased with respect to
+the conditional mean
+\begin{equation}
+    b=0,
+    \qquad
+    0<\sigma_D^2<\alpha^2,
+\end{equation}
+such that
+\begin{equation}
+    \Delta_{\mathrm{now}}>0
+    \qquad\text{and}\qquad
+    \Delta_R<0
+\end{equation}
+for every $\eta>0$.
+\end{theorem}
+
+\begin{proof}
+Because $M$ is not proportional to the identity, there exists a nonzero
+$x$ that is not an eigenvector of $M$. Hence $x$ and $Mx$ are not
+collinear, and strict Cauchy--Schwarz gives
+\begin{equation}
+    (x^\top Mx)^2
+    <
+    \|x\|^2\|Mx\|^2.
+\end{equation}
+Since $x^\top Mx>0$, the interval
+\begin{equation}
+    \frac{x^\top Mx}{\|Mx\|^2}
+    <
+    k
+    <
+    \frac{\|x\|^2}{x^\top Mx}
+    \label{eq:k-interval}
+\end{equation}
+is nonempty.
+
+Choose any $k$ satisfying~\eqref{eq:k-interval} and set
+\begin{equation}
+    e=x-kMx.
+\end{equation}
+Then
+\begin{align}
+    \alpha=x^\top e
+    &=\|x\|^2-kx^\top Mx>0,
+    \\
+    x^\top Me
+    &=x^\top Mx-k\|Mx\|^2<0.
+\end{align}
+Now take $b=0$, so that $\beta=0$, and choose
+\begin{equation}
+    0<\sigma_D^2<\alpha^2.
+\end{equation}
+Equation~\eqref{eq:immediate-gain} then gives
+\begin{equation}
+    \Delta_{\mathrm{now}}
+    =\alpha^2-\sigma_D^2>0.
+\end{equation}
+On the other hand,
+\begin{equation}
+    \Delta_R
+    =
+    2\eta\alpha x^\top Me
+    -
+    \eta^2(\alpha^2+\sigma_D^2)x^\top Mx.
+\end{equation}
+The first term is strictly negative because
+$\alpha>0$ and $x^\top Me<0$, while the second is strictly negative because
+$M\succ0$ and $\eta>0$. Therefore
+\begin{equation}
+    \Delta_R<0
+\end{equation}
+for every $\eta>0$.
+\end{proof}
+
+The theorem is an existence result. It does not state that every query under
+anisotropic risk geometry exhibits a conflict. Rather, isotropy guarantees
+compatibility in the conservative regime, whereas anisotropy permits
+configurations in which a teacher that improves the current expected
+prediction induces a population-risk-increasing update, even for
+arbitrarily small step sizes.
+
+The construction is algebraic and does not imply that the conflicting
+inputs have positive probability under every distribution sharing the same
+second-moment matrix $M$. Establishing distributional conditions under which
+such conflict occurs with nonzero probability is outside the present
+single-update analysis.
+
+Neither harmful updates nor gradient misalignment by themselves are claimed
+as novel contributions. Their relevance here is that they can alter the
+value of an operational routing decision when the same costly response is
+also used to adapt the cheap predictor.
+
+\subsection{Isolated-horizon routing comparison}
+
+A purely myopic routing rule queries the costly predictor whenever
+\begin{equation}
+    \Delta_{\mathrm{now}}>C_D.
+    \label{eq:myopic-rule}
+\end{equation}
+
+To expose the possible consequence of adaptation without yet solving the
+full delayed-feedback problem, consider an idealized isolated horizon.
+Suppose that the only future difference caused by the current routing
+decision is a constant population-risk gap $\Delta_R$ over the next $H$
+pre-feedback responses. Assume, in particular, no intervening updates and
+no action-dependent differences in subsequent routing costs.
+
+With discount factor $\gamma$, define
+\begin{equation}
+    B_H=\sum_{k=1}^{H}\gamma^k.
+\end{equation}
+Under these assumptions, the accumulated adaptation value is
+\begin{equation}
+    \Delta_{\mathrm{adapt}}^{(H)}
+    =B_H\Delta_R,
+\end{equation}
+and the corresponding future-aware comparison becomes
+\begin{equation}
+    \Delta_{\mathrm{now}}+B_H\Delta_R>C_D.
+    \label{eq:isolated-rule}
+\end{equation}
+
+This criterion is an analytical device rather than a solution of the
+delayed-feedback objective. In particular, it does not assume that the
+first reliable correction necessarily erases the difference between the
+two routing histories, nor that all effects disappear after feedback
+arrives.
+
+\paragraph{Isolated over-querying.}
+Consider a configuration satisfying
+\begin{equation}
+    \Delta_{\mathrm{now}}>0,
+    \qquad
+    \Delta_R<0,
+    \qquad
+    B_H>0.
+\end{equation}
+For any nonnegative cost satisfying
+\begin{equation}
+    \max\{0,\Delta_{\mathrm{now}}+B_H\Delta_R\}
+    <
+    C_D
+    <
+    \Delta_{\mathrm{now}},
+    \label{eq:over-querying-cost}
+\end{equation}
+the myopic rule~\eqref{eq:myopic-rule} queries the teacher whereas the
+isolated-horizon rule~\eqref{eq:isolated-rule} does not. The interval in
+\eqref{eq:over-querying-cost} is nonempty because
+$\Delta_{\mathrm{now}}>0$ and $\Delta_R<0$.
+
+This is an existence result for suitable routing costs under the isolated
+comparison, not a statement about every cost or about the optimal sequential
+policy.
+
+Conversely, isolated under-querying occurs whenever
+\begin{equation}
+    \Delta_{\mathrm{now}}
+    <
+    C_D
+    <
+    \Delta_{\mathrm{now}}+B_H\Delta_R.
+\end{equation}
+This requires $\Delta_R>0$ and can already occur in the scalar model.
+Under-querying and over-querying are therefore distinct mechanisms and are
+not asserted here as a single general sequential theorem.
+
+\subsection{Open problem: counterfactual evolution during delayed feedback}
+
+The isolated-horizon approximation suppresses the central sequential
+difficulty: after the initial routing decision, the two systems may undergo
+different intermediate updates and routing decisions before the reliable
+target $Y_t$ becomes available.
+
+Starting from the same pre-query state, let $e_{t+k}^{F}$ and
+$e_{t+k}^{D}$ denote the cheap-predictor errors under the two
+counterfactual histories generated by the initial choices $F$ and $D$,
+respectively. Intervening updates and delayed reliable feedback from earlier
+samples are allowed.
+
+A natural population-risk component of the accumulated adaptation value is
+\begin{equation}
+    \Delta_{\mathrm{adapt}}^{(\tau)}
+    =
+    \sum_{k=1}^{\tau}
+    \gamma^{k-1}
+    \mathbb E\!\left[
+        (e_{t+k}^{F})^\top M e_{t+k}^{F}
+        -
+        (e_{t+k}^{D})^\top M e_{t+k}^{D}
+    \right].
+    \label{eq:counterfactual-adaptation}
+\end{equation}
+The discount origin in~\eqref{eq:counterfactual-adaptation} is the first
+future response. Hence its contribution measured from the current round is
+\begin{equation}
+    \gamma\Delta_{\mathrm{adapt}}^{(\tau)}.
+\end{equation}
+Under the isolated assumptions with $H=\tau$, this reduces to
+\begin{equation}
+    \gamma\Delta_{\mathrm{adapt}}^{(\tau)}
+    =
+    B_H\Delta_R.
+\end{equation}
+For $\gamma=0$, future adaptation has zero weight in the current objective.
+
+Equation~\eqref{eq:counterfactual-adaptation} does not yet solve the
+sequential routing problem. The correction dynamics, intermediate update
+rules, and continuation policies must be specified before the two
+counterfactual trajectories can be evaluated. Moreover, the expression
+captures only differences in the cheap predictor's population risk; the
+complete continuation-value difference must also include future operational
+responses and consultation costs.
+
+No regret bound, closed-form solution of the counterfactual trajectories,
+or optimality claim for the full delayed-feedback policy is made at this
+stage.

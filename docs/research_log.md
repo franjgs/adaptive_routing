@@ -1,6 +1,6 @@
 # Research log
 
-Las decisiones anteriores conservan su contexto histórico. Decision 006 establece el estado científico vigente. Decisions 003–005 conservan el alcance y las prioridades de sus respectivos checkpoints, ahora refinados por la auditoría dirigida.
+Decision 007 establece el estado científico vigente. Las decisiones anteriores conservan su contexto histórico; la auditoría y las cautelas de Decision 006 siguen vigentes, mientras su prioridad protocolaria queda atendida por Decision 007.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -111,3 +111,112 @@ La hipótesis candidata vigente es la conjunción de:
 **No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Esto NO prueba novedad ni autoriza afirmar «No prior method exists». Tampoco convierte la descomposición candidata en un teorema.
 
 La búsqueda bibliográfica amplia queda **pausada**. El siguiente paso es definir el protocolo operacional/de feedback exacto antes de desarrollar un modelo matemático. No se decide todavía cómo se observa ground truth, la definición exacta de Delta_adapt, la regla U ni un modelo específico como RLS o regresión logística Bayesiana. Las ecuaciones conceptuales existentes se conservan, sin nuevos supuestos ni resultados.
+
+## Decision 007 — Delayed reliable feedback and geometric adaptation value
+
+Fecha: 2026-09-11.
+
+### A. Protocolo operacional base
+
+Se adopta F_theta barato y adaptativo, D caro y falible, y routing antes de emitir la respuesta final. Si se elige D, sustituye operacionalmente a F; la misma salida realizada Z_t=D(x_t) se usa como pseudo-supervisión inmediata de F. Y_t llega tras un retardo fijo tau de forma exógena e independiente de la acción de routing y puede usarse después para corregir/actualizar F. La convención de rondas sitúa su disponibilidad después de la respuesta t+tau, permitiendo contar las tau respuestas futuras anteriores a su uso; durante ese intervalo puede llegar feedback de muestras previas. No se supone que corregir deshaga exactamente el pseudo-update.
+
+Se comienza con hard labels en clasificación; logits, confianza y feedback ocasional quedan como extensiones. La especialización lineal de regresión emplea respuestas escalares puntuales, no labels binarios. La consulta compra simultáneamente una posible mejora de inferencia presente y supervisión anticipada imperfecta; **no compra ground truth**, ni garantiza una mejora.
+
+### B. Razón para adoptar feedback fiable retrasado
+
+Si Y nunca se observa, el rendimiento respecto a Y no es identificable en general a partir de D salvo supuestos fuertes sobre D. El feedback fiable retrasado permite evaluar/corregir respecto a Y sin convertir la consulta a D en adquisición activa de Y. Se distinguen imitation of D, task performance wrt Y y total system objective: pérdida operacional más coste de routing. Fiabilidad de Y significa observación del target real, no ausencia de ruido intrínseco de la tarea.
+
+### C. Modelo lineal vectorial mínimo y resultado central
+
+Bajo pérdida cuadrática:
+
+$$
+Y=(w^*)^T X+\epsilon,\qquad F_\theta(x)=\theta^T x,\qquad
+D(x)=(w^*+b)^T x+\nu,
+$$
+
+$$
+\mathbb E[\nu]=0,\quad\operatorname{Var}(\nu)=\sigma_D^2,\quad
+e=\theta-w^*,\quad M=\mathbb E[XX^T]\succ0,\quad
+\alpha=x^T e,\quad\beta=x^T b.
+$$
+
+Para las identidades condicionadas en x se explicitan las condiciones E[nu|x]=0 y E[nu^2|x]=sigma_D^2; los momentos marginales solos no bastan. Para interpretar la diferencia de pérdidas respecto a Y se requieren también E[epsilon|x]=0 y E[epsilon nu|x]=0, con segundos momentos finitos. No se exige gaussianidad ni independencia completa. Las notas conservan la expresión con términos adicionales si no se cumplen estas condiciones.
+
+$$
+\Delta_{\mathrm{now}}=\alpha^2-\beta^2-\sigma_D^2,
+$$
+
+$$
+\theta^+=\theta+\eta x(D(x)-\theta^T x),\qquad
+e^+=e-\eta x(\alpha-\beta)+\eta x\nu,\qquad R(e)=e^TMe.
+$$
+
+El **resultado algebraico central exacto del modelo mínimo** es
+
+$$
+\Delta_R(x)=R(e)-\mathbb E[R(e^+)\mid x]
+=2\eta(\alpha-\beta)x^TMe
+-\eta^2[(\alpha-\beta)^2+\sigma_D^2]x^TMx.
+$$
+
+R es riesgo poblacional excedente del predictor barato, no el objetivo total. Delta_R mide una pseudoactualización; Delta_adapt se reserva para valor acumulado/secuencial. Se reemplaza en la formulación vigente la antigua notación Delta_pred/Delta_learn sin alterar su registro histórico.
+
+### D. Interpretación geométrica
+
+Delta_now mide calidad local de la respuesta; Delta_R mide el efecto de entrenar con esa misma salida sobre el riesgo poblacional futuro. No son equivalentes. El factor de primer orden para eta pequeño es (alpha-beta)x^TMe, donde x^TMe=(1/2)x^T grad R(e). Teacher reliability / immediate superiority no equivale a training value.
+
+### E. Compatibilidad isotrópica y régimen del paso
+
+Si M=cI, c>0, y 0<a=eta||x||^2<=1, entonces Delta_now>0 implica Delta_R>0. La prueba usa sigma_D^2<alpha^2-beta^2 y alpha(alpha-beta)>0, obteniendo
+
+$$
+\Delta_R>2c\eta\alpha(\alpha-\beta)[1-\eta\|x\|^2]\geq0.
+$$
+
+La primera desigualdad es estricta incluso en a=1. En 1D excluye el patrón (+,-) en el régimen conservador, en particular 0<a<1. Se distingue **conservative regime: 0<a<=1** de **locally stable / possible overshoot: 1<a<2**. La contracción local del residual para entrada fija no garantiza mejora poblacional bajo ruido o geometría anisotrópica; no se denomina simplemente «stable» a todo 0<a<2 para extender indebidamente la proposición.
+
+### F. Existencia de conflicto anisotrópico
+
+Si M es definida positiva y no es cI, elegir x no autovector y e=x-kMx con
+
+$$
+\frac{x^TMx}{\|Mx\|^2}<k<\frac{\|x\|^2}{x^TMx}.
+$$
+
+Cauchy–Schwarz estricta garantiza el intervalo: (x^TMx)^2<||x||^2||Mx||^2. Así x^Te>0 y x^TMe<0. Tomando b=0 y 0<sigma_D^2<alpha^2, Delta_now>0 pero Delta_R<0 para todo eta>0.
+
+La conclusión es de **existencia**: isotropía da compatibilidad universal bajo updates conservadores; anisotropía permite configuraciones con conflicto para pasos arbitrariamente pequeños. No toda consulta anisotrópica tiene conflicto, ni se demuestra frecuencia positiva de esas configuraciones bajo cualquier distribución con momento M.
+
+### G. Comparador miope y simplificación de horizonte aislado
+
+Myopic: consultar iff Delta_now>C_D. Bajo aislamiento de H respuestas anteriores al uso de ground truth, sin evolución intermedia ni diferencias de routing futuro, el criterio idealizado es consultar iff Delta_now+B_H Delta_R>C_D, con B_H=sum_{k=1}^H gamma^k cuando se descuenta desde la ronda actual. Se escribe Delta_adapt^(H)=B_H Delta_R sólo bajo esa simplificación.
+
+Posibles fallos, sin agruparlos en un teorema general:
+
+1. Under-querying: Delta_now<C_D pero Delta_now+B_H Delta_R>C_D; la región ya existe en 1D (ejemplo derivado en las notas).
+2. Over-querying: Delta_now>C_D pero Delta_now+B_H Delta_R<C_D; el conflicto anisotrópico permite un intervalo no vacío de costes cuando B_H>0.
+
+Se trata de comparaciones idealizadas, no de optimalidad secuencial ni resultados para todos los costes. No se afirma que la llegada de Y_t elimine cualquier efecto posterior.
+
+### H. Cautela bibliográfica y novedad
+
+Gradient alignment, influence functions y data valuation ya contienen el hecho general de que el gradiente de una muestra puede desalinearse con el poblacional; esto no es nuestra novedad. Tampoco lo es una actualización perjudicial. No se añaden referencias no verificadas; queda TODO bibliográfico en Markdown para citas específicas de esas familias.
+
+La región candidata mantiene la conjunción de Decision 006: (1) routing antes de la respuesta final; (2) D sustituye operacionalmente a F; (3) la misma salida de D actualiza F; (4) valoración explícita del beneficio inmediato; (5) valoración explícita del impacto futuro de esa actualización; (6) D falible con valor futuro potencialmente negativo.
+
+“No direct antecedent was identified in the targeted review that jointly models the immediate operational value of routing to an expensive predictor and the future population-risk effect of updating the cheap predictor with that same routed output.” Es una conclusión limitada a la revisión dirigida, no una prueba de novedad. Selective sampling / active learning pueden ser no-myopic y exploratorios; la diferencia candidata no es negar esos efectos.
+
+### I. Problema abierto prioritario
+
+Eliminar el aislamiento y calcular explícitamente la evolución contrafactual durante tau pasos, permitiendo updates intermedios:
+
+$$
+\Delta_{\mathrm{adapt}}^{(\tau)}=
+\sum_{k=1}^{\tau}\gamma^{k-1}\mathbb E\left[
+(e_{t+k}^F)^TM e_{t+k}^F-(e_{t+k}^D)^TM e_{t+k}^D\right].
+$$
+
+Esta suma descuenta desde la primera respuesta futura; su peso desde la ronda actual es gamma Delta_adapt^(tau). Bajo aislamiento con H=tau, gamma Delta_adapt^(tau)=B_H Delta_R. Se explicita el origen temporal para no perder ni duplicar gamma. La suma de riesgo barato tampoco equivale por sí sola al coste operacional futuro total: deben modelarse respuestas y consultas posteriores.
+
+Este es el próximo problema matemático, **no resuelto**. Quedan pendientes la corrección fiable concreta, la evolución intermedia, las políticas de continuación y los efectos posteriores al horizonte. Las pruebas de una pseudoactualización se incorporan al manuscrito con carácter preliminar/candidato para revisión científica; no se afirman regret bounds ni tasas comparativas de regret.

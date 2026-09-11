@@ -1,164 +1,175 @@
 \section{Problem formulation}
 
-\subsection{Observations, predictors, and state}
+\subsection{Operational replacement and delayed reliable feedback}
 
-Let $x_t\in\mathcal{X}$ denote the observation at step $t$, and let
-$Y_t\in\mathcal{Y}$ denote its random target. The cheap adaptive predictor is
-$M_F(x_t;\theta_t)$, while $M_D(x_t)$ denotes the expensive teacher
-predictor. The routing action is $a_t\in\{F,D\}$, with prediction
+At round $t$, the system observes $x_t$ and routes before issuing its final
+operational response. The cheap adaptive predictor is $F_{\theta_t}$ and the
+costly, potentially fallible predictor is $D$. Write $A_t\in\{F,D\}$ for
+the routing action, reserving $a$ for the local step-size quantity used in
+the linear analysis. The operational response is
 \begin{equation}
-  \widehat y_t =
-  \begin{cases}
-    M_F(x_t;\theta_t), & a_t=F,\\
-    M_D(x_t), & a_t=D.
-  \end{cases}
+    \widehat y_t=
+    \begin{cases}
+        F_{\theta_t}(x_t), & A_t=F,\\
+        Z_t=D(x_t), & A_t=D.
+    \end{cases}
 \end{equation}
-Let $\ell(\widehat y_t,Y_t)$ be a predictive loss. Write
-$C_D(S_t,x_t)\geq 0$ for the incremental cost of consulting $M_D$, expressed
-in units compatible with the loss; the incremental consultation cost of
-choosing $F$ is zero.
 
-The state $S_t=(\theta_t,\mathcal{I}_t)$ includes the cheap predictor's
-parameters and the information available before routing the current
-observation. The decision uses $(S_t,x_t)$. The information may retain the
-available history; no finite-dimensional sufficient state is asserted.
-The target is used to define risk, but its availability for adaptation is
-not assumed.
-
-If the expensive predictor is queried, let $Z_t=M_D(x_t)$. A general
-update map on the full state permits
+When $D$ is selected, its output replaces the cheap prediction
+operationally. The same realized output $Z_t$ also supplies immediate
+pseudo-supervision for $F$ after the response, through
 \begin{equation}
-  S_t^+=U(S_t,x_t,Z_t)
-  \qquad\text{when }a_t=D.
+    S_t^+=U_D(S_t,x_t,Z_t),
+    \qquad A_t=D.
 \end{equation}
-This map can adapt $\theta_t$ using the teacher response but may leave it
-unchanged. The post-query state $S_t^+$ need not be the complete next-step
-state $S_{t+1}$. Neither the update mechanism nor the feedback available
-under either action is specified at this stage.
+Thus, operational replacement and pseudo-supervision are induced by the
+same teacher call; $Z_t$ is not a second, independently sampled teacher
+response. Choosing $F$ does not generate this teacher-induced update.
 
-\subsection{Sequential objective and action values}
+The reliable target $Y_t$ arrives after a fixed delay $\tau\geq1$, under
+both routing actions. Its arrival is exogenous and independent of routing:
+querying $D$ neither purchases $Y_t$ nor accelerates its arrival. By
+convention, feedback arriving in round $t+\tau$ is revealed only after the
+operational decision and response of that round. Hence $Y_t$ can first
+affect the prediction at round $t+\tau+1$, and the $\tau$ responses indexed
+by $t+1,\ldots,t+\tau$ precede its use. Reliable targets associated with
+earlier rounds may nevertheless arrive during this interval.
 
-For notation, consider a finite horizon $T$ and a discount factor
-$0\leq\gamma\leq 1$, with $\gamma=1$ giving the undiscounted objective.
-A policy $\pi$ selects actions using the available information. The
-conceptual objective is to minimize
+Once available, $Y_t$ may be used to correct or update $F$ through a
+reliable-feedback update $U_Y$. This correction need not undo the earlier
+pseudo-update exactly or merge the two routing histories. Its specific form
+and its interaction with intervening updates remain part of the sequential
+problem.
+
+The state
 \begin{equation}
-  J(\pi)=\mathbb{E}_{\pi}\!\left[
-    \sum_{t=1}^{T}\gamma^{t-1}
-    \left\{\ell(\widehat y_t,Y_t)
-      +\mathbf{1}_{\{a_t=D\}}C_D(S_t,x_t)\right\}
-  \right].
+    S_t=(\theta_t,\mathcal I_t)
 \end{equation}
-The expectation is over observations, targets, and any randomness in
-prediction, routing, and updating. Their probabilistic specification
-remains open. Time and the remaining horizon can be included in
-$\mathcal{I}_t$.
+contains the cheap predictor parameters and the information available before
+routing, including any relevant history, pending feedback, and timing
+information. No finite-dimensional sufficient state is assumed at this
+stage.
 
-Define the current conditional predictive risks by
+The base protocol assumes point-valued teacher outputs rather than richer
+confidence information. In classification these correspond to hard labels;
+the linear regression specialization developed below uses scalar responses
+as pseudo-targets. Logits, confidence signals, multiple teachers, and
+occasional or missing reliable feedback are left as extensions.
+
+\subsection{Three distinct evaluation objects}
+
+Three evaluation objects must be distinguished. Agreement with $D$ measures
+imitation of the teacher. Task performance is measured against the reliable
+target $Y$ and need not improve when imitation improves. Finally, the total
+system objective combines task loss with the cost of routing to $D$.
+
+Without observing $Y$, task performance with respect to $Y$ is not generally
+identifiable from teacher outputs alone without additional assumptions on
+$D$. Delayed reliable feedback provides task-level evaluation and eventual
+correction without making the teacher query an active acquisition of ground
+truth. Here, reliable feedback means that the realized target is eventually
+observed; it does not imply absence of intrinsic task noise.
+
+For a horizon $T$, discount factor $0\leq\gamma\leq1$, predictive loss
+$\ell$, and incremental consultation cost $C_D(S_t,x_t)\geq0$, a routing
+policy $\pi$ seeks to minimize
+\begin{equation}
+    J(\pi)
+    =
+    \mathbb E_\pi\!\left[
+        \sum_{t=1}^{T}\gamma^{t-1}
+        \left\{
+            \ell(\widehat y_t,Y_t)
+            +
+            \mathbf 1_{\{A_t=D\}}C_D(S_t,x_t)
+        \right\}
+    \right].
+    \label{eq:sequential-objective}
+\end{equation}
+The loss is assigned to the round in which the response is issued even
+though its target is observed only later.
+
+A query to $D$ therefore has two conceptually distinct consequences: it
+provides an alternative costly response for the current input and supplies
+early, imperfect supervision for the cheap predictor. Either consequence
+may be beneficial or detrimental relative to choosing $F$.
+
+\subsection{Immediate gain and sequential continuation}
+
+Define the conditional risks of the two operational responses as
 \begin{align}
-  r_F(S_t,x_t)&=\mathbb{E}[\ell(M_F(x_t;\theta_t),Y_t)\mid S_t,x_t],\\
-  r_D(S_t,x_t)&=\mathbb{E}[\ell(M_D(x_t),Y_t)\mid S_t,x_t].
+    r_F(S_t,x_t)
+    &=
+    \mathbb E\!\left[
+        \ell(F_{\theta_t}(x_t),Y_t)
+        \mid S_t,x_t
+    \right],
+    \\
+    r_D(S_t,x_t)
+    &=
+    \mathbb E\!\left[
+        \ell(D(x_t),Y_t)
+        \mid S_t,x_t
+    \right].
 \end{align}
-Let $V^*(S_{t+1},x_{t+1})$ denote the optimal remaining expected objective
-from the next observation, with continuation value zero after $T$.
-For a specified probabilistic model and state update, action values can
-be written formally as
+Their immediate expected difference is
+\begin{equation}
+    \Delta_{\mathrm{now}}(S_t,x_t)
+    =
+    r_F(S_t,x_t)-r_D(S_t,x_t).
+    \label{eq:general-immediate-gain}
+\end{equation}
+Thus $\Delta_{\mathrm{now}}>0$ means that routing to $D$ improves the
+expected current task loss before consultation cost is taken into account;
+no such superiority is assumed a priori.
+
+For a fully specified state evolution, let $V^*(S)$ denote the optimal
+expected remaining discounted loss and routing cost from state $S$, with
+zero continuation beyond the horizon. The two action values can then be
+written formally as
 \begin{align}
-  Q_F(S_t,x_t)&=r_F(S_t,x_t)
-    +\gamma\mathbb{E}[V^*(S_{t+1},x_{t+1})\mid S_t,x_t,a_t=F],\\
-  Q_D(S_t,x_t)&=r_D(S_t,x_t)+C_D(S_t,x_t)\notag\\
-    &\quad+\gamma\mathbb{E}[V^*(S_{t+1},x_{t+1})\mid S_t,x_t,a_t=D].
+    Q_F(S_t,x_t)
+    &=
+    r_F(S_t,x_t)
+    +
+    \gamma
+    \mathbb E\!\left[
+        V^*(S_{t+1})
+        \mid S_t,x_t,A_t=F
+    \right],
+    \\
+    Q_D(S_t,x_t)
+    &=
+    r_D(S_t,x_t)
+    +
+    C_D(S_t,x_t)
+    +
+    \gamma
+    \mathbb E\!\left[
+        V^*(S_{t+1})
+        \mid S_t,x_t,A_t=D
+    \right].
 \end{align}
-These expressions specify an objective, not a tractable solution or an
-algorithm. The optimal choice is $D$ when
+The optimal comparison is therefore
 \begin{equation}
-  Q_D(S_t,x_t)<Q_F(S_t,x_t).
+    Q_D(S_t,x_t)<Q_F(S_t,x_t),
 \end{equation}
-Ties do not impose a preference between the two actions.
+with no preference imposed in case of equality. The continuation terms
+include the effects of pending reliable feedback, subsequent updates,
+future operational responses, and later routing costs. At this level the
+comparison is a formal characterization, not yet a computable routing
+policy.
 
-\subsection{Conceptual predictive and learning value}
+To avoid conflating different notions of future value, we reserve
+$\Delta_R$ for the population-risk change induced by a single
+teacher-driven pseudo-update. We use $\Delta_{\mathrm{adapt}}$ for an
+accumulated adaptation quantity over an explicitly specified horizon and
+discount origin. Neither quantity is, in general, identical to the full
+continuation-value difference appearing in $Q_F-Q_D$, which may additionally
+depend on future routing decisions, operational responses, and consultation
+costs.
 
-The current expected risk reduction is
-\begin{equation}
-  \Delta_{\mathrm{pred}}(S_t,x_t)=r_F(S_t,x_t)-r_D(S_t,x_t).
-\end{equation}
-Let $V_{\mathrm{future}}(S)$ denote expected future cumulative loss/cost,
-with lower values preferred. For a common future horizon, input law, and
-continuation criterion, define conceptually
-\begin{align}
-  \Delta_{\mathrm{learn}}(S_t,x_t)
-    &=V_{\mathrm{future}}(S_t)\notag\\
-    &\quad-\mathbb{E}_{Z_t}\!\left[
-      V_{\mathrm{future}}(U(S_t,x_t,Z_t))\mid S_t,x_t\right].
-\end{align}
-Here $S_t$ is the reference state without the teacher-induced update;
-both terms evaluate the same future period, excluding the current loss
-and consultation cost. Dependence of the continuation evaluation on
-the current time and observation is implicit and must be made explicit
-in a model specialization. If the teacher response is deterministic and
-known conditional on $(S_t,x_t)$, the expectation over $Z_t$ is degenerate.
-
-This term represents the expected reduction in future cost/risk caused
-specifically by using the teacher response to update the cheap predictor.
-It is not a computable closed form, and its sign is not fixed. If future
-consultation costs are included in $V_{\mathrm{future}}$, it is not solely
-a reduction in predictive loss.
-
-The central candidate decomposition emerging from the sequential
-formulation is
-\begin{equation}
-  \Delta_{\mathrm{pred}}(S_t,x_t)
-    +\gamma\Delta_{\mathrm{learn}}(S_t,x_t)>C_D(S_t,x_t).
-\end{equation}
-This is not a theorem. Comparing the general action values gives the
-immediate predictive advantage plus the discounted difference of their
-continuation terms, against consultation cost. Identifying that
-continuation difference with $\Delta_{\mathrm{learn}}$ requires compatible
-continuation policies, dynamics, information, and horizons, with the
-action-dependent difference represented by $U$. Other action effects or
-updates under $F$ must be accounted for in the reference continuation;
-otherwise the more general $Q_D<Q_F$ comparison must be retained. The
-precise sufficient assumptions and any computational guarantees remain
-to be derived.
-
-\subsection{No assumed scalar confidence threshold}
-
-A scalar confidence threshold requires additional structural assumptions.
-Neither its existence nor the sign or functional form of a threshold
-correction is established. Learning value need not depend only on
-epistemic uncertainty: a highly uncertain sample may have little future
-value if its region is rarely encountered again, whereas a moderately
-uncertain sample may be valuable in a high-probability future region.
-These are conceptual possibilities, not demonstrated results for a
-specified model.
-
-Thus $\Delta_{\mathrm{learn}}$ may depend on $x_t$, $S_t$ and $\theta_t$,
-the future input distribution, teacher behaviour and error structure,
-the update operator $U$, the effective future horizon, and other state
-variables. No Gaussian uncertainty model or sufficiency of the cheap
-predictor's confidence is assumed.
-
-\subsection{Open theoretical questions}
-
-\begin{enumerate}
-  \item Under what assumptions can $\Delta_{\mathrm{learn}}$ be computed
-    or approximated locally?
-  \item When can the optimal policy be reduced to an interpretable
-    decision rule?
-  \item What is the relationship with value of information, dual control,
-    active learning, knowledge distillation, learning to defer, and
-    contextual bandits?
-  \item Under what conditions is a myopic policy that ignores
-    $\Delta_{\mathrm{learn}}$ strictly suboptimal? In particular, can a
-    specified model admit $\Delta_{\mathrm{pred}}<C_D$ but
-    $\Delta_{\mathrm{pred}}+\gamma\Delta_{\mathrm{learn}}>C_D$?
-  \item Can bounds be obtained for approximations of future value?
-  \item What minimal family of models permits analytical results without
-    turning the problem into an intractable generic Markov decision process?
-\end{enumerate}
-
-The connections to myopic cost-aware routing when
-$\Delta_{\mathrm{learn}}=0$, and to active acquisition when immediate
-predictive benefit is ignored, remain to be formalized within the
-sequential model. No novelty claim or theoretical contribution is
-established by this candidate formulation.
+The next section derives $\Delta_R$ exactly for a minimal linear model,
+identifies conditions under which its sign agrees or conflicts with
+$\Delta_{\mathrm{now}}$, and formulates the remaining counterfactual problem
+created by delayed reliable feedback.

@@ -28,18 +28,18 @@ La hipótesis candidata es la conjunción de:
 5. La política valora explícitamente el cambio de valor de continuación causado por esa actualización particular.
 6. D puede ser falible y el valor de adaptación puede ser negativo.
 
-**No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Se trata de una región candidata, no de una novedad establecida. La búsqueda bibliográfica amplia queda pausada: el siguiente paso es definir el protocolo operacional/de feedback exacto antes de desarrollar un modelo matemático. El checkpoint completo y la matriz comparativa están en `docs/literature/primary_novelty_review.md`.
+**No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Se trata de una región candidata, no de una novedad establecida. La búsqueda bibliográfica amplia queda pausada. Decision 007 fija el protocolo de feedback fiable retrasado y deriva el valor de una pseudoactualización lineal vectorial; el siguiente paso es calcular su evolución contrafactual durante el retardo. El checkpoint completo y la matriz comparativa están en `docs/literature/primary_novelty_review.md`.
 
 Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a falsación. Si no se identifica una diferencia metodológica clara y defendible respecto a learning-to-defer, model routing, contextual bandits, active learning, knowledge distillation y trabajos relacionados, se reconsiderará esta línea antes de implementar algoritmos o invertir esfuerzo experimental.
 
-El principal objeto teórico de estudio es actualmente $\Delta_{\mathrm{learn}}(S_t,x_t)$, entendido de forma general como la reducción esperada del coste futuro acumulado inducida por la actualización del predictor barato. Este valor puede incluir pérdida predictiva y costes futuros de consulta; no representa exclusivamente una reducción del riesgo predictivo. Determinar cómo calcularlo o aproximarlo y si la política óptima puede reducirse a una regla interpretable de umbral son objetivos teóricos pendientes. No se ha establecido una regla de umbral cerrada.
+Decision 007 adopta routing antes de responder, sustitución operacional de F por D, pseudoactualización inmediata con la misma salida D(x_t) y llegada exógena de Y_t tras retardo fijo tau, independientemente del routing. Y_t puede corregir F después: consultar D compra supervisión anticipada imperfecta, no ground truth. Se comienza con hard labels; el modelo lineal de regresión usa respuestas escalares puntuales. Logits, confianza y feedback ocasional quedan como extensiones.
 
-Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback (prioridad reafirmada en Decision 006): si el verdadero $Y_t$ se observa tras cada predicción, con retraso u ocasionalmente, o no está disponible operacionalmente. También queda abierta la forma de supervisión del teacher. Sus salidas pueden ser imperfectas y no se presupone que $\Delta_{\mathrm{learn}}$ sea no negativo. La hipótesis de valorar explícitamente ambos efectos en la decisión de consulta continúa bajo falsación activa; la doble función de predecir y entrenar ya tiene antecedentes.
+Se distinguen `Delta_now` (ganancia inmediata), `Delta_R` (cambio exacto del riesgo poblacional tras una pseudoactualización) y `Delta_adapt` (valor acumulado/secuencial). El modelo mínimo muestra compatibilidad isotrópica bajo updates conservadores y existencia de conflicto anisotrópico para pasos arbitrariamente pequeños. No se reivindican como novedosos el desalineamiento de gradientes ni las actualizaciones perjudiciales. El horizonte aislado `B_H Delta_R` no resuelve la evolución contrafactual con updates intermedios ni el objetivo total pérdida más coste de routing.
 
 ### Current research overview
 
 The following diagram records the interpretation after Decision 003 and predates
-the consolidations in Decisions 005–006. It requires scientific review against
+the consolidations in Decisions 005–007. It requires scientific review against
 the targeted audit, ThriftyDAgger, and TRACER; use the current novelty review for the working hypothesis.
 
 ![Primary research overview](docs/graphics/primary_research_overview.png)
