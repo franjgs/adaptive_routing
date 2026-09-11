@@ -1,6 +1,6 @@
 # Research log
 
-Decision 007 establece el estado científico vigente. Las decisiones anteriores conservan su contexto histórico; la auditoría y las cautelas de Decision 006 siguen vigentes, mientras su prioridad protocolaria queda atendida por Decision 007.
+Decision 008 establece el estado científico vigente. Las decisiones anteriores conservan su contexto histórico; la auditoría y las cautelas de Decision 006 siguen vigentes, y Decision 007 conserva el protocolo y los resultados algebraicos ahora revisados independientemente.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -220,3 +220,31 @@ $$
 Esta suma descuenta desde la primera respuesta futura; su peso desde la ronda actual es gamma Delta_adapt^(tau). Bajo aislamiento con H=tau, gamma Delta_adapt^(tau)=B_H Delta_R. Se explicita el origen temporal para no perder ni duplicar gamma. La suma de riesgo barato tampoco equivale por sí sola al coste operacional futuro total: deben modelarse respuestas y consultas posteriores.
 
 Este es el próximo problema matemático, **no resuelto**. Quedan pendientes la corrección fiable concreta, la evolución intermedia, las políticas de continuación y los efectos posteriores al horizonte. Las pruebas de una pseudoactualización se incorporan al manuscrito con carácter preliminar/candidato para revisión científica; no se afirman regret bounds ni tasas comparativas de regret.
+
+## Decision 008 — Independent red-team review of the single-update theory
+
+Fecha: 2026-09-11.
+
+### Resultado confirmado
+
+Una revisión independiente recalculó y confirmó $\Delta_{\mathrm{now}}$, la expresión exacta de $\Delta_R$, la proposición de compatibilidad isotrópica para $0<\eta\|x\|^2\leq1$, la construcción anisotrópica mediante Cauchy--Schwarz y la lógica algebraica de under-querying/over-querying en el horizonte aislado. Se mantiene el teorema anisotrópico como resultado geométrico de existencia.
+
+Su alcance queda delimitado: no demuestra que el conflicto tenga probabilidad positiva bajo una distribución dada ni que sea frecuente en trayectorias naturales de SGD. El siguiente nivel de teoría debe conectar el estado aleatorio $(X_t,e_t)$ con la dinámica inducida por el aprendizaje.
+
+### Crítica externa y respuesta
+
+No se acepta tal como fue formulada la crítica de que SGD hace que $e_t$ se alinee en general con las direcciones de mayor autovalor de $M$. En gradient descent lineal, las componentes de mayor curvatura se contraen más rápidamente. Además, si $e$ es autovector de $M$, la coincidencia de signo del término de primer orden no basta para garantizar $\Delta_R>0$ para cualquier $\eta$, debido al término cuadrático negativo. Esta respuesta no añade un teorema sobre la distribución o la dinámica de $(X_t,e_t)$.
+
+### Feedback retrasado y horizonte aislado
+
+$U_Y$ debe especificarse antes de resolver las trayectorias contrafactuales. No se presupone que usar posteriormente $(x_t,Y_t)$ sea matemáticamente inválido ni que deba deshacerse necesariamente la pseudoactualización. Las posibles reglas de corrección siguen siendo una decisión metodológica abierta; no se elige todavía ninguna.
+
+$B_H\Delta_R$ se conserva sólo como dispositivo ilustrativo y no representa la dinámica real. No se presupone automáticamente una evolución $(I-\eta M)^\tau$: con SGD por muestras pueden aparecer productos aleatorios de operadores $(I-\eta X_jX_j^T)$. Obtener una dinámica cerrada exige hipótesis adicionales, que no se introducen en este checkpoint.
+
+### Novedad y prioridad abierta
+
+La auditoría independiente no encontró un fallo fatal de novedad, pero esto no prueba novedad. Se mantiene exactamente el framing prudente:
+
+> No direct antecedent was identified in the targeted review that jointly models the immediate operational value of routing to an expensive predictor and the future population-risk effect of updating the cheap predictor with that same routed output.
+
+La prioridad es pasar de una teoría de **una** pseudoactualización a una teoría del valor de la decisión durante el periodo de anticipación $\tau$. Los problemas pendientes son: (a) especificar $U_Y$; (b) derivar la evolución contrafactual durante $\tau$ con updates intermedios; y (c) determinar bajo qué condiciones el conflicto geométrico tiene relevancia probabilística o dinámica. El punto (c) permanece como problema abierto, no como nuevo teorema. No se introducen supuestos gaussianos, covarianza estacionaria de SGD ni distribution shift para responder a la crítica.

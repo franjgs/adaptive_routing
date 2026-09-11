@@ -258,3 +258,59 @@ $$
 Si se usa en su lugar un peso con origen futuro, sum_{k=1}^H gamma^{k-1}, hay que multiplicarlo por gamma al compararlo con la pérdida inmediata del objetivo J. No se omite ni se duplica ese factor. Con gamma=1 ambas convenciones coinciden.
 
 La suma propuesta mide riesgo poblacional del predictor barato. Identificarla con el valor de continuación total requiere además contabilizar la elección de respuestas operacionales futuras y sus costes. La llegada exógena de Y_t no implica que las ramas se igualen ni que el efecto causal termine allí. Quedan abiertos la regla de corrección fiable, las políticas de continuación, los efectos después de tau y la computabilidad de estos valores. No se afirman regret bounds ni tasas asintóticas de regret.
+
+## Revisión independiente posterior a Decision 007
+
+Esta sección registra la red-team review de Decision 008. Separa los resultados confirmados de la crítica externa, la respuesta y los problemas abiertos; no modifica las derivaciones anteriores ni las ecuaciones del paper.
+
+### Resultado probado y confirmado
+
+La revisión recalculó de forma independiente y confirmó:
+
+- $\Delta_{\mathrm{now}}=\alpha^2-\beta^2-\sigma_D^2$ bajo las condiciones ya declaradas;
+- la expresión exacta de $\Delta_R$ para una pseudoactualización;
+- la compatibilidad isotrópica si $0<\eta\|x\|^2\leq1$;
+- la construcción anisotrópica basada en Cauchy--Schwarz estricta;
+- la lógica algebraica de under-querying y over-querying bajo el horizonte aislado.
+
+El teorema anisotrópico se mantiene. Es una afirmación geométrica de existencia sobre configuraciones $(x,e)$: no establece probabilidad positiva bajo una distribución concreta ni frecuencia bajo trayectorias naturales de SGD. La construcción tampoco describe por sí sola cómo el aprendizaje lleva a esas configuraciones.
+
+### Crítica externa
+
+La revisión planteó que la dinámica de SGD podría alinear $e_t$ con direcciones de mayor autovalor de $M$ y reducir así la relevancia del conflicto anisotrópico. También señaló la necesidad de concretar la corrección con ground truth y de no interpretar el horizonte aislado como dinámica real.
+
+### Respuesta a la crítica
+
+La afirmación general sobre alineamiento no se acepta tal como fue formulada. En gradient descent lineal, las componentes asociadas a mayor curvatura se contraen más rápidamente; de ello no se sigue un alineamiento general de $e_t$ con los mayores autovalores. A la vez, que $e$ sea autovector de $M$ sólo fija la relación de signo del término de primer orden: no garantiza $\Delta_R>0$ para cualquier $\eta$, porque permanece el término cuadrático negativo.
+
+Esta respuesta preserva el resultado de existencia, pero no demuestra que el conflicto sea dinámicamente relevante. No se introducen para sostenerla supuestos gaussianos, covarianza estacionaria de SGD ni distribution shift.
+
+### Feedback fiable retrasado: decisión metodológica abierta
+
+Antes de resolver las trayectorias contrafactuales debe especificarse $U_Y$. El uso posterior de $(x_t,Y_t)$ no es matemáticamente inválido por sí mismo y no exige necesariamente deshacer la pseudoactualización. Las posibles reglas de corrección requieren definición y análisis; Decision 008 no selecciona ninguna.
+
+### Horizonte aislado y dinámica real
+
+$B_H\Delta_R$ sigue siendo un dispositivo ilustrativo que congela el gap de una pseudoactualización. No representa la dinámica real. Tampoco debe sustituirse automáticamente por una evolución determinista $(I-\eta M)^\tau$. Con SGD por muestras, la evolución puede contener productos aleatorios
+
+$$
+\prod_j (I-\eta X_jX_j^T),
+$$
+
+además de términos debidos a pseudo-supervisión, feedback fiable retrasado y reglas de actualización intermedias. Una dinámica cerrada requiere hipótesis adicionales; no se adoptan aquí.
+
+### Framing de novedad conservado
+
+La auditoría independiente no identificó un fallo fatal de novedad, pero esto no constituye prueba de novedad. Se conserva literalmente:
+
+> No direct antecedent was identified in the targeted review that jointly models the immediate operational value of routing to an expensive predictor and the future population-risk effect of updating the cheap predictor with that same routed output.
+
+### Problemas abiertos prioritarios
+
+La prioridad es pasar de una teoría de una pseudoactualización a una teoría del valor de la decisión durante el periodo de anticipación $\tau$:
+
+1. especificar $U_Y$;
+2. derivar la evolución contrafactual durante $\tau$ con updates intermedios;
+3. determinar bajo qué condiciones el conflicto geométrico tiene relevancia probabilística o dinámica.
+
+El tercer punto no es todavía un teorema candidato. Debe relacionar $(X_t,e_t)$ con la dinámica inducida por el aprendizaje sin inferir frecuencia a partir de la construcción geométrica de existencia.
