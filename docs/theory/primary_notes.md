@@ -6,7 +6,7 @@ El documento matemático principal es `paper/primary/sections/problem_formulatio
 
 ## Evidencia e interpretación
 
-Los antecedentes comunicados de la segunda revisión y sus límites de verificación se registran en `docs/literature/primary_novelty_review.md`. Future value por sí solo no es nuevo. La interpretación actual concentra la investigación en la misma consulta costosa como acción de inferencia presente y fuente de adaptación del predictor barato. Esta interpretación no establece novedad ni resultados teóricos.
+El estado vigente se registra en Decision 005 y `docs/literature/primary_novelty_review.md`. Future value por sí solo no es nuevo, y TRACER y ThriftyDAgger ya combinan servicio operacional actual con aprendizaje posterior. La cuestión PRIMARY es si la decisión de consulta valora explícitamente el cambio de coste futuro causado por actualizar el predictor barato con esa misma consulta. Online active learning / selective sampling / abstention es la amenaza pendiente prioritaria. Esta interpretación no establece novedad ni resultados teóricos; el feedback permanece abierto y el teacher es falible. Las ecuaciones siguientes conservan su carácter candidato.
 
 ## Formulación candidata e hipótesis de trabajo
 

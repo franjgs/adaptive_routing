@@ -4,7 +4,7 @@ Proyecto de investigación sobre decisiones adaptativas y coste-sensibles entre 
 
 ## Línea primaria: Adaptive Cost-Aware Routing with Learning Value
 
-Se consideran inicialmente dos modelos predictivos heterogéneos: uno barato y adaptable y otro más competente pero costoso. Consultar al modelo costoso puede aportar dos beneficios:
+Se consideran inicialmente dos modelos predictivos heterogéneos: uno barato y adaptable y un teacher costoso y potencialmente falible. Consultar al modelo costoso puede aportar dos beneficios:
 
 1. **Immediate predictive value**: mejorar la decisión correspondiente a la observación actual.
 2. **Learning value**: proporcionar información para adaptar el modelo barato y mejorar su competencia futura.
@@ -17,7 +17,7 @@ versus
 cost of using the expensive model
 ```
 
-Se ha completado una segunda revisión de falsación de la línea primaria, registrada en Decision 003 de `docs/research_log.md`. La hipótesis inicial de novedad se ha estrechado: future value por sí solo no constituye novedad; cost-aware future error reduction aparece ya en Active Learning / Value of Information; Sequential Learning to Defer puede considerar consecuencias futuras; y Active Knowledge Distillation puede combinar coste de consulta al teacher con mejora del student. Decision 004 incorpora dos antecedentes verificados en `docs/literature/primary_novelty_review.md`: Gao & Koller (2011), sobre adquisición de clasificadores sensible al coste para la instancia actual, y Roy & McCallum (2001), sobre reducción esperada del error futuro tras actualizar el aprendiz. Ninguno de estos principios por separado constituye novedad; la verificación de los demás antecedentes sigue pendiente.
+Decision 005 de `docs/research_log.md` consolida el estado vigente antes de la siguiente búsqueda de novedad. La hipótesis amplia original ya no es defendible y future value por sí solo no es novedoso. TRACER ya reutiliza las respuestas del teacher a entradas diferidas para entrenar continuamente el surrogate barato; ThriftyDAgger ya combina intervención para la tarea actual y demostraciones para aprender. La revisión en `docs/literature/primary_novelty_review.md` distingue esos mecanismos de valorar explícitamente el efecto futuro de una actualización particular al decidir consultar. Online active learning / selective sampling / abstention es la amenaza pendiente de máxima prioridad, por su posible equivalencia matemática.
 
 La hipótesis que permanece bajo investigación es la combinación, dentro de una misma decisión operacional, de:
 
@@ -30,14 +30,13 @@ Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a
 
 El principal objeto teórico de estudio es actualmente $\Delta_{\mathrm{learn}}(S_t,x_t)$, entendido de forma general como la reducción esperada del coste futuro acumulado inducida por la actualización del predictor barato. Este valor puede incluir pérdida predictiva y costes futuros de consulta; no representa exclusivamente una reducción del riesgo predictivo. Determinar cómo calcularlo o aproximarlo y si la política óptima puede reducirse a una regla interpretable de umbral son objetivos teóricos pendientes. No se ha establecido una regla de umbral cerrada.
 
-Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback (Decision 004): si el verdadero $Y_t$ se observa tras cada predicción, con retraso u ocasionalmente, o no está disponible operacionalmente. También queda abierta la forma de supervisión del teacher. Sus salidas pueden ser imperfectas y no se presupone que $\Delta_{\mathrm{learn}}$ sea no negativo. La hipótesis de acoplar ambos beneficios mediante la misma consulta continúa bajo falsación activa.
+Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback (Decision 004): si el verdadero $Y_t$ se observa tras cada predicción, con retraso u ocasionalmente, o no está disponible operacionalmente. También queda abierta la forma de supervisión del teacher. Sus salidas pueden ser imperfectas y no se presupone que $\Delta_{\mathrm{learn}}$ sea no negativo. La hipótesis de valorar explícitamente ambos efectos en la decisión de consulta continúa bajo falsación activa; la doble función de predecir y entrenar ya tiene antecedentes.
 
 ### Current research overview
 
-The following diagram summarizes the current interpretation of the problem,
-the neighboring research areas, and the candidate methodological gap.
-It is a working research overview and does not imply that novelty has been
-established.
+The following diagram records the interpretation after Decision 003 and predates
+the consolidation in Decision 005. It requires scientific review against
+ThriftyDAgger and TRACER; use the current novelty review for the working hypothesis.
 
 ![Primary research overview](docs/graphics/primary_research_overview.png)
 
@@ -62,5 +61,5 @@ La primera etapa se centra en la revisión bibliográfica y la formulación cien
 - `docs/theory/`: documentación de la formulación teórica.
 - `docs/research_log.md`: registro de decisiones científicas.
 - `references/bibliography.bib`: bibliografía común con dos antecedentes verificados incorporados en Decision 004.
-- `references/papers/`: PDFs locales, excluidos del control de versiones.
+- `references/papers/`: directorio previsto para PDFs locales, actualmente vacío; los ocho PDFs presentes están en `docs/literature/`. Véase `docs/literature/consolidation_inventory.md`.
 - `code/`: directorio vacío; no se añaden algoritmos ni dependencias Python.

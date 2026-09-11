@@ -1,9 +1,9 @@
 \section{Related work}
 
 This is a provisional conceptual organization, not a completed literature
-review or a claim of novelty. The second falsification review reported in
-the project notes motivates the following distinctions; source-level
-verification and citations remain pending.
+review or a claim of novelty. The consolidation checkpoint in Decision 005 motivates the following
+distinctions. Bibliographic coverage remains incomplete; the project
+inventory distinguishes local papers from verified BibTeX entries.
 
 \begin{itemize}
   \item \textbf{Learning to Defer and model routing:} operational choice
@@ -22,6 +22,22 @@ verification and citations remain pending.
   \item \textbf{Active Knowledge Distillation / teacher querying:}
     teacher-query costs and student improvement, without assuming that
     such methods are necessarily offline or pool-based.
+  \item \textbf{ThriftyDAgger (Hoque et al., CoRL 2021):} robot-gated
+    human intervention both controls the current task and supplies
+    demonstrations for policy updates. Novelty/risk and an intervention
+    budget govern gating, without explicitly valuing the expected future
+    learning benefit of the particular intervention in that decision.
+  \item \textbf{TRACER (Rida, 2026 preprint):} deferred teacher calls
+    serve current inputs and produce traces for continual surrogate
+    retraining. This rules out broad novelty claims for learning from
+    deferrals. Routing uses predicted teacher agreement/confidence and a
+    parity constraint, without explicitly valuing the expected future
+    surrogate improvement from the particular call.
+  \item \textbf{Online active learning, selective sampling, and abstention:}
+    the highest-priority unresolved threat to novelty. Querying may both
+    avoid current prediction loss and supply a label for learner updates.
+    Mathematical equivalence must be audited, including the feedback model
+    and the treatment of cumulative prediction loss and query cost.
   \item \textbf{Dual control and sequential decision making:} actions
     with current and future effects. Generic computational difficulty
     does not establish novelty; a simpler rule exploiting routing structure
@@ -30,7 +46,7 @@ verification and citations remain pending.
 
 These neighboring literatures motivate a more specific question: whether
 an operational routing decision can explicitly account for the future
-improvement of the cheap predictor induced by the same costly prediction
+predictive/routing cost change of the cheap predictor induced by the same costly prediction
 used to solve the current instance. Any distinction from existing work
 remains subject to falsification. Computability, interpretability, and
 guarantees are objectives, not established contributions.

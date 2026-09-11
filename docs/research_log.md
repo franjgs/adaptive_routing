@@ -1,5 +1,7 @@
 # Research log
 
+Las decisiones anteriores conservan su contexto histórico. Decision 005 establece el estado científico vigente y sustituye las formulaciones de novedad más amplias de Decisions 003–004.
+
 ## Decision 001 — Elección de las líneas de investigación
 
 Fecha: 2026-09-10.
@@ -51,3 +53,36 @@ La contribución candidata restante es su acoplamiento en una única acción ope
 Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback. Sigue sin decidirse si el verdadero $Y_t$ se observa después de cada predicción, se observa con retraso u ocasionalmente, o no está disponible operacionalmente. La salida del teacher puede ser una etiqueta dura, un vector de probabilidades/logits u otra señal de supervisión; no se selecciona todavía una opción.
 
 Las salidas del teacher pueden ser imperfectas, de modo que no debe suponerse que $\Delta_{\mathrm{learn}}$ sea no negativo. La formulación en `paper/primary/sections/problem_formulation.tex` permanece sin cambios hasta decidir el protocolo. Esta prioridad precede a la siguiente tarea teórica registrada en Decision 003; no establece un nuevo modelo ni un resultado.
+
+## Decision 005 — Consolidation checkpoint antes de la siguiente fase de búsqueda de novedad
+
+Fecha: 2026-09-11.
+
+Este checkpoint consolida las decisiones comunicadas por el investigador y la documentación existente; no introduce referencias externas, supuestos matemáticos ni resultados nuevos. La hipótesis amplia original ya no es defendible: routing adaptativo entre predictores baratos y costosos, competencia local, coste de consulta, routing online/no estacionario, exploración e incluso valor futuro de información cuentan con antecedentes sustanciales.
+
+La pregunta PRIMARY vigente es: dado un predictor barato adaptable $F$ y un teacher costoso $D$, ¿cómo decidir si consultar a $D$ para la muestra actual cuando esa misma consulta (a) puede mejorar la predicción operacional actual y (b) devuelve información que puede actualizar $F$ y, por tanto, cambiar el coste predictivo/de routing futuro?
+
+La descomposición candidata permanece:
+
+```text
+query D iff
+Delta_now(S_t,x_t) + gamma Delta_adapt(S_t,x_t) > C_D
+```
+
+$\Delta_{\mathrm{adapt}}$ es una diferencia de valor de continuación causada por actualizar el predictor barato. `Delta_now` y `Delta_adapt` corresponden a `Delta_pred` y `Delta_learn` en la formulación existente; se conserva allí la dependencia contextual de $C_D$. Es un resultado estructural candidato, NO un teorema ni una equivalencia ya demostrada bajo un modelo especificado. Se mantienen las cautelas de la formulación sobre otras diferencias entre continuaciones.
+
+El valor futuro en sí NO es novedoso: expected-error-reduction active learning, decision-theoretic active learning, sequential learning-to-defer, information-directed routing y marcos generales de decisión secuencial ya valoran efectos futuros. La hipótesis restante es más estrecha: la MISMA consulta costosa es una acción de inferencia operacional actual y proporciona supervisión que cambia la competencia futura de $F$, mientras la decisión de routing valora explícitamente ambos efectos.
+
+Resultados recientes de falsación:
+
+- **Gao & Koller (2011):** adquisición secuencial costosa de clasificadores fijos en inferencia; valor de información adicional para la instancia actual frente al coste computacional; no actualiza un predictor barato para muestras futuras.
+- **Roy & McCallum (2001):** expected-error-reduction active learning; valora explícitamente cómo adquirir una etiqueta y reentrenar cambia el error futuro; la consulta adquiere información de entrenamiento, no selecciona operativamente entre predictores barato/costoso.
+- **Kapoor, Horvitz & Basu (2007):** supervisión selectiva decision-theoretic; coste explícito de etiquetado y coste esperado de clasificación errónea durante el uso del clasificador; sigue siendo una formulación de active learning/supervisión, no routing operacional de modelos. Conclusión comunicada por el investigador; falta el PDF correspondiente y su identificación bibliográfica completa.
+- **ThriftyDAgger (Hoque et al., CoRL 2021):** intervención solicitada por el robot; la intervención humana controla el sistema actual y genera demostraciones para actualizar la política. El gating usa novedad/riesgo y presupuesto de intervención, sin valorar explícitamente el beneficio esperado de aprendizaje futuro de esa intervención particular.
+- **TRACER (Rida, preprint 2026):** antecedente arquitectónico extremadamente próximo; el surrogate barato resuelve entradas aceptadas y el LLM teacher las diferidas; cada consulta también genera una traza para reentrenar el surrogate en un ciclo de aprendizaje continuo. «Teacher routing + teacher traces train the cheap model» NO es novedoso. El routing usa acuerdo predicho con el teacher/confianza y una restricción de paridad, sin valorar explícitamente cuánto se espera que esa consulta mejore el rendimiento futuro del surrogate.
+
+No se reivindicará novedad para teacher/student routing, costly deferral, entrenar al student con respuestas diferidas del teacher, mejorar continuamente el modelo barato con trazas del teacher, ni intervenciones que controlan el sistema actual y generan demostraciones de entrenamiento. La pregunta sin resolver es si la DECISIÓN de routing internaliza explícitamente el valor futuro causado por esa actualización. No direct equivalent has yet been identified within the review documented here; esto no demuestra que no exista.
+
+La principal amenaza pendiente de falsación es **online active learning / selective sampling / abstention**: observar $x_t$; predecir autónomamente o consultar a un oráculo con coste; la consulta evita/reduce pérdida actual y proporciona una etiqueta que actualiza al aprendiz; optimizar pérdida predictiva acumulada más coste de consulta. Puede contener un problema matemáticamente equivalente y debe auditarse antes de afirmar novedad. El PDF local de *Online Selective Classification with Limited Feedback* es un punto de partida pendiente de auditoría, no una equivalencia establecida.
+
+El modelo de feedback sigue sin decidirse: $Y_t$ nunca observado, observado con retraso/ocasionalmente o siempre observado. Esta elección es científicamente decisiva y no se fija en este checkpoint. El teacher puede equivocarse; su actualización puede perjudicar al student y $\Delta_{\mathrm{adapt}}$ NO se supone no negativo. No se modifican los supuestos ni las ecuaciones del manuscrito. La siguiente fase prioriza la falsación bibliográfica; el protocolo deberá fijarse antes de continuar el desarrollo matemático.

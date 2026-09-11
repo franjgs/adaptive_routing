@@ -1,10 +1,10 @@
 # Primary novelty review
 
-Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing with Learning Value**. La segunda revisión, deliberadamente orientada a falsar la hipótesis inicial, la ha refinado a una forma más estrecha. La línea permanece activa; su novedad no está establecida.
+Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing with Learning Value**. Estado vigente: consolidation checkpoint de Decision 005 (2026-09-11), antes de la siguiente fase de búsqueda de novedad. La hipótesis amplia original ya no es defendible. La línea permanece activa; su novedad no está establecida.
 
 ## Evidencia comunicada de la segunda revisión
 
-Este apartado recoge los resultados de la segunda revisión aportados por el investigador, originalmente sin verificación independiente. La actualización asociada a Decision 004 incorpora abajo dos trabajos verificados y sus entradas en `references/bibliography.bib`; la trazabilidad de los demás antecedentes sigue pendiente. Se distinguen los antecedentes comunicados, la evidencia verificada, la interpretación y las hipótesis del proyecto.
+Este apartado conserva los resultados de la segunda revisión aportados por el investigador, originalmente sin verificación independiente. Decision 005 añade las conclusiones de consolidación comunicadas y la identificación de los PDFs locales; no supone una nueva verificación externa. La actualización asociada a Decision 004 incorpora abajo dos trabajos verificados y sus entradas en `references/bibliography.bib`; la trazabilidad de los demás antecedentes sigue pendiente. Se distinguen los antecedentes comunicados, la evidencia verificada, la interpretación y las hipótesis del proyecto.
 
 - **Active Learning** no se limita a uncertainty sampling ni a incertidumbre epistémica. Expected Error Reduction y enfoques de Value of Information pueden evaluar explícitamente la reducción esperada del error predictivo futuro tras adquirir supervisión y actualizar el aprendiz. El principio «coste de consulta + reducción esperada del error futuro» ya existe y no es una afirmación de novedad.
 - **Sequential Learning to Defer** puede considerar consecuencias a largo plazo de las decisiones actuales. No debe caracterizarse universalmente L2D como myopic.
@@ -12,7 +12,7 @@ Este apartado recoge los resultados de la segunda revisión aportados por el inv
 - **Value of Information y teoría secuencial de decisión** pueden ser suficientemente generales para representar el problema propuesto; no se afirma que sean incapaces de hacerlo.
 - **Dual Control / POMDP** proporciona marcos generales de decisión secuencial. La dificultad computacional de sus soluciones genéricas no constituye evidencia de novedad.
 
-## Evidencia verificada — actualización asociada a Decision 004
+## Evidencia por trabajo — Decision 004 y consolidación de Decision 005
 
 ### Gao & Koller (2011)
 
@@ -26,11 +26,34 @@ Este apartado recoge los resultados de la segunda revisión aportados por el inv
 
 **Interpretación conceptual:** `Delta_learning - C_label`. El término de coste expresa aquí el recurso de etiquetado en nuestra comparación conceptual; no atribuye al artículo una ecuación literal de beneficio menos coste variable por consulta. Su criterio selecciona el menor error futuro esperado tras actualizar.
 
-### Hipótesis de acoplamiento, todavía bajo falsación
+### Kapoor, Horvitz & Basu (2007)
 
-La comparación candidata del proyecto es `Delta_immediate + gamma * Delta_learning - C_teacher`: la **misma consulta costosa** puede mejorar la predicción de la instancia operacional actual y aportar supervisión que actualiza el predictor barato, cambiando su rendimiento/coste futuro. Los nombres conceptuales `Delta_immediate` y `Delta_learning` corresponden a `Delta_pred` y `Delta_learn` en la formulación del proyecto; no se identifica el error predictivo de los antecedentes con todo nuestro coste futuro acumulado.
+Según la conclusión comunicada por el investigador, su formulación de supervisión selectiva decision-theoretic incluye coste explícito de etiquetado y coste esperado de clasificación errónea durante el uso del clasificador. Valora consecuencias futuras de aprender, pero formula adquisición de supervisión/active learning, no routing operacional entre modelos. El título exacto y el venue no están establecidos en la documentación local consultada; no se crea una entrada BibTeX. El PDF local *Active Learning with Gaussian Processes for Object Categorization*, de Kapoor, Grauman, Urtasun y Darrell, es otro trabajo y no verifica este antecedente.
 
-Ni el valor futuro del aprendizaje ni la adquisición de clasificadores para la instancia actual son novedosos por sí solos. Su acoplamiento descrito sigue siendo únicamente un posible vacío metodológico bajo falsación activa; estos dos trabajos no demuestran su novedad. Antes de continuar el desarrollo matemático debe fijarse el protocolo de observación y feedback indicado en Decision 004.
+### ThriftyDAgger — Hoque et al. (CoRL 2021)
+
+**ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning**. PDF local: `ThriftyDAgger_hoque22a.pdf`; la primera página identifica CoRL 2021, aunque el nombre del archivo contiene `22a`. La intervención solicitada por el robot controla el sistema actual y genera demostraciones usadas para actualizar la política del robot. Es, por tanto, un antecedente de una intervención que sirve a la tarea presente y al entrenamiento posterior.
+
+El gating se basa en novedad/riesgo y un presupuesto de intervenciones. Según la conclusión consolidada, no valora explícitamente el beneficio esperado de aprendizaje futuro de la intervención particular al decidir solicitarla. **Queda invalidada cualquier afirmación amplia de novedad basada en que una intervención experta sirve al control actual y al entrenamiento posterior de la política autónoma.** Esa doble función no equivale a valorar explícitamente su efecto de actualización en la decisión.
+
+### TRACER — Rida (preprint 2026)
+
+**TRACER: Trace-Based Adaptive Cost-Efficient Routing for LLM Classification**. PDF local: `Trace-Based Adaptive Cost-Efficient Routing for LLM Classification.pdf`, identificado como preprint/work in progress, arXiv:2604.14531v1, 16 April 2026. Es un antecedente arquitectónico extremadamente próximo: un surrogate barato atiende entradas aceptadas y un LLM teacher atiende las diferidas. Cada consulta al teacher produce una traza reutilizada para reentrenar el surrogate, creando un ciclo de aprendizaje continuo.
+
+**TRACER invalida cualquier reivindicación amplia de novedad de reutilizar consultas diferidas al teacher para entrenar y mejorar continuamente el modelo barato.** El routing usa acuerdo predicho con el teacher/confianza y una restricción de paridad. Según la conclusión consolidada, la decisión no incorpora explícitamente cuánto se espera que la consulta actual mejore el rendimiento futuro del surrogate. Considerar el aprendizaje futuro en el diseño del sistema no equivale a valorar el efecto esperado de cada actualización al decidir consultar.
+
+### Pregunta PRIMARY y estructura candidata
+
+Dado un predictor barato adaptable $F$ y un teacher costoso $D$, ¿cómo decidir si consultar a $D$ para la muestra actual cuando esa misma consulta puede mejorar la predicción operacional actual y devolver supervisión que actualiza $F$, cambiando el coste predictivo/de routing futuro?
+
+```text
+query D iff
+Delta_now(S_t,x_t) + gamma Delta_adapt(S_t,x_t) > C_D
+```
+
+`Delta_now` y `Delta_adapt` corresponden a `Delta_pred` y `Delta_learn` en las notas y el manuscrito. `Delta_adapt` es una diferencia de valor de continuación causada por actualizar el predictor barato; puede incluir pérdida predictiva y costes futuros de routing. Se conserva la dependencia contextual del coste de consulta de la formulación existente. Esta descomposición es un **resultado estructural candidato, NO un teorema**; su identificación con la comparación general de valores de acción requiere las justificaciones pendientes ya descritas en el documento matemático.
+
+La hipótesis restante exige que la decisión de routing **valore explícitamente ambos efectos de la misma consulta**. No basta con que el sistema use esa consulta para predecir y aprender: ThriftyDAgger y TRACER ya impiden atribuir novedad a esa arquitectura general.
 
 ### Verificación bibliográfica
 
@@ -38,29 +61,22 @@ Los títulos y autores se comprobaron en los artículos. Año y publicación se 
 
 ## Interpretación actual y comparación conceptual
 
-Future value, information gain y reducción esperada del riesgo futuro aparecen en distintas literaturas. El posible vacío no es el requisito 4 por sí solo: se investiga la combinación en la que la misma consulta costosa resuelve la inferencia actual y proporciona información para mejorar el predictor barato que resolverá observaciones futuras.
+La hipótesis amplia original —routing adaptativo barato/costoso, competencia local, coste de consulta, routing online/no estacionario, exploración y valor futuro de información— ya no es defendible. Future value en sí no es novedoso: expected-error-reduction active learning, decision-theoretic active learning, sequential learning-to-defer, information-directed routing y marcos genéricos de decisión secuencial ya consideran efectos futuros. No se atribuyen propiedades universales a familias enteras a partir de un ejemplo.
 
-La tabla es una orientación conceptual provisional basada en los resultados comunicados, no una clasificación exhaustiva ni una prueba de ausencia de trabajos equivalentes. Cada caracterización queda pendiente de trazabilidad bibliográfica por trabajo.
+Se distinguen cuatro aspectos: beneficio operacional de consultar ahora; valor de información para efectos futuros; actualización efectiva del aprendiz con lo consultado; y valoración explícita de esa actualización en la decisión de routing. La tabla usa las conclusiones consolidadas y los documentos locales; no demuestra ausencia de equivalentes. «Futuro considerado» no implica un término de valor esperado de actualización en el gating.
 
-| Familia | 1. Online operational routing between predictors | 2. Explicit consultation cost | 3. Consultation updates the cheap predictor | 4. Routing/query decision values the future effect of that update |
-| --- | --- | --- | --- | --- |
-| Learning to Defer / Model Routing | Typically, entre predicción autónoma y alternativa | Frecuente; depende de la formulación | No es un requisito general; depende del método | No es un requisito general; deben examinarse variantes |
-| Sequential Learning to Defer | Sí, en formulaciones secuenciales; alcance variable | Depende del objetivo | No necesariamente; puede cambiar el entorno o la información | Puede valorar efectos futuros, pero no necesariamente la actualización del predictor barato |
-| Active Learning / Selective Sampling | No en el mismo sentido operativo de elegir la respuesta actual entre predictores | Según la formulación, coste o presupuesto | Actualiza al aprendiz con supervisión; no necesariamente con otro predictor | Depende del criterio; no se limita a incertidumbre |
-| Expected Error Reduction / Value of Information Active Learning | En general, adquisición de supervisión, no routing operativo en el mismo sentido | Puede incluirlo explícitamente | Sí, mediante la supervisión adquirida | Sí, puede valorar reducción esperada de error futuro |
-| Active Knowledge Distillation | Consulta teacher/student; no necesariamente elección de la respuesta operativa actual | Explícito en variantes cost-aware | Sí, mejora del student con información del teacher | Puede valorar utilidad futura de aprendizaje; depende del método |
-| Dual Control / POMDP | Representable en general; no especialización obligatoria a routing | Representable en el objetivo | Representable en la dinámica del estado | Representable en el valor de continuación |
-| Proposed research direction | Requisito de la formulación candidata | Coste incremental explícito | La misma consulta permite actualizar el predictor barato | Valoración explícita candidata; cálculo y garantías pendientes |
-
-En sequential L2D, el valor futuro puede surgir de cambios en estados del entorno, intervenciones o decisiones posteriores. Aquí interesa específicamente el valor de actualizar el predictor autónomo barato con la predicción diferida. Esta distinción más estrecha todavía debe verificarse frente a literatura adicional; no excluye que existan formulaciones L2D con ese mecanismo.
-
-Las preguntas que guían la comparación son:
-
-- Active Knowledge Distillation: «¿Consultar al teacher porque esta muestra es valiosa para mejorar al student?»
-- Routing tradicional: «¿Consultar al predictor costoso porque ofrece una mejor respuesta ahora?»
-- Dirección propuesta: «¿Consultar al teacher porque el beneficio predictivo inmediato y el beneficio futuro de aprendizaje combinados justifican su coste?»
-
-Estas preguntas delimitan el análisis; no son definiciones exhaustivas de esas literaturas.
+| Trabajo / familia | Operational routing? | Consultation/query cost? | Current-query benefit? | Learner updated from query? | Future effect considered? | Future learner-update value explicitly enters routing decision? |
+| --- | --- | --- | --- | --- | --- | --- |
+| Gao & Koller (2011) | Sí, adquisición de clasificadores en inferencia | Coste computacional explícito | Información para clasificar la instancia actual | No; clasificadores fijos | Información adicional dentro de la instancia; no adaptación entre muestras | No |
+| Roy & McCallum (2001) | No; adquisición de supervisión | Recurso de etiquetado; no se atribuye coste variable por consulta | No como elección operacional barato/costoso | Sí | Error futuro tras reentrenar | Sí en selección de supervisión; no routing operacional |
+| Kapoor, Horvitz & Basu (2007), resultado comunicado | No; supervisión selectiva | Coste explícito de etiquetado | No como routing operacional | Sí, en la formulación de supervisión | Coste esperado de errores durante el uso del clasificador | En la decisión de supervisión; no routing operacional |
+| ThriftyDAgger (2021) | Sí, robot/humano para control | Presupuesto y carga de intervención | Control de la tarea actual | Sí, demostraciones actualizan la política | Aprendizaje posterior considerado en el sistema | No explícitamente para la intervención particular; gating por novedad/riesgo |
+| TRACER (2026) | Sí, surrogate/teacher | Coste de llamadas al LLM | Teacher resuelve la entrada diferida | Sí, trazas para reentrenamiento | Ciclo de mejora continua | No explícitamente para la consulta particular; acuerdo/confianza y paridad |
+| Sequential L2D / information-directed routing | Depende del trabajo | Depende del objetivo | Depende del trabajo | Pendiente por trabajo | Sí, efectos futuros según formulación | No inferir de «future value»; pendiente por trabajo |
+| Active knowledge distillation | Consulta teacher/student; alcance operacional variable | En variantes cost-aware | Pendiente por trabajo | Sí | Puede considerar utilidad de aprendizaje | Pendiente por trabajo |
+| Dual control / POMDP / decisión secuencial | Representable | Representable | Representable | Representable en el estado | Sí, valor de continuación | Representable; generalidad no prueba novedad |
+| Online active learning / selective sampling / abstention | Posible equivalencia; auditoría prioritaria | Consulta o abstención según formulación | Puede evitar/reducir pérdida actual | Puede aprender de la etiqueta consultada | Objetivos secuenciales; precisar por trabajo | Principal cuestión pendiente; no se presupone ausencia |
+| Dirección PRIMARY candidata | Sí | Coste incremental explícito | Puede mejorar la predicción actual | La misma consulta permite actualizar F | Cambio de coste predictivo/de routing futuro | Requisito explícito candidato; cálculo y garantías pendientes |
 
 ## Hipótesis de novedad de trabajo
 
@@ -69,11 +85,23 @@ Estas preguntas delimitan el análisis; no son definiciones exhaustivas de esas 
 > 1. online routing between a cheap predictor and a costly predictor;
 > 2. an explicit immediate cost of consulting the costly predictor;
 > 3. an update of the cheap predictor using information returned by the costly predictor;
-> 4. an explicit valuation of the expected reduction in future predictive risk caused by that update.
+> 4. an explicit valuation, in the routing decision, of the continuation-value difference in future predictive/routing cost caused by that update.
 >
 > This remains a working novelty hypothesis and is still subject to falsification.
 
-Esta conclusión describe el alcance de la segunda revisión comunicada, no demuestra inexistencia de equivalentes. No se sostiene que el valor futuro de aprendizaje esté ausente de los métodos existentes.
+Esta conclusión describe sólo la revisión documentada hasta Decision 005; no demuestra inexistencia de equivalentes. No se reivindica novedad para teacher/student routing, costly deferral, entrenar con respuestas diferidas, mejora continua mediante trazas del teacher, ni intervención que controla y genera demostraciones. La cuestión pendiente es la internalización explícita del valor futuro de la actualización en la DECISIÓN.
+
+## Amenaza prioritaria y decisiones abiertas
+
+**Online active learning / selective sampling / abstention es la amenaza de novedad no resuelta de máxima prioridad.** Puede contener el problema matemáticamente equivalente: observar $x_t$; predecir autónomamente o consultar un oráculo con coste; consultar evita/reduce pérdida actual y proporciona una etiqueta que actualiza al aprendiz; optimizar pérdida predictiva acumulada más coste de consulta. Debe auditarse antes de reivindicar novedad.
+
+El PDF local **Online Selective Classification with Limited Feedback**, de Gangrade, Kag, Cutkosky y Saligrama (2021, arXiv:2110.14243v1), documenta abstención online con feedback sólo al abstenerse y una comparación en términos de errores y abstenciones. Es un punto de partida concreto para la auditoría; esa descripción no establece equivalencia con nuestro objetivo ni valoración explícita del efecto de actualización. La auditoría debe distinguir esos aspectos y el protocolo de feedback.
+
+El feedback de $Y_t$ sigue abierto: nunca observado, retrasado/ocasional o siempre observado. Es científicamente decisivo y no se fija aquí. El teacher es falible y actualizar con su respuesta puede perjudicar al student: `Delta_adapt` no se supone no negativo. Antes de avanzar matemáticamente debe fijarse el protocolo, sin anticiparlo en esta consolidación.
+
+## Otros documentos locales
+
+*Active Learning with Gaussian Processes for Object Categorization* (Kapoor, Grauman, Urtasun y Darrell, 2007) es un antecedente adyacente de adquisición activa de etiquetas con un aprendiz GP; no debe confundirse con Kapoor, Horvitz & Basu. *Active Learning Literature Survey* (Anita Krishnakumar, 2007) es material de contexto sobre active learning. No se establece una comparación detallada de estos documentos con la decisión PRIMARY. El inventario y el estado de PDFs/BibTeX se encuentran en [consolidation_inventory.md](consolidation_inventory.md).
 
 ## Resultados pendientes de demostrar
 

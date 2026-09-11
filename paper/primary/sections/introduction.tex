@@ -1,6 +1,6 @@
 \section{Introduction}
 
-Routing between a cheap adaptive predictor and a more competent but costly
+Routing between a cheap adaptive predictor and a costly, potentially fallible
 teacher predictor involves two potential benefits of escalation: improved
 prediction for the current observation and information that can improve the
 cheap predictor through adaptation. The present action can therefore affect
@@ -8,10 +8,16 @@ the cheap predictor's future competence.
 
 The provisional scientific question is: \emph{Given a cheap adaptive predictor
 and an expensive teacher predictor, how should a system decide whether to
-escalate the current sample when escalation provides both an immediate
-reduction in predictive risk and a potential reduction in future risk through
-adaptation of the cheap predictor?}
+escalate the current sample when that same query can improve the current
+operational prediction and provide information that updates the cheap
+predictor, changing future predictive and routing cost?}
 
 Novelty relative to the state of the art remains under review. A literature
 review explicitly aimed at falsifying novelty must precede algorithm
 implementation and experimental work.
+
+The dual use of a teacher query for the current task and subsequent learning
+is not itself a novelty claim. The unresolved question is whether the routing
+decision explicitly values the future effect caused by that learner update.
+The feedback protocol remains open, and teacher-induced updates may harm the
+cheap predictor; their future value is not assumed nonnegative.
