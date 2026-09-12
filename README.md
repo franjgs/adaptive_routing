@@ -1,6 +1,6 @@
 # Adaptive model routing
 
-Proyecto de investigación sobre decisiones adaptativas y coste-sensibles entre modelos predictivos heterogéneos. El cuello de botella actual es determinar la novedad y formular correctamente el problema científico, antes de implementar algoritmos.
+Proyecto de investigación sobre decisiones adaptativas y coste-sensibles entre modelos predictivos heterogéneos. Decision 010 cierra la teoría principal del modelo lineal-cuadrático para comenzar el diseño del primer ciclo experimental. No se ha establecido novedad ni se han ejecutado experimentos.
 
 ## Línea primaria: Adaptive Cost-Aware Routing with Learning Value
 
@@ -30,11 +30,13 @@ La hipótesis candidata es la conjunción de:
 
 **No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Se trata de una región candidata, no de una novedad establecida. La búsqueda bibliográfica amplia queda pausada. Decision 007 fija el protocolo de feedback fiable retrasado y deriva el valor de una pseudoactualización lineal vectorial; Decision 009 extiende ese resultado al transporte bajo aprendizaje posterior común, con hipótesis explícitas. La continuación secuencial completa sigue abierta. El checkpoint bibliográfico y la matriz comparativa están en `docs/literature/primary_novelty_review.md`.
 
-Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a falsación. Si no se identifica una diferencia metodológica clara y defendible respecto a learning-to-defer, model routing, contextual bandits, active learning, knowledge distillation y trabajos relacionados, se reconsiderará esta línea antes de implementar algoritmos o invertir esfuerzo experimental.
+Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a falsación. Decision 010 permite pasar al diseño experimental sin exigir resolver la continuación adaptativa completa; no convierte los resultados del modelo mínimo en una afirmación de novedad.
 
 Decision 007 adopta routing antes de responder, sustitución operacional de F por D, pseudoactualización inmediata con la misma salida D(x_t) y llegada exógena de Y_t tras retardo fijo tau, independientemente del routing. Y_t puede corregir F después: consultar D compra supervisión anticipada imperfecta, no ground truth. Se comienza con hard labels; el modelo lineal de regresión usa respuestas escalares puntuales. Logits, confianza y feedback ocasional quedan como extensiones.
 
-Se distinguen `Delta_now` (ganancia inmediata), `Delta_R` (cambio exacto del riesgo poblacional tras una pseudoactualización) y `Delta_adapt` (valor acumulado/secuencial). El modelo mínimo muestra compatibilidad isotrópica bajo updates conservadores y existencia de conflicto anisotrópico para pasos arbitrariamente pequeños. No se reivindican como novedosos el desalineamiento de gradientes ni las actualizaciones perjudiciales. El horizonte aislado `B_H Delta_R` no resuelve la evolución contrafactual con updates intermedios ni el objetivo total pérdida más coste de routing.
+Se distinguen `Delta_now` (ganancia inmediata), `Delta_R` (cambio exacto del riesgo poblacional tras una pseudoactualización) y `Delta_adapt` (valor acumulado/secuencial). El modelo mínimo muestra compatibilidad isotrópica bajo updates conservadores y existencia de conflicto anisotrópico para pasos arbitrariamente pequeños. Decision 010 añade condiciones de persistencia temporal y posibilidad geométrica de inversión bajo `M=cI`, manteniendo el alcance del transporte común y sus limitaciones probabilísticas. El puente a evaluación es `Delta_now - C_D + gamma Delta_adapt^(H)`; no es una política óptima ni una regla práctica ya implementada.
+
+**Core theory frozen for first experimental cycle.** Se admiten correcciones matemáticas y aclaraciones necesarias; nuevas extensiones teóricas esperan una necesidad concreta indicada por los experimentos. El horizonte aislado `B_H Delta_R` se conserva como caso especial, no como dinámica general.
 
 ### Current research overview
 
@@ -57,7 +59,7 @@ Label Switching no forma parte del método propuesto ni constituye un eje de inv
 
 ## Alcance de la primera etapa
 
-La primera etapa se centra en la revisión bibliográfica y la formulación científica. No incluye LLM routing como problema principal, concept drift, imbalanced learning, aplicaciones SOC/NOC, múltiples expertos, grandes arquitecturas neuronales ni código experimental. LLMs, concept drift, imbalance, SOC/NOC y múltiples niveles de procesamiento quedan como posibles extensiones o aplicaciones futuras.
+La etapa de revisión bibliográfica y formulación da paso al diseño experimental del modelo mínimo. Este cambio no añade código experimental. LLM routing, concept drift, imbalanced learning, aplicaciones SOC/NOC, múltiples expertos y grandes arquitecturas neuronales permanecen fuera del alcance del primer ciclo.
 
 ## Organización
 

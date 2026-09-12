@@ -1,6 +1,6 @@
 # Research log
 
-Decision 009 establece el estado científico vigente y extiende temporalmente la teoría de una pseudoactualización. Las decisiones anteriores conservan su contexto histórico: siguen vigentes la auditoría y las cautelas de Decision 006, el protocolo y los resultados algebraicos de Decision 007 y la revisión independiente y limitaciones de Decision 008. Los objetivos que entonces estaban abiertos se actualizan en Decision 009.
+Decision 010 establece el estado científico vigente: cierra la cuestión estructural de persistencia/inversión bajo isotropía de segundo orden y congela la teoría principal para el primer ciclo experimental. Las decisiones anteriores conservan su contexto histórico: siguen vigentes la auditoría y las cautelas de Decision 006, el protocolo y resultados de Decision 007, la revisión y limitaciones de Decision 008 y el transporte común de Decision 009. Los problemas abiertos de esos checkpoints se actualizan en Decision 010.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -395,3 +395,123 @@ La extensión se integra tras la teoría single-update en `theoretical_analysis.
 El recálculo racional confirma todas las cifras y signos del contraejemplo. `git diff --check` no detecta errores de whitespace. El paper compila con las herramientas disponibles de TeX Live 2026, sin instalar dependencias: pdfLaTeX, BibTeX y dos pasadas posteriores de pdfLaTeX. Los auxiliares y el PDF se generan fuera del repositorio, en un directorio temporal que conserva la relación `paper/primary`–`references` para resolver la bibliografía existente.
 
 La compilación final produce 20 páginas, sin errores ni citas/referencias sin resolver. Quedan ocho avisos `Overfull \\hbox` en texto previo de Introduction, Related Work y los apartados anteriores de teoría/horizonte aislado; el mayor es 39.52344 pt en Related Work. Las ecuaciones nuevas no dejan avisos de desbordamiento. Se muestran `git status --short` y `git diff --stat` al cerrar la revisión. No se hace commit ni push.
+
+## Decision 010 — Fourth-order geometry determines temporal sign persistence under second-order isotropy
+
+Fecha: 2026-09-12.
+
+### A. Decisión y alcance
+
+Se cierra la pregunta estructural planteada en Decision 009: cuándo el aprendizaje posterior preserva el signo del valor de adaptación y cuándo puede deformarlo hasta invertirlo. El alcance es el modelo lineal-cuadrático, con M=E[XX^T]=cI, c>0, p>=2 y las hipótesis de common coupling, pares posteriores i.i.d., ruido condicionalmente centrado e independiente de la perturbación teacher inicial, y momentos finitos de Decision 009. No se generaliza al full continuation/Q value.
+
+La finalidad sigue siendo **operational routing with learning value**: valorar una consulta atendiendo a su respuesta actual y al efecto de entrenar con ella después del aprendizaje posterior. No se presenta como nueva teoría de SGD, como contribución novedosa ni como un trabajo sobre estadísticas de cuarto orden. No se busca bibliografía ni se añaden referencias.
+
+### B. Resultados probados: transporte escalar y persistencia
+
+Definir H=E[||X||²XX^T], escrita mathsf H para distinguirla del horizonte escalar H de Decision 009. El cuarto momento finito hace finitas sus entradas. Para Q=qI, XX^T Q XX^T=q||X||²XX^T, por lo que
+
+$$
+\mathcal T(qI)=q[(1-2\eta c)I+\eta^2\mathsf H],\qquad
+K_1=c[(1-2\eta c)I+\eta^2\mathsf H].
+$$
+
+Se verifican los factores c: el exterior corresponde al riesgo inicial K_0=cI y el interior al segundo momento de los inputs posteriores. No se introduce un factor c adicional dentro de mathsf H. Si mathsf H=rho I, lambda=1−2eta c+eta²rho satisface T(qI)=q lambda I. Por inducción K_k=c lambda^k I y, por el teorema de transporte, Delta_k=lambda^k Delta_0.
+
+La positividad no se supone: T(I)=E[A²]=lambda I es PSD, y para cada X
+
+$$
+\operatorname{tr}(A^2)=p-1+(1-\eta\|X\|^2)^2\geq p-1.
+$$
+
+Para X no nulo, A es la identidad en las p−1 direcciones ortogonales. Para X=0, A=I y la igualdad da exactamente p. Es válida para cualquier eta real. Tomando esperanza, lambda>=(p−1)/p>0 si p>=2. La proposición de persistencia concluye sign(Delta_k)=sign(Delta_0) para todo k finito, incluyendo el signo cero. No se deduce contracción ni se toma un límite temporal infinito.
+
+### C. Corolarios probados
+
+**Compatibilidad temporal:** Delta_now>0 y 0<eta_D||x||²<=1 implican Delta_0>0 por la compatibilidad isotrópica previa; la proposición implica Delta_k>0 para todo k finito. Esto se refiere al componente de adaptación bajo continuación común, no al beneficio total neto de consulta ni a optimalidad.
+
+**Invariancia rotacional:** si OX tiene la misma ley que X para toda matriz ortogonal O, M y mathsf H son invariantes bajo conjugación por O. Cambios de signo de coordenadas anulan términos fuera de la diagonal y permutaciones igualan las diagonales. Las trazas dan
+
+$$
+M=\frac{\mathbb E\|X\|^2}{p}I,\qquad
+\mathsf H=\frac{\mathbb E\|X\|^4}{p}I.
+$$
+
+Con cuarto momento finito y E||X||²>0 aplica la proposición bajo las restantes hipótesis de transporte. Se excluye la ley degenerada X=0 casi seguramente porque no cumple c>0. Rotational invariance es suficiente, no necesaria; se presenta como corolario.
+
+### D. Brazo anisótropo y auditoría singular
+
+Si mathsf H no es escalar y eta>0, K_1 no es escalar, ya que c eta²>0. Su definición E[A^T M A] garantiza simetría y semidefinitud positiva. La construcción geométrica sólo necesita PSD: elegir autovectores ortonormales u,v con autovalores 0<=r<s y x=u+v da x^T K_1 x=r+s>0, ||K_1x||²=r²+s²>0 y x no autovector. La diferencia de Cauchy–Schwarz es (s−r)²>0. Todo sigue siendo válido con r=0<s.
+
+Los denominadores son positivos y el intervalo
+
+$$
+\frac{x^TK_1x}{\|K_1x\|^2}<\kappa<\frac{\|x\|^2}{x^TK_1x}
+$$
+
+es no vacío. Con e=x−kappa K_1x se obtiene alpha=x^T e>0 y x^T K_1e<0. No se invierte K_1 ni aparece una excepción por singularidad.
+
+**Precisión detectada en la auditoría solicitada:** el K_1 realizable bajo M=cI, c>0 y p>=2 no puede ser singular. Si z no nulo anulara z^T K_1z=c E||Az||², tendríamos Az=0 casi seguramente, es decir z=eta X(X^Tz), y X estaría casi seguramente en la recta de z. Esto contradice M=cI de rango p>=2. Se documentan tanto esta exclusión específica del modelo como la validez de la construcción PSD incluso para una matriz singular abstracta. No se añade una hipótesis de invertibilidad.
+
+### E. Teorema probado de posibilidad de inversión
+
+Para el x,e construidos, elegir b=0, 0<sigma_D²<alpha² y 0<eta_D||x||²<=1. Un teacher de ruido simétrico independiente ±sqrt(sigma_D²) satisface los momentos requeridos y la ortogonalidad con el ruido de tarea. Entonces Delta_now=alpha²−sigma_D²>0 y la compatibilidad isotrópica da Delta_0>0. Pero
+
+$$
+\Delta_1=2\eta_D\alpha x^TK_1e
+-\eta_D^2(\alpha^2+\sigma_D^2)x^TK_1x<0.
+$$
+
+El término lineal y el término cuadrático con su signo negativo son estrictamente negativos. Se demuestra existencia algebraica de input, estado, teacher unbiased/falible y pseudo-step conservador con Delta_now>0, Delta_0>0 y Delta_1<0. No se afirma inversión universal, frecuencia ni tipicidad de estados de SGD.
+
+### F. Dos implicaciones y cuantificadores del iff
+
+Se mantienen dos implicaciones: mathsf H isotrópica implica preservación temporal universal del componente transportado; mathsf H anisótropa hace posible una inversión en una configuración algebraica inicialmente beneficiosa. El teorema permite elegir x en R^p y no garantiza que ese vector esté en el soporte de P_X.
+
+Un iff sería defendible si «universal» cuantificara expresamente sobre todos los x del espacio ambiente, estados, teachers y pseudo-steps compatibles, con una ley futura y eta>0 fijos: la construcción negaría esa propiedad en el brazo anisótropo. Pero no justifica un iff sobre inputs del soporte o configuraciones realmente encontradas, ni para cualquier teacher/paso previamente fijados. Por esa sutileza operacional, no se escribe un bicondicional formal en el paper. Las conclusiones no se traducen en frecuencia o tipicidad bajo aprendizaje.
+
+### G. Ejemplo preservado e interpretación científica
+
+Se conserva y recalcula el contraejemplo de Decision 009: M=I, mathsf H=diag(4,2), eta=0.4 y K_1=diag(0.84,0.52). Los valores exactos permanecen alpha=0.0552, Delta_now=0.00204704, Delta_0=0.0008950528, x^T K_1e=−0.03568, Delta_1=−0.001007973376 y eta_D||x||²=0.4. Es una instancia concreta del teorema; su argumento específico de probabilidad positiva sobre inputs a estado fijo sigue siendo válido y no se generaliza al teorema de existencia.
+
+Decision 010 generaliza la explicación estructural: con mathsf H isotrópica el efecto sólo se reescala positivamente; con mathsf H anisótropa la geometría puede deformarse lo suficiente para invertir el signo transportado. La pseudoactualización inicial no cambia retrospectivamente. Para routing, valorar sólo Delta_R puede valorar mal una consulta cuyo efecto debe transportarse a través del aprendizaje posterior.
+
+### H. Bridge al diseño experimental
+
+El paper tenía el comparador aislado y Delta_adapt acumulado, pero faltaba una expresión compacta que los conectara para transporte general. Se añade una única formulación bajo continuación fija/común de H etapas:
+
+$$
+\Delta_{\mathrm{now}}(S_t,x_t)-C_D(S_t,x_t)
++\gamma\Delta_{\mathrm{adapt}}^{(H)}.
+$$
+
+C_D es el coste incremental ya definido en Problem Formulation; no hay un C_F adicional que restar. Se conserva el origen futuro de Delta_adapt y su gamma exterior. Las etapas deben corresponder al calendario documentado: Y_t llega después de responder en t+tau y puede afectar por primera vez a t+tau+1. Es un surrogate gain para evaluación, no una regla práctica ni un teorema de optimalidad. El riesgo barato no equivale automáticamente a toda la continuación operacional cuando cambia el routing futuro.
+
+### I. Auditoría final de suficiencia
+
+The core theoretical chain is now:
+
+1. (a) current operational gain Delta_now;
+2. (b) exact single-update population-risk gain Delta_R;
+3. (c) compatibility/conflict geometry;
+4. (d) delayed reliable feedback protocol;
+5. (e) common-coupled transport h_k=P_k h_0;
+6. (f) exact transported adaptation value Delta_k;
+7. (g) accumulated value through Kbar_H;
+8. (h) dynamic sign reversal;
+9. (i) structural characterization of sign preservation/reversal under M=cI, con el alcance geométrico y los límites de soporte declarados.
+
+**Valoración de suficiencia:** esta cadena queda suficientemente cerrada para comenzar el diseño del primer ciclo experimental. El paper mantiene pruebas y limitaciones y el cuaderno conserva derivaciones completas y comprobaciones reproducibles. No hace falta demostrar frecuencia de los estados construidos para que el mecanismo sea una pregunta experimental bien definida. No se afirma que ya haya validación empírica ni un algoritmo implementado.
+
+No se consideran prerrequisitos del primer paper resolver full adaptive Q values, regret bounds, stationary SGD distributions, la distribución de e_t, teoría general de learners no lineales, feedback pendiente arbitrario no i.i.d. ni una forma cerrada general de T^k fuera del caso estructural. Son posibles extensiones y se enumeran sin desarrollarlas. Las cuestiones experimentales son si valorar el transporte mejora la valoración de consultas frente al valor de una sola actualización y cómo se refleja en pérdida operacional más costes; no se anticipan las respuestas.
+
+### J. Congelación de la teoría principal
+
+**Core theory frozen for first experimental cycle.** Se pueden corregir errores matemáticos y añadir aclaraciones necesarias. Las extensiones teóricas nuevas quedan congeladas hasta que los experimentos indiquen una necesidad concreta. Tras integrar esta decisión no se resuelven nuevos problemas matemáticos ni se diseñan o ejecutan experimentos en este cambio.
+
+Se actualizan el cuaderno, la teoría del paper, el framing breve de Introduction y el alcance de Problem Formulation. README actualiza el estado para dar paso al diseño experimental y conserva las cautelas sobre novedad. Related Work no presenta contradicción y no se modifica. Los resultados previos se conservan; las precisiones matemáticas nuevas son la cota estricta de lambda, la exclusión de singularidad de K_1 bajo las hipótesis actuales, el caso degenerado del corolario rotacional y los cuantificadores de la construcción.
+
+### K. Validación final
+
+Se ejecutan los fragmentos reproducibles del cuaderno con Python estándar y aritmética racional: pasan el contraejemplo de Decision 009, los factores de transporte con c=2 y las construcciones PSD con autovalores distintos, incluido uno cero en una matriz abstracta. Las pruebas generales se verifican algebraicamente; estas comprobaciones no las sustituyen. Una comparación textual con el estado inicial confirma que las secciones anteriores de compatibilidad, conflicto y transporte se conservan.
+
+`git diff --check` termina sin errores. Se compila el estado inicial para comparar avisos y, después del cambio, se ejecutan pdfLaTeX, BibTeX y dos pasadas adicionales de pdfLaTeX, sin instalar dependencias ni escribir auxiliares en el repositorio. El PDF final tiene 24 páginas, sin errores ni citas/referencias sin resolver. Persisten exactamente los ocho avisos `Overfull hbox` de la compilación inicial, con las mismas anchuras; el mayor es 39.52344 pt en Related Work. No aparecen warnings nuevos. Se muestran `git status --short` y `git diff --stat`; no se hace commit ni push.

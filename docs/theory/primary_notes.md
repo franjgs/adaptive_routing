@@ -4,6 +4,8 @@ Cuaderno de razonamiento y derivaciones de **Adaptive Cost-Aware Routing with Le
 
 Decision 009 extiende temporalmente la teoría de una pseudoactualización mediante transporte bajo aprendizaje posterior común. Las secciones de Decisions 007–008 conservan sus pruebas y contexto; los problemas entonces abiertos se actualizan al final de este cuaderno. En particular, se adopta SGD ordinario como regla fiable mínima admisible y se resuelve un componente de adaptación bajo hipótesis explícitas, no la continuación secuencial completa.
 
+Decision 010 cierra la cuestión estructural de persistencia/inversión bajo M=cI. La teoría principal queda congelada para el primer ciclo experimental; se mantienen las limitaciones del common coupling y no se requiere resolver la continuación adaptativa completa para comenzar ese ciclo. El problema estructural planteado al final de Decision 009 pasa a ser antecedente histórico de los resultados demostrados abajo.
+
 ## Estado científico y relación con Decision 006
 
 La auditoría dirigida de Decision 006 y sus límites siguen vigentes. Valor futuro de aprendizaje, ruido, consulta selectiva, actualización online, expertos locales y perjuicio por supervisión adicional tienen antecedentes. Selective sampling puede ser exploratorio y no-myopic; no se caracteriza globalmente como miope. La búsqueda amplia permanece pausada. Decision 007 satisface la prioridad protocolaria de Decision 006 y adopta una especialización lineal; no reinterpreta la auditoría como prueba de novedad.
@@ -612,8 +614,241 @@ No se introduce una regla que deba deshacer la pseudoactualización. Para x_t no
 
 Y_t se revela después de emitir la respuesta operacional en t+tau. Su uso puede modificar por primera vez la respuesta de t+tau+1. No se inserta esa actualización antes de la última de las tau respuestas anticipadas. La identidad anterior es por realización y no exige la independencia de nu_t respecto de epsilon_t. El teorema i.i.d. de transporte no cubre automáticamente esa reutilización de x_t ni los datos ya pendientes al condicionar en el estado actual; deben revisarse sus hipótesis antes de cerrar esperanzas. Esto no invalida SGD ordinario con feedback retrasado, sólo delimita el resultado cerrado base.
 
-### Siguiente problema abierto, sin resolver
+### Problema abierto al cerrar Decision 009 (resuelto estructuralmente en Decision 010)
 
 Analizar condiciones estructurales de persistencia e inversión. La siguiente comprobación formal es si una ley rotacionalmente invariante con M=cI implica T(c'I)=c''I y, por inducción, K_k=c_k I, bajo los momentos necesarios. Aquí no se demuestra ni se afirma esa implicación como resultado. Si se confirma, habrá que estudiar las condiciones de positividad de los factores que permitan aplicar la proposición de persistencia; factor cero no preserva un signo no nulo.
 
 Después, y sólo si resulta necesario, conectar la relevancia del conflicto con los estados e_t inducidos por trayectorias naturales. No se introduce covarianza estacionaria de SGD, gaussianidad de e_t, distribution shift ni experimentos. El full continuation/Q value y la optimalidad secuencial siguen abiertos, incluso cuando un componente de adaptación bajo common coupling sea exactamente calculable.
+
+## Decision 010 — Fourth-order geometry determines temporal sign persistence under second-order isotropy
+
+### Alcance y notación
+
+La pregunta cerrada en esta decisión es cuándo el aprendizaje posterior preserva el signo del valor de adaptación y cuándo puede deformarlo hasta invertirlo. Se trabaja exclusivamente dentro del modelo lineal-cuadrático de Decisions 007–009, con p>=2, M=cI, c>0, paso posterior constante eta>0 y cuarto momento finito. Se conservan las hipótesis condicionales de pares futuros i.i.d., centrado, independencia respecto del ruido de la consulta inicial y momentos suficientes de Decision 009. Las conclusiones sobre Delta_k dependen de esas hipótesis, además de las condiciones geométricas que siguen.
+
+La matriz denominada H en el desarrollo de esta decisión se escribe **mathsf H** en las ecuaciones para distinguirla del horizonte escalar H ya usado en Kbar_H y Delta_adapt^(H):
+
+$$
+\mathsf H:=\mathbb E[\|X\|^2XX^T],\qquad
+A=I-\eta XX^T,\qquad \mathcal T(Q)=\mathbb E[A^TQA].
+$$
+
+Es una distinción tipográfica, no un cambio de definición. eta_D sigue siendo el paso inicial de pseudo-supervisión y eta_Y el paso al recibir el target fiable. Los conteos de updates, etapas y rondas conservan las convenciones de Decision 009.
+
+### Resultado probado: acción sobre matrices escalares
+
+Para Q=qI, con q escalar,
+
+$$
+XX^TQXX^T=qX(X^TX)X^T=q\|X\|^2XX^T.
+$$
+
+Al expandir A^T(qI)A y tomar esperanza, los dos términos lineales son −eta q M cada uno. Por tanto,
+
+$$
+\boxed{\mathcal T(qI)=q[(1-2\eta c)I+\eta^2\mathsf H].}
+$$
+
+En particular, K_0=M=cI da
+
+$$
+\boxed{K_1=c[(1-2\eta c)I+\eta^2\mathsf H]
+=cI-2\eta c^2I+c\eta^2\mathsf H.}
+$$
+
+Auditoría de factores: el c exterior corresponde a la matriz de riesgo inicial; el c de 2eta c corresponde al segundo momento de los inputs posteriores. mathsf H ya contiene la escala de cuarto orden y no debe multiplicarse por un c adicional dentro del corchete. Estos factores también se comprobaron mediante aritmética racional en una ley discreta con c=2, descrita en la comprobación reproducible más abajo.
+
+### Proposición probada: persistencia temporal bajo mathsf H=rho I
+
+Si mathsf H=rho I, definir lambda=1−2eta c+eta²rho. Entonces T(qI)=q lambda I y, por inducción,
+
+$$
+K_0=cI,\qquad
+K_{k+1}=\mathcal T(c\lambda^kI)=c\lambda^{k+1}I,
+\qquad K_k=c\lambda^kI.
+$$
+
+Aplicando el teorema de transporte de Decision 009, para cada k finito,
+
+$$
+\begin{aligned}
+\Delta_k
+&=2\eta_Dd\,x^T(c\lambda^kI)e
+  -\eta_D^2(d^2+\sigma_D^2)x^T(c\lambda^kI)x\\
+&=\lambda^k\Delta_0.
+\end{aligned}
+$$
+
+**Positividad estricta de lambda, demostrada y no supuesta.** T(I)=E[A²]=lambda I es PSD, lo que inicialmente sólo da lambda>=0. Para cada X no nulo, A actúa como la identidad sobre el subespacio ortogonal a X, de dimensión p−1, y multiplica por 1−eta||X||² la dirección de X. Así,
+
+$$
+\operatorname{tr}(A^2)=p-1+(1-\eta\|X\|^2)^2\geq p-1.
+$$
+
+Si X=0, A=I y la igualdad sigue siendo correcta: p−1+1=p. No hay excepción en el origen. La expresión es válida para cualquier eta real, incluidos cero y los positivos del modelo. La esperanza es finita por el cuarto momento. Tomando trazas y esperanzas,
+
+$$
+p\lambda=\mathbb E[\operatorname{tr}(A^2)]\geq p-1,
+\qquad \boxed{\lambda\geq\frac{p-1}{p}>0\quad(p\geq2).}
+$$
+
+Se concluye sign(Delta_k)=sign(Delta_0) para todo k finito y para toda configuración inicial que cumpla las hipótesis del teorema de transporte, incluyendo Delta_0=0. No se presupone un signo inicial positivo ni teacher unbiased para esta proposición. No se afirma lambda<=1: preservar signo no implica contraer magnitud, ni se toma un límite temporal infinito. La restricción p>=2 es esencial para que esta cota sea estricta; no se extiende aquí el resultado a p=1.
+
+### Corolario probado: consulta inicialmente beneficiosa y conservadora
+
+Bajo la proposición, si Delta_now>0 y 0<eta_D||x||²<=1, la compatibilidad isotrópica previa implica Delta_0=Delta_R>0. Como lambda^k>0,
+
+$$
+\Delta_k=\lambda^k\Delta_0>0\qquad\text{para todo }k\geq0\text{ finito}.
+$$
+
+Se refiere al transported adaptation component bajo common coupling. No prueba positividad del full continuation value ni que consultar sea preferible después de pagar C_D.
+
+### Corolario probado: rotational invariance es suficiente
+
+Supóngase que OX tiene la misma ley que X para toda matriz ortogonal O, con cuarto momento finito y E||X||²>0. La preservación de la norma implica
+
+$$
+OMO^T=\mathbb E[(OX)(OX)^T]=M,
+\qquad
+O\mathsf HO^T=\mathbb E[\|OX\|^2(OX)(OX)^T]=\mathsf H.
+$$
+
+Para cualquiera de las dos matrices, cambiar el signo de una coordenada fuerza a cero los elementos fuera de la diagonal que contienen esa coordenada. Permutar coordenadas fuerza la igualdad de todos los elementos diagonales. Ambas matrices son, por tanto, escalares. Sus trazas fijan los coeficientes:
+
+$$
+\boxed{M=\frac{\mathbb E\|X\|^2}{p}I,\qquad
+\mathsf H=\frac{\mathbb E\|X\|^4}{p}I.}
+$$
+
+Así c=E||X||²/p>0 y rho=E||X||⁴/p. Con las restantes hipótesis de transporte, se aplica la proposición. La ley degenerada X=0 casi seguramente no satisface c>0 y queda fuera del corolario, aunque la identidad de traza usada para lambda sí admite realizaciones X=0. Rotational invariance es condición suficiente, no necesaria; el resultado principal requiere sólo las dos isotropías de momentos indicadas.
+
+### Brazo anisótropo: resultado algebraico y auditoría de singularidad
+
+Si mathsf H no es proporcional a I y eta>0, entonces K_1=c[(1−2eta c)I+eta²mathsf H] tampoco lo es, pues c eta²>0. Es simétrica PSD por su definición E[A^T M A]. No se puede inferir que cualquier matriz PSD no escalar sea invertible; la construcción siguiente no usa inversa alguna.
+
+**Auditoría específica del modelo.** Bajo M=cI, c>0 y p>=2, el K_1 efectivamente producido por este modelo resulta incluso definido positivo. Si un z no nulo satisficiera z^T K_1 z=0, entonces
+
+$$
+0=c\mathbb E\|Az\|^2\quad\Longrightarrow\quad
+Az=0\text{ casi seguramente}\quad\Longrightarrow\quad
+z=\eta X(X^Tz)\text{ casi seguramente}.
+$$
+
+La última igualdad obliga a que X sea no nulo y paralelo a z casi seguramente. Para cualquier vector w ortogonal a z tendríamos E[(w^T X)²]=0, en contradicción con w^T M w=c||w||²>0. Por tanto K_1 no puede ser singular bajo estas hipótesis. Se registra esta precisión para no sugerir que el caso singular es realizable dentro del modelo actual. La prueba geométrica se da a continuación al nivel PSD pedido y muestra que ni siquiera una singularidad abstracta invalidaría los denominadores o la construcción.
+
+### Construcción probada que sólo requiere PSD no escalar
+
+Sea K una matriz simétrica PSD no proporcional a I (se aplicará a K_1). Existen autovalores distintos 0<=r<s y autovectores ortonormales u,v. Elegir x=u+v. Entonces
+
+$$
+Kx=ru+sv,\qquad \|x\|^2=2,\qquad
+x^TKx=r+s>0,\qquad \|Kx\|^2=r^2+s^2>0.
+$$
+
+Como r y s son distintos, x no es autovector. Esto incluye r=0<s. La desigualdad estricta de Cauchy–Schwarz puede comprobarse también directamente:
+
+$$
+\|x\|^2\|Kx\|^2-(x^TKx)^2
+=2(r^2+s^2)-(r+s)^2=(s-r)^2>0.
+$$
+
+Los dos denominadores siguientes son positivos y el intervalo es no vacío:
+
+$$
+\frac{x^TKx}{\|Kx\|^2}<\kappa<\frac{\|x\|^2}{x^TKx}.
+$$
+
+Con e=x−kappa Kx,
+
+$$
+\alpha=x^Te=\|x\|^2-\kappa x^TKx>0,\qquad
+x^TKe=x^TKx-\kappa\|Kx\|^2<0.
+$$
+
+No hay denominadores nulos, ni se utiliza K^{-1}. Si r=0<s, el intervalo se reduce a (1/s,2/s), que sigue siendo no vacío. Esto completa la auditoría de la construcción ante una matriz PSD posiblemente singular; su aplicabilidad a K_1 no necesita una hipótesis extra.
+
+### Teorema probado: posibilidad de inversión temporal
+
+Con M=cI, c>0, p>=2, mathsf H no escalar, eta>0 y las hipótesis de transporte, aplicar la construcción anterior a K=K_1. Elegir b=0, de modo que d=alpha, y 0<sigma_D²<alpha². Entonces Delta_now=alpha²−sigma_D²>0. Un ruido teacher simétrico ±sqrt(sigma_D²), independiente del ruido de tarea actual y de los pares futuros, satisface los momentos requeridos.
+
+Elegir 0<eta_D||x||²<=1, posible porque x no es cero. La compatibilidad isotrópica single-update da Delta_0>0. Sin embargo,
+
+$$
+\Delta_1
+=2\eta_D\alpha x^TK_1e
+-\eta_D^2(\alpha^2+\sigma_D^2)x^TK_1x<0.
+$$
+
+El primer término es estrictamente negativo por alpha>0 y x^T K_1 e<0; el segundo término completo también es estrictamente negativo porque se resta una cantidad positiva. Se obtiene la existencia algebraica de e, x, teacher unbiased y falible, y pseudo-step conservador con
+
+$$
+\boxed{\Delta_{\mathrm{now}}>0,\qquad\Delta_0>0,\qquad\Delta_1<0.}
+$$
+
+Los pasos de consulta conservadores dan el signo inicial positivo; para esta configuración, el argumento de negatividad transportada vale para cualquier eta_D>0, aunque fuera del régimen conservador no hemos deducido Delta_0>0. No se cambia retrospectivamente la actualización inicial: se invierte el signo de su efecto contrafactual después de aprender.
+
+### Auditoría de cuantificadores: dos implicaciones, sin iff no cualificado
+
+Se conservan como conclusión estructural dos implicaciones bajo M=cI:
+
+- mathsf H proporcional a I implica preservación temporal universal del signo del componente de adaptación transportado, bajo las hipótesis de transporte.
+- mathsf H no proporcional a I permite inversión temporal en una configuración algebraica inicialmente beneficiosa y conservadora.
+
+Si «universal» se definiera exactamente sobre todos los x de R^p, todos los e y todos los teachers/pasos que satisfacen Delta_now>0 y 0<eta_D||x||²<=1, para una ley futura fija y eta>0 fijo, las pruebas justifican la equivalencia algebraica: la primera implicación cubre todas esas configuraciones; el teorema anisótropo proporciona una que la contradice cuando mathsf H no es escalar. Esta conclusión usa la libertad de elegir el input actual como vector del espacio ambiente.
+
+Pero una lectura operacional puede restringir x al soporte de P_X, o requerir que la propiedad se cumpla casi seguramente bajo los inputs encontrados y un teacher/paso previamente fijados. La construcción no garantiza que el x escogido pertenezca al soporte, ni permite imponer a posteriori un teacher o paso ya fijados. Por esa sutileza, el paper mantiene dos implicaciones y no formula un iff universal no cualificado. No se deduce inversión para todo x/e, frecuencia, tipicidad del estado ni inversión para toda trayectoria. La caracterización estructural es de preservación universal frente a posibilidad geométrica, con estos cuantificadores explícitos.
+
+### Relación con el contraejemplo de Decision 009 y comprobaciones
+
+Se conserva completo el ejemplo X=(G,R)^T: M=I, mathsf H=diag(4,2), eta=0.4 y K_1=diag(0.84,0.52). Es una instancia concreta del brazo anisótropo; Decision 010 da la explicación estructural de la inversión que Decision 009 había mostrado numéricamente. Sus valores, recalculados de nuevo con el fragmento de fracciones anterior, permanecen alpha=0.0552, Delta_now=0.00204704, Delta_0=0.0008950528, x^T K_1 e=−0.03568 y Delta_1=−0.001007973376; eta_D||x||²=0.4. Su argumento específico de probabilidad positiva sobre inputs a estado fijo sigue vigente y no se generaliza a toda ley con mathsf H anisótropa.
+
+La siguiente comprobación adicional usa sólo aritmética racional. La ley X=(2,0) o (0,2), equiprobable, tiene M=2I y mathsf H=8I; permite detectar un factor c omitido sin imponer rotational invariance. La segunda parte verifica los denominadores y signos en matrices PSD diagonales, incluida una singular abstracta: no pretende realizar esa matriz singular como K_1 bajo M=cI. No es una simulación ni un experimento.
+
+```python
+from fractions import Fraction as F
+
+samples = [(F(1,2), (F(2), F(0))), (F(1,2), (F(0), F(2)))]
+c, rho = F(2), F(8)
+for eta in [F(-2), F(0), F(1,4), F(2,5), F(2)]:
+    diagonal = [sum(prob*(1-eta*x[i]**2)**2 for prob, x in samples)
+                for i in range(2)]
+    lam = 1-2*eta*c+eta**2*rho
+    assert diagonal == [lam, lam] and lam >= F(1,2)
+    assert [c*v for v in diagonal] == [c*lam, c*lam]
+for r, s in [(F(0), F(1)), (F(13,25), F(21,25)), (F(2), F(5))]:
+    lower, upper = (r+s)/(r*r+s*s), F(2)/(r+s)
+    kappa = (lower+upper)/2
+    e = [1-kappa*r, 1-kappa*s]
+    alpha, xKe = sum(e), r*e[0]+s*e[1]
+    assert lower < kappa < upper and alpha > 0 and xKe < 0
+    eta_D, variance = F(1,4), alpha**2/2
+    delta0 = 2*eta_D*alpha**2-eta_D**2*(alpha**2+variance)*2
+    delta1 = 2*eta_D*alpha*xKe-eta_D**2*(alpha**2+variance)*(r+s)
+    assert delta0 > 0 and delta1 < 0 and eta_D*2 <= 1
+```
+
+### Interpretación para routing y bridge de horizonte finito
+
+El aprendizaje posterior preserva o deforma la geometría con la que se evalúa la pseudoactualización inicial. Bajo M=cI, mathsf H determina si el primer paso conserva una matriz de riesgo escalar; si mathsf H es isotrópica, toda la secuencia reescala positivamente el efecto. Si es anisótropa, puede deformarlo lo suficiente para que una consulta inicialmente beneficiosa tenga un efecto transportado perjudicial. Un router que valore sólo Delta_R puede, por ello, valorar mal la consulta. Este framing es operational routing with learning value; no se centra el trabajo en estadísticas de cuarto orden ni se reivindica nueva teoría de SGD.
+
+El manuscrito ya incluía el comparador aislado, pero no escribía en una única expresión su análogo con transporte acumulado general. Se añade, bajo continuación fija/común de H etapas, el surrogate gain del lado de consultar:
+
+$$
+\boxed{\Delta_{\mathrm{now}}(S_t,x_t)-C_D(S_t,x_t)
++\gamma\Delta_{\mathrm{adapt}}^{(H)}.}
+$$
+
+C_D ya es el coste incremental de consulta en problem_formulation.tex; no hay C_F explícito que deba restarse otra vez. Delta_adapt^(H) descuenta desde la primera respuesta futura, por lo que se conserva el gamma exterior. La identidad con el antiguo B_H Delta_R se mantiene en el caso sin transporte. El calendario debe respetar el mapeo entre updates y respuestas de Decision 009: Y_t se revela después de responder en t+tau y puede afectar por primera vez a t+tau+1.
+
+Es un objeto de evaluación para los experimentos, no una nueva regla práctica ni un teorema de optimalidad. El gap de riesgo poblacional barato no se identifica automáticamente con diferencias de respuestas/costes futuros bajo routing adaptativo. La sección experimental aún debe diseñarse; este cierre no contiene experimentos ni resultados empíricos.
+
+### Auditoría final de suficiencia y cuestiones experimentales
+
+La cadena principal contiene: (a) ganancia operacional actual; (b) ganancia exacta de una pseudoactualización; (c) geometría de compatibilidad/conflicto; (d) protocolo fiable retrasado; (e) transporte común h_k=P_k h_0; (f) Delta_k exacto; (g) acumulación mediante Kbar_H; (h) inversión dinámica; (i) condiciones estructurales de preservación y posibilidad de inversión bajo M=cI. Las derivaciones, condiciones y límites están documentados y la teoría se considera suficientemente cerrada para comenzar el diseño del primer ciclo experimental.
+
+Las preguntas experimentales pendientes son si valorar el transporte cambia útilmente la valoración de consultas respecto de usar sólo Delta_R, cómo se refleja en pérdida operacional más coste de consulta y cuál es el alcance empírico del mecanismo en los escenarios elegidos. Son preguntas, no predicciones demostradas ni afirmaciones sobre frecuencia de estados construidos.
+
+No son prerrequisitos de ese ciclo: resolver full adaptive Q values, cotas de regret, distribuciones estacionarias de SGD, la distribución de los estados e_t, teoría general no lineal, feedback pendiente arbitrario no i.i.d. ni una forma cerrada general para T^k fuera del caso estructural. Se registran exclusivamente como posibles extensiones, sin desarrollarlas.
+
+**Core theory frozen for first experimental cycle.** Se permiten correcciones de errores matemáticos y aclaraciones necesarias. Nuevas extensiones quedan congeladas hasta que los experimentos indiquen una necesidad concreta. No se sigue desarrollando teoría tras esta auditoría.

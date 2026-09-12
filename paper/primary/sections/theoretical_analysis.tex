@@ -3,6 +3,7 @@
 \newtheorem{adaptationlemma}[theorem]{Lemma candidate}
 \newtheorem{adaptationproposition}[theorem]{Proposition candidate}
 \newtheorem{transportproposition}[theorem]{Proposition}
+\newtheorem{transportcorollary}[theorem]{Corollary}
 
 \subsection{Minimal vector linear specialization}
 
@@ -490,10 +491,192 @@ recovers $B_H\Delta_R$, where $B_H=\sum_{r=1}^H\gamma^r$.
 Thus the isolated horizon below is the device with no effective transport
 or deformation, not the general learning dynamics.
 
+\subsection{Structural sign persistence under second-order isotropy}
+\label{sec:structural-persistence}
+
+Retain the conditional common-coupling, i.i.d., and noise assumptions of
+Section~\ref{sec:transport}. Suppose $M=cI$, $c>0$, in dimension $p\geq2$,
+with finite fourth moment. Define the weighted fourth-moment matrix
+\begin{equation}
+    \mathsf H:=\mathbb E[\|X\|^2XX^\top].
+\end{equation}
+We use $\mathsf H$ for this matrix to distinguish it from the horizon $H$.
+Its role here is to determine whether subsequent learning preserves the
+geometry used to value the initial query. For a scalar $q$,
+\begin{equation}
+    XX^\top(qI)XX^\top=q\|X\|^2XX^\top.
+\end{equation}
+Equation~\eqref{eq:transport-fourth-moment} therefore gives
+\begin{align}
+    \mathcal T(qI)&=q\bigl[(1-2\eta c)I+\eta^2\mathsf H\bigr],\\
+    K_1=\mathcal T(cI)&=c\bigl[(1-2\eta c)I+\eta^2\mathsf H\bigr].
+    \label{eq:scalar-transport}
+\end{align}
+The outer factor $c$ comes from $K_0=cI$; the factor $c$ inside the
+linear term comes from the second moment of the subsequent inputs.
+
+\begin{transportproposition}[Temporal sign persistence]
+\label{prop:temporal-persistence}
+Under these assumptions, if $\mathsf H=\rho I$, set
+\begin{equation}
+    \lambda=1-2\eta c+\eta^2\rho.
+\end{equation}
+Then, for every finite $k\geq0$,
+\begin{equation}
+    K_k=c\lambda^kI,\qquad
+    \Delta_k=\lambda^k\Delta_0,\qquad
+    \lambda\geq\frac{p-1}{p}>0.
+    \label{eq:temporal-persistence}
+\end{equation}
+Consequently, the transported adaptation component preserves its initial
+sign, including zero, at every finite update count.
+\end{transportproposition}
+
+\begin{proof}
+Equation~\eqref{eq:scalar-transport} gives
+$\mathcal T(qI)=q\lambda I$. Induction starting from $K_0=cI$ yields
+$K_k=c\lambda^kI$, and substitution
+into~\eqref{eq:transported-adaptation} yields
+$\Delta_k=\lambda^k\Delta_0$.
+To prove strict positivity, $\mathcal T(I)=\mathbb E[A^2]=\lambda I$
+is positive semidefinite. For each nonzero $X$, $A$ is the identity on
+the $(p-1)$-dimensional subspace orthogonal to $X$ and has multiplier
+$1-\eta\|X\|^2$ along $X$. Hence
+\begin{equation}
+    \operatorname{tr}(A^2)
+    =p-1+(1-\eta\|X\|^2)^2\geq p-1.
+\end{equation}
+This identity also holds when $X=0$, since then $A=I$ and both sides
+of the equality equal $p$. Taking expectations gives
+$p\lambda\geq p-1>0$. The bound holds for every real $\eta$, including
+the positive steps used here. It does not require a contraction assumption.
+\end{proof}
+
+\begin{transportcorollary}[Initially beneficial conservative queries]
+Under Proposition~\ref{prop:temporal-persistence}, if
+$\Delta_{\mathrm{now}}>0$ and $0<\eta_D\|x\|^2\leq1$, then
+$\Delta_k>0$ for every finite $k\geq0$.
+\end{transportcorollary}
+\begin{proof}
+Single-update isotropic compatibility gives $\Delta_0=\Delta_R>0$.
+Equation~\eqref{eq:temporal-persistence} multiplies this by a strictly
+positive factor.
+\end{proof}
+These statements concern the common-coupled adaptation component, not
+the full continuation value. Positive rescaling can increase or decrease
+magnitude; it is not a claim of convergence or contraction.
+
+\begin{transportcorollary}[Rotationally invariant inputs]
+If $X$ has a rotationally invariant law in $\mathbb R^p$, $p\geq2$,
+with $\mathbb E\|X\|^4<\infty$ and $\mathbb E\|X\|^2>0$, then
+\begin{equation}
+    M=\frac{\mathbb E\|X\|^2}{p}I,\qquad
+    \mathsf H=\frac{\mathbb E\|X\|^4}{p}I.
+\end{equation}
+Thus Proposition~\ref{prop:temporal-persistence} applies under the
+remaining common-coupling and noise assumptions.
+\end{transportcorollary}
+\begin{proof}
+For every orthogonal matrix $O$, rotational invariance gives
+$OX\stackrel{d}{=}X$. Norm preservation implies
+$OMO^\top=M$ and $O\mathsf HO^\top=\mathsf H$. Coordinate sign changes
+force the off-diagonal entries of either matrix to vanish; coordinate
+permutations force all diagonal entries to agree. Their traces are
+$\mathbb E\|X\|^2$ and $\mathbb E\|X\|^4$, respectively, which gives
+the displayed factors. The positive second moment ensures $c>0$.
+\end{proof}
+Rotational invariance is a sufficient condition, not a necessary one.
+
+\begin{theorem}[Possibility of temporal sign reversal]
+\label{thm:temporal-reversal}
+Suppose $M=cI$, $c>0$, $p\geq2$, $\mathsf H$ is not proportional to $I$,
+and $\eta>0$, with the finite-moment and future-noise assumptions above.
+There exist an input vector $x\in\mathbb R^p$, a learner state $e$, an
+unbiased fallible teacher with $b=0$ and $\sigma_D^2>0$, and a conservative
+initial pseudo-update such that
+\begin{equation}
+    \Delta_{\mathrm{now}}>0,\qquad \Delta_0>0,\qquad \Delta_1<0.
+\end{equation}
+This is geometric existence over input vectors and states; it does not
+assert that the constructed input lies in the support of every such law.
+\end{theorem}
+
+\begin{proof}
+By~\eqref{eq:scalar-transport}, $K_1$ is not proportional to $I$ because
+$c\eta^2>0$. Also $K_1=\mathbb E[A^\top MA]$ is symmetric positive
+semidefinite. The following construction requires only these two facts,
+and remains valid for a singular positive semidefinite matrix.
+
+Choose orthonormal eigenvectors $u,v$ of $K_1$ with distinct eigenvalues
+$0\leq r<s$. Let $x=u+v$. Then
+\begin{equation}
+    \|x\|^2=2,\qquad x^\top K_1x=r+s>0,\qquad
+    \|K_1x\|^2=r^2+s^2>0.
+\end{equation}
+The vectors $x$ and $K_1x$ are not collinear, even if $r=0$. Strict
+Cauchy--Schwarz gives
+\begin{equation}
+    (x^\top K_1x)^2<\|x\|^2\|K_1x\|^2.
+\end{equation}
+Both denominators below are strictly positive, so choose
+\begin{equation}
+    \frac{x^\top K_1x}{\|K_1x\|^2}<\kappa
+    <\frac{\|x\|^2}{x^\top K_1x},\qquad e=x-\kappa K_1x.
+\end{equation}
+It follows that
+\begin{equation}
+    \alpha=x^\top e>0,\qquad x^\top K_1e<0.
+\end{equation}
+Take $b=0$, $0<\sigma_D^2<\alpha^2$, and
+$0<\eta_D\|x\|^2\leq1$. Independent symmetric teacher noise
+$\pm\sqrt{\sigma_D^2}$ satisfies the required teacher moments and
+current task-noise orthogonality. Then $\Delta_{\mathrm{now}}>0$, and
+isotropic compatibility gives $\Delta_0>0$. Finally,
+\begin{equation}
+    \Delta_1=2\eta_D\alpha x^\top K_1e
+      -\eta_D^2(\alpha^2+\sigma_D^2)x^\top K_1x<0,
+\end{equation}
+since the linear contribution is strictly negative and the subtracted
+quadratic contribution is strictly positive.
+\end{proof}
+
+\paragraph{Audit of possible singularity.}
+The proof above does not invert $K_1$ and covers the algebraic case with
+one zero and one positive eigenvalue. In fact, the model assumptions
+here exclude a singular $K_1$: if $z\ne0$ and
+$z^\top K_1z=c\mathbb E\|Az\|^2=0$, then $Az=0$ almost surely.
+Thus $z=\eta X(X^\top z)$ almost surely, forcing $X$ to lie in the
+line spanned by $z$. Its second-moment matrix would have rank at most one,
+contrary to $M=cI$ with $p\geq2$. Hence the actual $K_1$ is positive
+definite. No extra nonsingularity assumption is needed for the construction.
+
+\paragraph{Structural interpretation and quantifiers.}
+Within this model, second-order isotropy and $\mathsf H=\rho I$ imply
+universal temporal sign preservation of the transported component.
+Under the same second-order isotropy, a non-scalar $\mathsf H$ makes
+temporal sign reversal possible. These are kept as two implications.
+An equivalence for configurations ranging over all of $\mathbb R^p$
+would use a different quantifier from persistence restricted to inputs in
+the support of $P_X$: the existence construction does not ensure that
+its chosen $x$ belongs to that support. Neither typical learner states,
+frequency, nor reversal for every configuration or trajectory is asserted.
+
+The routing implication is that subsequent learning can preserve or deform
+the geometry of the initial adaptation effect. Under $M=cI$, $\mathsf H$
+determines whether scalar risk geometry is preserved after one transport
+step. Isotropy of $\mathsf H$ gives positive rescaling; anisotropy permits
+enough deformation for an initially beneficial pseudo-update to have a
+harmful transported effect. A router valuing only $\Delta_R$ may therefore
+misvalue a query. This is an interpretation for operational routing with
+learning value, not a claim of new SGD theory.
+
 \subsection{Counterexample: dynamic sign reversal with $M=I$}
 
-This example concerns a fixed learner state and an explicitly specified
-input distribution. Let $X=(G,R)^\top$, where $G\sim\mathcal N(0,1)$
+The example from the single-query transport analysis is retained as a
+numerical check and concrete instance of Theorem~\ref{thm:temporal-reversal}:
+$M=I$ and $\mathsf H=\operatorname{diag}(4,2)$ is not scalar. It concerns
+a fixed learner state and an explicitly specified input distribution.
+Let $X=(G,R)^\top$, where $G\sim\mathcal N(0,1)$
 and $R$ is an independent symmetric Rademacher variable. This Gaussian
 component is specific to the example; no general Gaussian assumption is
 introduced. The law is not rotationally invariant. Independence and
@@ -705,13 +888,39 @@ captures only differences in the cheap predictor's population risk; the
 complete continuation-value difference must also include future operational
 responses and consultation costs.
 
-\paragraph{Next open problem: structural persistence or reversal.}
-The next objective is to check formally whether rotational invariance
-with $M=cI$ implies $\mathcal T(c'I)=c''I$, and hence, by induction,
-$K_k=c_kI$. This statement is not proved here. If it holds, the positivity
-conditions needed to obtain a clean sign-persistence condition must be
-examined. Only afterwards, if needed, should relevance be connected to
-states induced by natural learning trajectories. No distributional model
-for $e_t$, stationary SGD covariance, distribution shift, or experiments
-are introduced. No regret bound or optimality claim for the complete
-delayed-feedback policy is made.
+\subsection{Finite-horizon routing value and experimental scope}
+
+For fixed common continuation over $H$ future evaluation stages, a
+query-side surrogate gain combining current response quality, consultation
+cost, and transported adaptation is
+\begin{equation}
+    \Delta_{\mathrm{now}}(S_t,x_t)-C_D(S_t,x_t)
+       +\gamma\Delta_{\mathrm{adapt}}^{(H)}.
+    \label{eq:transport-routing-surrogate}
+\end{equation}
+Here $C_D$ is already the incremental consultation cost in the problem
+formulation; no additional cheap-model cost is subtracted. The first
+future response is the discount origin of $\Delta_{\mathrm{adapt}}^{(H)}$,
+so the outer $\gamma$ places that component on the current-round scale.
+The mapping from evaluation stages to response times must follow the
+schedule specified after~\eqref{eq:accumulated-transport}; the arrival and
+first-use convention for $Y_t$ is unchanged.
+
+Equation~\eqref{eq:transport-routing-surrogate} is an evaluation target
+for the first experimental cycle, not an optimality theorem or an
+implementable routing rule. Its population-risk component does not in
+general equal the operational continuation difference when future routing
+or consultation costs change. What remains to evaluate experimentally is
+whether accounting for transport improves query valuation relative to
+using only the single-update gain, and how that relates to the total
+operational loss and consultation cost. The existence theorem alone gives
+no frequency or practical performance guarantee.
+
+The core theoretical chain is sufficient for this first experimental
+cycle: it specifies immediate, single-update, transported, and accumulated
+gains, together with structural sign preservation and possible reversal
+under $M=cI$. Solving the full adaptive continuation problem or extending
+the theory to arbitrary pending-feedback schedules is not a prerequisite
+for that cycle. Further theoretical extensions are deferred until a
+concrete experimental need arises; mathematical errors and necessary
+clarifications may still be addressed.
