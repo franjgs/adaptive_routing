@@ -19,13 +19,16 @@ ground truth after a fixed, routing-independent delay. The same teacher
 output replaces the cheap response and immediately pseudo-updates the cheap
 predictor; the later target can provide correction. Querying buys early
 imperfect supervision, not ground truth. A minimal vector linear analysis
-is preliminary; evolving counterfactual trajectories remain the next problem.
+extends the single-update result to common-coupled subsequent learning:
+later updates transport its effect on population risk and can reverse its
+sign. The complete sequential continuation problem remains open.
 
 The dual use of a teacher query for the current task and subsequent learning
 is not itself a novelty claim. The unresolved question is whether the routing
 decision explicitly values the future effect caused by that learner update.
-The reliable correction rule remains open, and teacher-induced updates may harm the
-cheap predictor; their future value is not assumed nonnegative.
+Ordinary SGD is an admissible base reliable-feedback update; alternative
+rules remain possible. Teacher-induced updates may harm the cheap
+predictor, and their future value is not assumed nonnegative.
 
 Expected future learning value, fallible supervision, mistake--query
 trade-offs, online updates, and multiple locally competent teachers have

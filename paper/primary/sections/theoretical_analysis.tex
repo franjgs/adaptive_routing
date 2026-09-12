@@ -2,11 +2,13 @@
 
 \newtheorem{adaptationlemma}[theorem]{Lemma candidate}
 \newtheorem{adaptationproposition}[theorem]{Proposition candidate}
+\newtheorem{transportproposition}[theorem]{Proposition}
 
 \subsection{Minimal vector linear specialization}
 
-The following results characterize the immediate and adaptation effects of
-a single teacher-induced update. They have explicit algebraic proofs, but
+We first analyze one teacher-induced update and then transport its effect
+through subsequent learning.
+The results have explicit algebraic proofs, but
 remain preliminary with respect to the complete delayed-feedback system and
 do not constitute novelty claims or sequential optimality guarantees.
 
@@ -305,6 +307,257 @@ as novel contributions. Their relevance here is that they can alter the
 value of an operational routing decision when the same costly response is
 also used to adapt the cheap predictor.
 
+\subsection{Transport under common subsequent learning}
+\label{sec:transport}
+
+We now extend the single-update analysis in time. The question is how
+future learning transforms the benefit or harm caused by querying the
+expensive predictor now. This is a minimal exactly analyzable model of
+adaptation value, without a claim of new SGD theory or sequential optimality.
+
+Condition on the current information, with $e_t=e$ and $x_t=x$ fixed;
+all expectations in this subsection use this conditioning. Write
+$\eta_D>0$ for the initial pseudo-update step (the $\eta$ of the preceding
+single-update results), reserving $\eta$ for subsequent SGD steps. Set
+$d=\alpha-\beta$. Immediately after the initial decision, the two branches
+have errors $e_t^F=e$ and $e_t^D=e+h_0$, where
+\begin{align}
+    h_0&=-\eta_D d x+\eta_D x\nu_t,\\
+    \mathbb E[h_0\mid e,x]&=-\eta_D d x, &
+    \mathbb E[h_0h_0^\top\mid e,x]
+    &=\eta_D^2(d^2+\sigma_D^2)xx^\top.
+\end{align}
+
+The conditional teacher moments are required at this fixed current
+information. The vector $h_0$ is the parameter perturbation induced by
+the initial query under the coupled counterfactual construction, using
+the same teacher output as for the operational response.
+
+For subsequent learning, couple the branches using the same samples,
+targets, and update rules. Use $e_0^F=e$, $e_0^D=e+h_0$ and an
+\emph{update index} $j$, distinct from the operational round index $t$.
+For a branch $u\in\{F,D\}$ and $j\geq1$,
+\begin{equation}
+    e_j^u=A_j e_{j-1}^u+\xi_j,\qquad
+    A_j=I-\eta X_jX_j^\top,\qquad
+    \xi_j=\eta X_j\epsilon_j.
+    \label{eq:common-sgd}
+\end{equation}
+This is squared-loss SGD with target $(w^*)^\top X_j+\epsilon_j$.
+For the base expected-value result, assume, conditionally on the current
+information, that the pairs $(X_j,\epsilon_j)$ are i.i.d., independent of
+$\nu_t$, with input law $P_X$ and $\mathbb E[\epsilon_j\mid X_j]=0$.
+Assume $\mathbb E\|X\|^4<\infty$ and
+$\mathbb E[\|X\|^2\epsilon^2]<\infty$, in addition to the teacher moments.
+These sufficient moment conditions make all finite-horizon risks and
+expectations below finite. Independence across pairs ensures conditional
+centering even given the entire future input sequence; i.i.d. inputs alone
+and centering only on each individual input would not ensure this.
+
+Subtracting~\eqref{eq:common-sgd} gives, pathwise,
+\begin{equation}
+    h_j=A_jh_{j-1},\qquad h_k=P_kh_0,\qquad
+    P_k=A_kA_{k-1}\cdots A_1,\qquad P_0=I.
+    \label{eq:transport-path}
+\end{equation}
+The common target cancels from this causal difference, although it still
+affects each trajectory. Since $e_k^D=e_k^F+h_k$, the exact risk identity is
+\begin{align}
+    R(e_k^F)-R(e_k^D)
+    &=-2h_k^\top Me_k^F-h_k^\top Mh_k\notag\\
+    &=-2h_0^\top P_k^\top Me_k^F
+      -h_0^\top P_k^\top MP_kh_0.
+    \label{eq:pathwise-risk-gap}
+\end{align}
+This pathwise identity alone is not a closed expression in expectation.
+
+\paragraph{Risk transport operator.}
+Define
+\begin{equation}
+    K_k=\mathbb E[P_k^\top MP_k],\qquad K_0=M,\qquad
+    \mathcal T(Q)=\mathbb E[(I-\eta XX^\top)^\top Q(I-\eta XX^\top)].
+\end{equation}
+For i.i.d. future inputs with constant step $\eta>0$,
+\begin{equation}
+    K_{k+1}=\mathcal T(K_k),\qquad K_k=\mathcal T^k(M).
+    \label{eq:transport-operator}
+\end{equation}
+Indeed, condition on $A_1$ in
+$P_{k+1}=(A_{k+1}\cdots A_2)A_1$: the inner expected risk matrix is
+$K_k$ by independence and identical distribution. This argument does not
+commute the random matrices. Symmetry of $I-\eta XX^\top$ gives
+\begin{equation}
+    \mathcal T(Q)=Q-\eta(MQ+QM)
+       +\eta^2\mathbb E[XX^\top QXX^\top].
+    \label{eq:transport-fourth-moment}
+\end{equation}
+Thus $\mathcal T$ acts on risk matrices and preserves positive
+semidefiniteness. Transport generally depends on fourth moments, not only
+on $M$. No novelty within SGD theory is asserted for this operator.
+
+\begin{theorem}[Transported adaptation value]
+Under the conditional coupling, independence, centering, and finite-moment
+assumptions above, for every finite $k\geq0$,
+\begin{align}
+    \Delta_k
+    &:=\mathbb E[R(e_k^F)-R(e_k^D)\mid e_t=e,x_t=x]\notag\\
+    &=2\eta_D d\,x^\top K_ke
+      -\eta_D^2(d^2+\sigma_D^2)x^\top K_kx.
+    \label{eq:transported-adaptation}
+\end{align}
+In particular, $\Delta_0=\Delta_R$ with the initial step set to $\eta_D$.
+\end{theorem}
+
+\begin{proof}
+Unroll the unqueried trajectory as
+\begin{equation}
+    e_k^F=P_ke+q_k,\qquad
+    q_k=\sum_{i=1}^k A_k\cdots A_{i+1}\xi_i,
+\end{equation}
+Here empty products equal $I$, and $q_0=0$. By the i.i.d. pair assumption
+and centering,
+\begin{equation}
+    \mathbb E[q_k\mid X_1,\ldots,X_k]=0,
+    \qquad \mathbb E[P_k^\top Mq_k]=0.
+\end{equation}
+Independence of $h_0$ from all future pairs then implies
+\begin{align}
+    \mathbb E[h_0^\top P_k^\top Me_k^F]
+    &=\mathbb E[h_0]^\top K_ke
+      +\mathbb E[h_0]^\top\mathbb E[P_k^\top Mq_k]
+      =-\eta_D d\,x^\top K_ke,\\
+    \mathbb E[h_0^\top P_k^\top MP_kh_0]
+    &=\operatorname{tr}\!\left(K_k\mathbb E[h_0h_0^\top]\right)
+      =\eta_D^2(d^2+\sigma_D^2)x^\top K_kx.
+\end{align}
+Substitution into~\eqref{eq:pathwise-risk-gap} proves the result.
+\end{proof}
+
+\paragraph{Exact sign criterion.}
+If $x^\top K_kx>0$, define
+\begin{equation}
+    s_k(x,e)=\frac{d\,x^\top K_ke}{x^\top K_kx}.
+\end{equation}
+Since $\eta_D>0$, equation~\eqref{eq:transported-adaptation} implies
+\begin{equation}
+    \Delta_k>0\quad\Longleftrightarrow\quad
+    s_k(x,e)>\frac{\eta_D}{2}(d^2+\sigma_D^2).
+\end{equation}
+The right side depends on the size and noise of the pseudo-update;
+$K_k$ determines the effective risk geometry after $k$ later updates.
+This ratio is only a sign criterion, not a continuation value. If
+$x^\top K_kx=0$, positive semidefiniteness implies $K_kx=0$, so
+$\Delta_k=0$ and the ratio is undefined.
+
+\begin{transportproposition}[Persistence under positive rescaling]
+If, for a given $k$, $K_k=c_kM$ with $c_k>0$, then
+$\Delta_k=c_k\Delta_0$ and
+$\operatorname{sign}(\Delta_k)=\operatorname{sign}(\Delta_0)$.
+\end{transportproposition}
+\begin{proof}
+Substitute $K_k=c_kM$ into both terms
+of~\eqref{eq:transported-adaptation} and use $K_0=M$.
+\end{proof}
+If subsequent learning only positively rescales the original risk
+geometry, it can change the magnitude but preserves the sign of the
+effect. No converse is asserted; a zero scaling would erase the effect.
+
+\paragraph{Accumulated adaptation and the two clocks.}
+For $H\geq1$ evaluation stages, discounted from the first such stage, set
+\begin{align}
+    \overline K_H&=\sum_{k=0}^{H-1}\gamma^kK_k,\\
+    \Delta_{\mathrm{adapt}}^{(H)}
+    &:=\sum_{k=0}^{H-1}\gamma^k\Delta_k\notag\\
+    &=2\eta_D d\,x^\top\overline K_He
+       -\eta_D^2(d^2+\sigma_D^2)x^\top\overline K_Hx.
+    \label{eq:accumulated-transport}
+\end{align}
+Here stage $k=0$ evaluates the post-query parameters before subsequent
+learning, and stage $k$ follows $k$ common updates. These stages coincide
+with responses $t+1,\ldots,t+H$ only if no common update intervenes before
+$t+1$ and exactly one occurs between successive responses. Under that
+schedule the current-round weight is
+$\gamma\Delta_{\mathrm{adapt}}^{(H)}$, and $H=\tau$ covers the
+$\tau$ responses preceding use of $Y_t$, whose last stage is $k=\tau-1$.
+If pending feedback causes a different update schedule, use the actual
+products before each response; the update index must not be identified
+automatically with elapsed rounds. The i.i.d. assumptions must also hold
+for that schedule before applying the expected-value theorem.
+
+If $K_k=M$ at every evaluation stage, then
+$\overline K_H=(\sum_{k=0}^{H-1}\gamma^k)M$. Multiplication by $\gamma$
+recovers $B_H\Delta_R$, where $B_H=\sum_{r=1}^H\gamma^r$.
+Thus the isolated horizon below is the device with no effective transport
+or deformation, not the general learning dynamics.
+
+\subsection{Counterexample: dynamic sign reversal with $M=I$}
+
+This example concerns a fixed learner state and an explicitly specified
+input distribution. Let $X=(G,R)^\top$, where $G\sim\mathcal N(0,1)$
+and $R$ is an independent symmetric Rademacher variable. This Gaussian
+component is specific to the example; no general Gaussian assumption is
+introduced. The law is not rotationally invariant. Independence and
+symmetry give $M=I$, and
+\begin{equation}
+    \mathbb E[\|X\|^2XX^\top]
+    =\begin{pmatrix}
+       \mathbb E[G^4]+\mathbb E[G^2R^2]&0\\
+       0&\mathbb E[G^2R^2]+\mathbb E[R^4]
+      \end{pmatrix}
+    =\operatorname{diag}(4,2).
+\end{equation}
+For one common subsequent update with $\eta=0.4$,
+\begin{equation}
+    K_1=I-2\eta I+\eta^2\operatorname{diag}(4,2)
+       =\operatorname{diag}(0.84,0.52).
+\end{equation}
+Take $x=(1,1)^\top$, $e=(-0.2012,0.2564)^\top$, $b=0$,
+$\sigma_D^2=0.001$, and $\eta_D=0.2$. One admissible noise choice is
+independent symmetric teacher noise taking values $\pm\sqrt{0.001}$,
+with task and subsequent target noise zero. Direct calculation gives
+\begin{align}
+    \alpha=d&=0.0552, & \alpha^2&=0.00304704,\\
+    \Delta_{\mathrm{now}}&=0.00204704, &
+    \eta_D\|x\|^2&=0.4<1,\\
+    \Delta_0&=0.0008950528, & x^\top K_1e&=-0.03568,\\
+    x^\top K_1x&=1.36, & \Delta_1&=-0.001007973376.
+\end{align}
+In particular, the linear and subtracted quadratic contributions to
+$\Delta_1$ are $-0.0007878144$ and $0.000220158976$, respectively.
+Thus $\Delta_{\mathrm{now}}>0$, $\Delta_0>0$, and $\Delta_1<0$.
+
+The teacher improves expected current task loss before consultation cost,
+and its pseudo-update initially reduces population risk. After one common
+subsequent update, the transported effect of that same pseudo-update on
+population risk is negative. The initial update is not changed
+retrospectively: it is the sign of its later counterfactual effect that
+changes. Although $M=I$, $K_1$ is not proportional to $I$ because the
+fourth-moment matrix is anisotropic. Second-order isotropy therefore does
+not guarantee persistence of isotropy under learning, and single-update
+isotropic compatibility is not a temporal sign guarantee.
+
+\paragraph{Positive probability over inputs at the fixed state.}
+For the fixed learner state and parameters above, the expected gains
+$\Delta_{\mathrm{now}}$, $\Delta_0$, and $\Delta_1$ are continuous
+functions of $x$. Their strict signs, together with the conservative
+initial-step inequality, therefore persist in an open neighborhood of
+$(1,1)^\top$. The intersection of this neighborhood with the branch
+$R=+1$ contains an interval of $G$ around $1$, where the Gaussian density
+is strictly positive. Consequently, conditional on this fixed learner
+state $e$, the set of inputs for which the expected gains satisfy
+\begin{equation}
+    \Delta_{\mathrm{now}}>0,\qquad
+    \Delta_0>0,\qquad
+    \Delta_1<0
+\end{equation}
+has strictly positive $P_X$-probability. This statement concerns
+probability over inputs, not over realizations of the teacher noise.
+It does not establish that this learner state is reached with positive
+probability by a natural SGD trajectory, that the phenomenon is frequent
+or stationary, or that it occurs for every $e$ or every distribution
+satisfying $M=I$. It only partially addresses the distributional
+limitation of the earlier geometric existence result.
+
 \subsection{Isolated-horizon routing comparison}
 
 A purely myopic routing rule queries the costly predictor whenever
@@ -324,9 +577,10 @@ With discount factor $\gamma$, define
 \begin{equation}
     B_H=\sum_{k=1}^{H}\gamma^k.
 \end{equation}
-Under these assumptions, the accumulated adaptation value is
+Using the first-future-response discount origin
+of~\eqref{eq:accumulated-transport}, its current-round contribution is
 \begin{equation}
-    \Delta_{\mathrm{adapt}}^{(H)}
+    \gamma\Delta_{\mathrm{adapt}}^{(H)}
     =B_H\Delta_R,
 \end{equation}
 and the corresponding future-aware comparison becomes
@@ -380,12 +634,35 @@ This requires $\Delta_R>0$ and can already occur in the scalar model.
 Under-querying and over-querying are therefore distinct mechanisms and are
 not asserted here as a single general sequential theorem.
 
-\subsection{Open problem: counterfactual evolution during delayed feedback}
+\subsection{Reliable feedback and remaining continuation problem}
 
-The isolated-horizon approximation suppresses the central sequential
-difficulty: after the initial routing decision, the two systems may undergo
-different intermediate updates and routing decisions before the reliable
-target $Y_t$ becomes available.
+Common coupling resolves a specified adaptation component, while the full
+sequential problem allows the initial parameter change to alter later
+routing decisions and updates. A common update rule alone does not enforce
+common future routing or targets when decisions depend on the parameters.
+Such action-dependent continuations require the full $Q_F-Q_D$ comparison.
+
+For the minimal linear model, an ordinary reliable-target SGD update is
+admissible when $Y_t$ arrives:
+\begin{equation}
+    \theta^+=\theta+\eta_Yx_t(Y_t-\theta^\top x_t),\qquad
+    h^+=(I-\eta_Yx_tx_t^\top)h.
+    \label{eq:reliable-transport}
+\end{equation}
+The second identity follows by applying the first rule to both histories
+with the same $(x_t,Y_t)$ and subtracting. It does not require undoing the
+pseudo-update. It transforms the accumulated historical difference rather
+than necessarily erasing it. Along $x_t$ the multiplier is
+$1-\eta_Y\|x_t\|^2$; orthogonal components remain unchanged. Contraction
+in that direction requires $0<\eta_Y\|x_t\|^2<2$, and global erasure is
+not automatic. Other $U_Y$ rules remain possible but are not needed for
+this minimal choice. As specified in the protocol, $Y_t$ is revealed after
+the response at $t+\tau$ and first affects a response at $t+\tau+1$.
+This repeated current input, and feedback already pending in the current
+state, need not satisfy the fresh i.i.d. assumptions of the transport
+theorem. The pathwise identity still holds; the same expected-value
+formula cannot be assumed without checking the conditional noise and
+input assumptions for that sequence.
 
 Starting from the same pre-query state, let $e_{t+k}^{F}$ and
 $e_{t+k}^{D}$ denote the cheap-predictor errors under the two
@@ -419,14 +696,22 @@ Under the isolated assumptions with $H=\tau$, this reduces to
 \end{equation}
 For $\gamma=0$, future adaptation has zero weight in the current objective.
 
-Equation~\eqref{eq:counterfactual-adaptation} does not yet solve the
-sequential routing problem. The correction dynamics, intermediate update
-rules, and continuation policies must be specified before the two
-counterfactual trajectories can be evaluated. Moreover, the expression
+Equation~\eqref{eq:counterfactual-adaptation} uses operational round
+indices. It equals~\eqref{eq:accumulated-transport} with $H=\tau$ under
+the stage-to-response schedule specified there and the theorem's
+conditional assumptions. In general, the schedule and continuation
+policies still need to be specified. Moreover, the expression
 captures only differences in the cheap predictor's population risk; the
 complete continuation-value difference must also include future operational
 responses and consultation costs.
 
-No regret bound, closed-form solution of the counterfactual trajectories,
-or optimality claim for the full delayed-feedback policy is made at this
-stage.
+\paragraph{Next open problem: structural persistence or reversal.}
+The next objective is to check formally whether rotational invariance
+with $M=cI$ implies $\mathcal T(c'I)=c''I$, and hence, by induction,
+$K_k=c_kI$. This statement is not proved here. If it holds, the positivity
+conditions needed to obtain a clean sign-persistence condition must be
+examined. Only afterwards, if needed, should relevance be connected to
+states induced by natural learning trajectories. No distributional model
+for $e_t$, stationary SGD covariance, distribution shift, or experiments
+are introduced. No regret bound or optimality claim for the complete
+delayed-feedback policy is made.

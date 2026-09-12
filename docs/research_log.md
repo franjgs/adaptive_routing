@@ -1,6 +1,6 @@
 # Research log
 
-Decision 008 establece el estado científico vigente. Las decisiones anteriores conservan su contexto histórico; la auditoría y las cautelas de Decision 006 siguen vigentes, y Decision 007 conserva el protocolo y los resultados algebraicos ahora revisados independientemente.
+Decision 009 establece el estado científico vigente y extiende temporalmente la teoría de una pseudoactualización. Las decisiones anteriores conservan su contexto histórico: siguen vigentes la auditoría y las cautelas de Decision 006, el protocolo y los resultados algebraicos de Decision 007 y la revisión independiente y limitaciones de Decision 008. Los objetivos que entonces estaban abiertos se actualizan en Decision 009.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -248,3 +248,150 @@ La auditoría independiente no encontró un fallo fatal de novedad, pero esto no
 > No direct antecedent was identified in the targeted review that jointly models the immediate operational value of routing to an expensive predictor and the future population-risk effect of updating the cheap predictor with that same routed output.
 
 La prioridad es pasar de una teoría de **una** pseudoactualización a una teoría del valor de la decisión durante el periodo de anticipación $\tau$. Los problemas pendientes son: (a) especificar $U_Y$; (b) derivar la evolución contrafactual durante $\tau$ con updates intermedios; y (c) determinar bajo qué condiciones el conflicto geométrico tiene relevancia probabilística o dinámica. El punto (c) permanece como problema abierto, no como nuevo teorema. No se introducen supuestos gaussianos, covarianza estacionaria de SGD ni distribution shift para responder a la crítica.
+
+## Decision 009 — Transported adaptation value under subsequent learning
+
+Fecha: 2026-09-12.
+
+### A. Motivo y alcance de la extensión
+
+Se pasa del efecto de una pseudoactualización a estudiar cómo ese mismo efecto se transporta a través del aprendizaje posterior del cheap predictor. La pregunta es: **How does the future learning dynamics transform the benefit or harm caused by querying an expensive predictor now?** La secuencia conceptual es current operational value + transported adaptation value − query cost. El modelo lineal-cuadrático permite estudiar exactamente este componente, sin presentar el desarrollo como «new SGD theory» ni como contribución novedosa definitiva del paper.
+
+Decision 008 dejó abiertas la evolución intermedia, la regla de feedback fiable y la relevancia probabilística de la construcción geométrica. Esta decisión resuelve una especialización con aprendizaje posterior común, elige SGD ordinario como regla fiable mínima admisible y demuestra probabilidad positiva sobre inputs en un ejemplo a estado fijo. No resuelve la dinámica completa de routing ni la distribución de estados inducidos por aprendizaje. El teorema anisotrópico anterior, la compatibilidad isotrópica single-update y sus pruebas se conservan.
+
+### B. Contrafactuales comunes e hipótesis explícitas
+
+Condicionados en la información actual, e_t=e y x_t=x, se definen e_t^F=e y e_t^D=e+h_0, con
+
+$$
+h_0=-\eta_Dxd+\eta_Dx\nu_t,\qquad
+d=\alpha-\beta,\quad\alpha=x^Te,\quad\beta=x^Tb.
+$$
+
+h_0 es la perturbación paramétrica causal producida por consultar D y usar **la misma salida** como pseudo-supervisión. Sus momentos son E[h_0|e,x]=−eta_D d x y E[h_0h_0^T|e,x]=eta_D²(d²+sigma_D²)xx^T. eta_D es el eta de la teoría single-update anterior; se distingue del paso eta de SGD posterior y de eta_Y para el target fiable.
+
+Para aislar adaptación se imponen después los mismos inputs, targets y reglas en ambas ramas. El reloj de updates se reinicia con e_0^F=e y e_0^D=e+h_0; para j>=1,
+
+$$
+e_j^u=A_je_{j-1}^u+\xi_j,\quad
+A_j=I-\eta X_jX_j^T,\quad\xi_j=\eta X_j\epsilon_j,
+\quad u\in\{F,D\}.
+$$
+
+Para la esperanza cerrada se explicita que los **pares** (X_j,epsilon_j) son i.i.d. condicionalmente en la información actual, con ley de inputs P_X, E[epsilon_j|X_j]=0 e independencia respecto de nu_t. Se requieren los momentos condicionales iniciales del teacher, E||X||⁴ finito y E[||X||² epsilon²] finito, suficientes para riesgos finitos a horizonte finito. No se presupone estabilidad de largo plazo ni gaussianidad general.
+
+La precisión «pares i.i.d.» evita una laguna: inputs i.i.d. y centrado sólo respecto de X_j no bastarían si epsilon_j dependiera de otros inputs futuros. Lo necesario en la prueba es centrar cada epsilon_j dado todo X_1,...,X_k. Esta condición se prueba a partir de los pares i.i.d., no se presupone independencia entre el producto de matrices y el ruido acumulado.
+
+### C. Resultados exactos por realización y operador probado
+
+Restando las ramas, h_j=A_jh_{j-1}, por lo que
+
+$$
+h_k=P_kh_0,\qquad P_k=A_k\cdots A_1,\quad P_0=I.
+$$
+
+Los targets comunes desaparecen de la diferencia de parámetros, pero siguen afectando cada trayectoria. Con R(e)=e^TMe,
+
+$$
+R(e_k^F)-R(e_k^D)
+=-2h_k^TMe_k^F-h_k^TMh_k
+=-2h_0^TP_k^TMe_k^F-h_0^TP_k^TMP_kh_0.
+$$
+
+Esta igualdad es por realización, antes de cerrar esperanzas. Se define K_k=E[P_k^TMP_k], K_0=M y
+
+$$
+\mathcal T(Q)=\mathbb E[(I-\eta XX^T)^TQ(I-\eta XX^T)]
+=Q-\eta(MQ+QM)+\eta^2\mathbb E[XX^TQXX^T].
+$$
+
+La independencia y la ley común de los factores dan K_{k+1}=T(K_k), K_k=T^k(M); la prueba condiciona en A_1 y no conmuta matrices. T es un operador sobre matrices de riesgo que preserva semidefinitud positiva. El transporte depende en general de cuartos momentos, no sólo de M=E[XX^T]. No se reivindica novedad de este hecho en teoría de SGD.
+
+### D. Teorema probado de valor transportado y consecuencias
+
+Desarrollar e_k^F=P_ke+q_k, con q_k=sum_{i=1}^k A_k...A_{i+1} xi_i. Los pares i.i.d. centrados implican E[q_k|X_1,...,X_k]=0 y por tanto E[P_k^T M q_k]=0. La independencia de h_0 respecto del futuro permite factorizar sus momentos. El cálculo de traza del término cuadrático y esta anulación del término cruzado prueban
+
+$$
+\Delta_k:=\mathbb E[R(e_k^F)-R(e_k^D)\mid e_t=e,x_t=x]
+=2\eta_Dd x^TK_ke
+-\eta_D^2(d^2+\sigma_D^2)x^TK_kx.
+$$
+
+Para k=0 se recupera exactamente Delta_0=Delta_R con paso eta_D. El paper incluye la prueba y el cuaderno desarrolla también el término que habría que retener si fallara el centrado. No se presenta la fórmula como válida para cualquier secuencia de targets, feedback pendiente o decisiones adaptativas.
+
+Si x^T K_k x>0, s_k=d x^T K_k e/(x^T K_k x) satisface Delta_k>0 iff s_k>(eta_D/2)(d²+sigma_D²). Es un criterio de signo, sin interpretación adicional de s_k: el umbral depende de tamaño/ruido de la pseudoactualización y K_k fija la geometría efectiva. Si x^T K_k x=0, semidefinitud implica K_k x=0 y Delta_k=0.
+
+Se prueba por sustitución la proposición: K_k=c_k M con c_k>0 implica Delta_k=c_k Delta_0 y preservación del signo. Sólo reescalar positivamente puede cambiar magnitud pero no signo. No se afirma el recíproco ni se incluye c_k=0 en una garantía de preservación de signos no nulos.
+
+### E. Valor acumulado y corrección de la convención de descuento
+
+Para H etapas con origen de descuento en la primera etapa futura,
+
+$$
+\overline K_H=\sum_{k=0}^{H-1}\gamma^kK_k,\qquad
+\Delta_{\mathrm{adapt}}^{(H)}=\sum_{k=0}^{H-1}\gamma^k\Delta_k
+=2\eta_Dd x^T\overline K_He
+-\eta_D^2(d^2+\sigma_D^2)x^T\overline K_Hx.
+$$
+
+k=0 evalúa los parámetros post-query antes de updates posteriores. Para identificar k=r−1 con la respuesta t+r se requiere que no haya update común antes de t+1 y que haya uno entre respuestas sucesivas. Sólo bajo ese calendario H=tau termina con K_{tau−1} en la respuesta t+tau. Si hay updates pendientes antes de t+1 o múltiples updates entre respuestas, deben usarse los productos correspondientes al calendario real; un calendario seleccionado por datos requiere además revisar las esperanzas. El protocolo de retardo por sí solo no garantiza la especialización i.i.d.
+
+La contribución desde la ronda actual lleva gamma. Si K_k=M en todas las etapas, Kbar_H=(sum_{k=0}^{H−1} gamma^k)M y gamma Delta_adapt^(H)=B_H Delta_R, con B_H=sum_{r=1}^H gamma^r. Así se conserva el comparador anterior. B_H Delta_R era un analytical device sin transporte/deformación efectiva, no una descripción general de SGD. Gamma=0 da peso futuro cero en el objetivo actual.
+
+**Inconsistencia notacional detectada y corregida:** en las secciones de horizonte aislado del paper y del cuaderno, Delta_adapt^(H) se había escrito con origen actual, mientras que la suma contrafactual con tau tenía origen en la primera respuesta futura. Se unifica la notación vigente al origen futuro y se añade gamma al miembro izquierdo de la identidad aislada. No se modifica ningún riesgo, signo ni comparador; el registro histórico de Decision 007 se conserva y esta entrada documenta la corrección.
+
+### F. Contraejemplo recalculado: inversión dinámica bajo M=I
+
+Se toma X=(G,R)^T, G normal estándar y R Rademacher ±1 equiprobable e independiente. Es una ley concreta para el ejemplo, **no rotacionalmente invariante**; no impone gaussianidad de los estados ni de la teoría base. M=I y
+
+$$
+\mathbb E[\|X\|^2XX^T]=\operatorname{diag}(3+1,1+1)=\operatorname{diag}(4,2).
+$$
+
+Los elementos cruzados se anulan por simetría e independencia. Con eta=0.4, K_1=diag(0.84,0.52). Para x=(1,1)^T, e=(−0.2012,0.2564)^T, b=0, sigma_D²=0.001, eta_D=0.2, aritmética racional exacta confirma:
+
+- alpha=d=0.0552, alpha²=0.00304704;
+- Delta_now=0.00204704>0;
+- Delta_0=0.0008950528>0;
+- x^T K_1 e=−0.03568 y x^T K_1 x=1.36;
+- Delta_1=−0.0007878144−0.000220158976=−0.001007973376<0;
+- eta_D‖x‖²=0.4<1.
+
+El cuaderno conserva los cálculos y un fragmento reproducible de Python estándar con fracciones y aserciones; no se añaden simulaciones ni experimentos. Una elección completa admisible es ruido inicial independiente simétrico ±sqrt(0.001) y ruido de tarea/futuro cero.
+
+**Interpretación:** D mejora la expected current task loss antes del coste de consulta; la pseudoactualización reduce inicialmente population risk; después de una actualización posterior común, el efecto transportado de esa misma pseudoactualización sobre population risk es negativo. La actualización inicial no cambia retrospectivamente: cambia el signo de su efecto contrafactual tras el aprendizaje posterior. No se deduce una decisión óptima de routing ni el signo de cualquier horizonte acumulado.
+
+Aunque M=I, K_1 no es cI porque el cuarto momento relevante es anisotrópico. Isotropía a segundo orden no garantiza preservación temporal de la isotropía. No contradice la proposición previa, que se refiere sólo a una pseudoactualización y que aquí da correctamente Delta_0>0.
+
+### G. Probabilidad positiva: respuesta parcial a Decision 008
+
+Para el e fijo del ejemplo, las tres ganancias son continuas en x y estrictas en (1,1). Existe un entorno abierto donde persiste el patrón (y el paso inicial conservador). En la rama R=+1, ese entorno contiene un intervalo de G alrededor de 1, de densidad positiva; su probabilidad es al menos (1/2)P(|G−1|<delta)>0 para algún delta>0. No se atribuye masa al punto exacto ni se supone densidad bidimensional de X.
+
+Esto demuestra probabilidad positiva **sobre inputs condicionada en ese estado e**. No demuestra que dicho estado aparezca con probabilidad positiva bajo una trayectoria natural de SGD, que el fenómeno sea frecuente o estacionario, que ocurra para todo e ni para toda distribución con M=I. La respuesta a la limitación de Decision 008 es parcial; la relevancia bajo estados inducidos por aprendizaje sigue abierta.
+
+### H. Regla fiable mínima y alcance del common coupling
+
+Se permite usar SGD ordinario al recibir Y_t:
+
+$$
+\theta^+=\theta+\eta_Yx_t(Y_t-\theta^Tx_t),\qquad
+h^+=(I-\eta_Yx_tx_t^T)h.
+$$
+
+La segunda identidad se prueba por resta de los updates con el mismo target. No se obliga a deshacer la pseudoactualización. La diferencia histórica se transforma: la componente paralela a x_t se multiplica por 1−eta_Y‖x_t‖² y las ortogonales se conservan. La contracción paralela necesita 0<eta_Y‖x_t‖²<2; no se afirma contracción universal ni borrado automático. Otras U_Y siguen siendo posibles, sin ser necesarias para el modelo mínimo.
+
+Se mantiene que Y_t llega después de la respuesta en t+tau y puede afectar por primera vez a t+tau+1. La identidad por realización no exige que esa reutilización de x_t cumpla los supuestos de muestras futuras i.i.d.; la fórmula cerrada de K_k y Delta_k sí debe justificarse de nuevo si se aplica a feedback condicionado/pendiente. No se oculta ese límite del teorema base.
+
+El common coupling aísla el efecto adaptativo manteniendo común la evolución posterior. Si el cambio de parámetros altera decisiones futuras de routing, se necesita la diferencia completa de continuation/Q values, incluyendo respuestas y costes posteriores. Ninguna de las fórmulas de riesgo barato prueba optimalidad secuencial.
+
+### I. Próximo objetivo abierto y cambios documentales
+
+Analizar condiciones estructurales de persistencia/inversión. En particular, comprobar formalmente si una distribución rotacionalmente invariante con M=cI implica T(c'I)=c''I y, por inducción, K_k=c_kI. **No se resuelve aquí ni se afirma como resultado.** Si se confirma, estudiar la positividad de los factores necesaria para una condición limpia de persistencia del signo. Después, y sólo si es necesario, conectar con estados e_t inducidos por trayectorias naturales. No se introduce steady-state covariance de SGD, Gaussian e_t, distribution shift ni experimentos.
+
+La extensión se integra tras la teoría single-update en `theoretical_analysis.tex`; `primary_notes.md` conserva las derivaciones completas, hipótesis, cálculo reproducible y caveats. `problem_formulation.tex` delimita el common coupling y la regla fiable mínima. Se corrigen brevemente las frases de Introduction que aún dejaban toda evolución contrafactual y U_Y sin especificar. README sólo cambia la frase que situaba como siguiente paso un desarrollo que ahora está parcialmente calculado. Related Work no requiere cambios ni expansión; no se añaden referencias ni se hace búsqueda bibliográfica. No se alteran los resultados matemáticos anteriores salvo la unificación explícita del origen de descuento.
+
+### J. Validación documental
+
+El recálculo racional confirma todas las cifras y signos del contraejemplo. `git diff --check` no detecta errores de whitespace. El paper compila con las herramientas disponibles de TeX Live 2026, sin instalar dependencias: pdfLaTeX, BibTeX y dos pasadas posteriores de pdfLaTeX. Los auxiliares y el PDF se generan fuera del repositorio, en un directorio temporal que conserva la relación `paper/primary`–`references` para resolver la bibliografía existente.
+
+La compilación final produce 20 páginas, sin errores ni citas/referencias sin resolver. Quedan ocho avisos `Overfull \\hbox` en texto previo de Introduction, Related Work y los apartados anteriores de teoría/horizonte aislado; el mayor es 39.52344 pt en Related Work. Las ecuaciones nuevas no dejan avisos de desbordamiento. Se muestran `git status --short` y `git diff --stat` al cerrar la revisión. No se hace commit ni push.

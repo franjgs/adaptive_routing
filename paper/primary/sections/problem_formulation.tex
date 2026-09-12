@@ -37,9 +37,9 @@ earlier rounds may nevertheless arrive during this interval.
 
 Once available, $Y_t$ may be used to correct or update $F$ through a
 reliable-feedback update $U_Y$. This correction need not undo the earlier
-pseudo-update exactly or merge the two routing histories. Its specific form
-and its interaction with intervening updates remain part of the sequential
-problem.
+pseudo-update exactly or merge the two routing histories. In the minimal
+linear model, ordinary SGD on the newly available reliable target is an
+admissible base choice, analyzed below; other rules remain possible.
 
 The state
 \begin{equation}
@@ -169,7 +169,18 @@ continuation-value difference appearing in $Q_F-Q_D$, which may additionally
 depend on future routing decisions, operational responses, and consultation
 costs.
 
+To isolate the adaptation effect of the initial query, one can compare two
+counterfactual parameter trajectories starting from the same current state
+and receiving the same subsequent samples, targets, and update rules.
+This common coupling measures how later learning transports the initial
+pseudo-update's effect on population risk. It holds subsequent learning
+common by construction. If the changed parameters alter future routing,
+the resulting full continuation-value difference must instead account for
+those altered decisions and costs. Update counts and operational rounds
+are distinct, especially when pending reliable feedback arrives.
+
 The next section derives $\Delta_R$ exactly for a minimal linear model,
 identifies conditions under which its sign agrees or conflicts with
-$\Delta_{\mathrm{now}}$, and formulates the remaining counterfactual problem
-created by delayed reliable feedback.
+$\Delta_{\mathrm{now}}$, and extends the result to common-coupled subsequent
+learning under explicit assumptions. The complete delayed-feedback
+continuation problem remains open.

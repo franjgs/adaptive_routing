@@ -28,7 +28,7 @@ La hipótesis candidata es la conjunción de:
 5. La política valora explícitamente el cambio de valor de continuación causado por esa actualización particular.
 6. D puede ser falible y el valor de adaptación puede ser negativo.
 
-**No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Se trata de una región candidata, no de una novedad establecida. La búsqueda bibliográfica amplia queda pausada. Decision 007 fija el protocolo de feedback fiable retrasado y deriva el valor de una pseudoactualización lineal vectorial; el siguiente paso es calcular su evolución contrafactual durante el retardo. El checkpoint completo y la matriz comparativa están en `docs/literature/primary_novelty_review.md`.
+**No direct equivalent has yet been identified after targeted audit** satisfying all six properties jointly. Se trata de una región candidata, no de una novedad establecida. La búsqueda bibliográfica amplia queda pausada. Decision 007 fija el protocolo de feedback fiable retrasado y deriva el valor de una pseudoactualización lineal vectorial; Decision 009 extiende ese resultado al transporte bajo aprendizaje posterior común, con hipótesis explícitas. La continuación secuencial completa sigue abierta. El checkpoint bibliográfico y la matriz comparativa están en `docs/literature/primary_novelty_review.md`.
 
 Esta hipótesis todavía no está establecida como novedosa y continúa sujeta a falsación. Si no se identifica una diferencia metodológica clara y defendible respecto a learning-to-defer, model routing, contextual bandits, active learning, knowledge distillation y trabajos relacionados, se reconsiderará esta línea antes de implementar algoritmos o invertir esfuerzo experimental.
 
