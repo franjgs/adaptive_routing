@@ -557,3 +557,46 @@ Two candidate adaptation scales organize these open hypotheses:
 2. **Inter-regime:** drift detection, role redistribution, retraining, replacement, or creation of new models.
 
 CE-CoLSM and traffic forecasting are currently a candidate testbed for the applied gate, not the definition of the research problem.
+
+## EP001-C — Closed-loop routing closure, confirmation_001 — 2026-09-13
+
+**Protocol and implementation.** EP001-C was preregistered in commit
+`157765a`, then transparently amended before any implementation or EP001-C
+result to fix the previously omitted trajectory length at (T=2000) rounds
+(`5050470`). The amended preregistration SHA-256 is
+`9d5af0f7652bd36e3c05c96a247a3e989df32fa1fb9534ca1900f91c3e1c1d1b`.
+It compares P0 immediate routing, P1 static future value, P2 frozen
+configuration-specific scalar compression, and P3 the exact
+reference-coupled local transported-value surrogate. P3 is not a
+policy-dependent continuation-value oracle. P2 coefficients are frozen from
+EP001-B2 and never refit. Two pre-artifact performance corrections (operator
+stack caching and seed vectorization) were tested and committed before the
+completed discovery output; no parameter or endpoint changed.
+
+**Empirical result.** Discovery seeds 0--19 fixed the cost grid and were
+frozen before confirmation. Confirmation uses configs 0--75 and seeds 20--49,
+with paired policy streams and 10,000 trajectory-level bootstrap replicates
+preserving shared quartet dependence. The full artifact record and all
+gamma/cost/configuration outcomes are in
+`docs/experiments/ep001c_results_001.md` and the versioned results hierarchy.
+
+**Interpretation.** The confirmation verdict is **AMBIGUOUS**. At gamma 1.0,
+P3 improves P0 across low/intermediate costs and P2 almost exactly reproduces
+that improvement (C1-type behavior). At gamma 0.9, P3 is systematically worse
+than P0 at several low/intermediate costs even though it is generally slightly
+better than P1 there (C5-type behavior). Gamma 0.5 is mainly null/mixed. Thus the exact
+reference-coupled transported quantity is not a robustly beneficial
+closed-loop routing rule across the frozen grid. It can help or harm depending
+on discount/cost regime. P1 is not uniformly sufficient, but neither P2 nor
+P3 supplies a stable universal improvement.
+
+**Scope and retained record.** Routing and policy differences are concentrated
+in the initial stationary learning transient; later thirds are largely
+inactive. EP001-C therefore speaks only to transient adaptive routing in this
+stationary synthetic environment. The mathematical (K_k) derivation remains
+valid for its common-update reference counterfactual; it is demoted as an
+empirical centerpiece and should not be advanced as a universal practical
+mechanism. The immediate/static baselines, the reference-coupled diagnostic,
+and B2's within-configuration scalar-compressibility observation are retained
+with their stated limitations. No conclusion is drawn about general
+future-aware routing, real deployments, concept drift, or applications.
