@@ -9,6 +9,7 @@ from unittest.mock import patch
 import numpy as np
 
 import analyze_ep001b2 as b2
+import analyze_ep001c as analysis
 import run_ep001c as c
 from validation import transported_risk_matrices
 
@@ -151,6 +152,32 @@ class EP001CProtocolTests(unittest.TestCase):
     def test_preregistration_hash_is_frozen(self) -> None:
         path = Path(__file__).resolve().parents[2] / "docs/experiments/ep001c_closed_loop_routing.md"
         self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), c.PREREGISTRATION_SHA256)
+
+    def test_confirmation_summary_uses_trajectory_level_bootstrap(self) -> None:
+        shape = (76, 30, 3, 1, 4)
+        objective = np.zeros(shape)
+        for policy in range(4):
+            objective[..., policy] = policy
+        raw = {
+            "config_id": np.arange(76), "seed": np.arange(20, 50),
+            "gamma": np.asarray(c.GAMMAS), "cost": np.array([0.0]),
+            "objective": objective, "prediction_loss": objective, "query_cost": np.zeros(shape),
+            "queries": np.zeros(shape), "final_risk": objective,
+            "segment_objective": np.zeros((76, 30, 3, 3, 1, 4)),
+            "segment_prediction_loss": np.zeros((76, 30, 3, 3, 1, 4)),
+            "segment_query_cost": np.zeros((76, 30, 3, 3, 1, 4)),
+            "segment_queries": np.zeros((76, 30, 3, 3, 1, 4)),
+            "disagreements": np.zeros((76, 30, 3, 3, 1, 6)),
+            "first_divergence": np.full((76, 30, 3, 1, 6), -1, dtype=np.int16),
+            "mean_state_divergence": np.zeros((76, 30, 3, 1, 6)),
+            "final_state_divergence": np.zeros((76, 30, 3, 1, 6)),
+        }
+        rows = analysis.point_rows(raw)
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0]["objective_pair_differences"]["P0_minus_P3"], -3.0)
+        bootstrap = analysis.bootstrap_rows(raw, replicates=3)
+        self.assertEqual(bootstrap[0]["replicates"], 3)
+        self.assertEqual(bootstrap[0]["objective_policy_ci"]["P2"], [2.0, 2.0])
 
 
 if __name__ == "__main__":
