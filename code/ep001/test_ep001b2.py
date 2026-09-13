@@ -9,6 +9,7 @@ import numpy as np
 import analyze_ep001b2 as b
 from analyze_ep001b import transport_values
 import run_ep001b2_discovery as discovery
+import run_ep001b2_confirmation as confirmation
 
 
 class B2Tests(unittest.TestCase):
@@ -292,6 +293,30 @@ class B2Tests(unittest.TestCase):
             with discovery.zipfile.ZipFile(path) as archive:
                 selected=discovery.read_selected_member(archive,'value',ranges,12)
         self.assertEqual(selected.tolist(),[0,1,2,3,6,7,8,9])
+
+    def test_confirmation_ranges_and_reduction_intervals(self):
+        self.assertEqual(confirmation.confirmation_ranges((0,)),[(6400,16000)])
+        self.assertEqual(confirmation.confirmation_ranges((76,))[0],
+                         (76*16000+6400,77*16000))
+        values=confirmation.reduction_array([1,0,2],[2,0,0])
+        self.assertEqual(values[0],.5)
+        self.assertTrue(np.isnan(values[1:]).all())
+
+    def test_confirmation_primary_path_never_refits(self):
+        configs=np.repeat(np.arange(76),30);seeds=np.tile(np.arange(20,50),76)
+        raw=dict(config_id=configs,seed=seeds,split=np.ones(len(configs)),
+                 delta_now=np.ones(len(configs)),deltas=np.ones((len(configs),11)))
+        fit=b.ScalarFit(1.,0.,((1.,1.),),'synthetic');fits=tuple(fit for _ in range(76))
+        calibration=b.Calibration(.5,tuple(range(76)),fit,fit,fits,fits,fit,fits,
+                                  fit,fit,fits,fits)
+        counts=b.bootstrap_multiplicities(2)
+        with patch.object(b,'lad_fit',side_effect=AssertionError('refit')), \
+             patch.object(b,'operational_fit',side_effect=AssertionError('refit')):
+            point,boot,curves,trajectory=confirmation.analyze_primary_gamma(raw,calibration,counts)
+        self.assertEqual(point['gamma'],.5)
+        self.assertEqual(boot['functional']['grid']['losses']['M0']['replicates'],2)
+        self.assertIn('gamma_0.5_M0_integral',curves)
+        self.assertEqual(trajectory['gamma_0.5_functional_losses'].shape,(76,30,3))
 
 
 if __name__=='__main__':
