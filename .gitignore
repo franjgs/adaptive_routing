@@ -4,6 +4,9 @@
 .venv/
 references/papers/
 data/
+# Generated experimental artifacts. Compact provenance records may be
+# force-added when needed to freeze an experiment; raw/generated payloads stay
+# outside ordinary Git so hosted Git limits do not alter the scientific record.
 results/
 
 # Byte-compiled / optimized / DLL files

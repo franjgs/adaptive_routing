@@ -600,3 +600,27 @@ mechanism. The immediate/static baselines, the reference-coupled diagnostic,
 and B2's within-configuration scalar-compressibility observation are retained
 with their stated limitations. No conclusion is drawn about general
 future-aware routing, real deployments, concept drift, or applications.
+
+## Repository maintenance — externalized EP001-B2 discovery payload — 2026-09-13
+
+The original EP001-B2 discovery freeze produced and preserved the deterministic
+generated artifact
+`results/ep001/first_run_001/ep001b2/discovery_001/discovery_calibration.json`.
+Its SHA-256 is
+`9e64ee92e45b3925f2babfe847d1d3d04ec6388ea1537d8a6c37f6e3105757a8` and its
+original size is 211,192,800 bytes (about 201.41 MiB). The original
+unpublished freeze was commit `1d8267430a1e1bacd7dd95284f9137e44455b79d`.
+
+GitHub rejected a normal push because this generated JSON exceeded its 100 MiB
+ordinary-Git object limit. Before any push, the unpublished local history was
+rewritten solely to externalize that oversized reproducible payload. The
+scientific content, preregistrations, seed/configuration choices, coefficients,
+reports, and interpretations were not changed. The rewritten equivalent
+discovery-freeze commit is `9c3d1449a8d19105fa9c270ecf5cd8871816939e`.
+
+The JSON remains a locally generated, ignored artifact rather than an ordinary
+Git blob. Its hash, role, source commits, input scope, and deterministic
+reproduction command are retained in the small tracked README at its artifact
+location. The discovery calibration report and B2 confirmation manifests also
+retain the same SHA-256. This is repository maintenance, not a scientific
+amendment or a rerun of EP001-B2.
