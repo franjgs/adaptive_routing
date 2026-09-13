@@ -110,8 +110,9 @@ def local_values(
     error = theta - W_STAR
     alpha = np.einsum("...i,i->...", error, x)
     delta_now = alpha**2 - teacher_variance
-    x_ke = np.einsum("i,kij,...j->...k", x, np.stack(risk_matrices[:HORIZON]), error)
-    x_kx = np.einsum("i,kij,j->k", x, np.stack(risk_matrices[:HORIZON]), x)
+    risk_stack = np.asarray(risk_matrices[:HORIZON], dtype=float)
+    x_ke = np.einsum("i,kij,...j->...k", x, risk_stack, error)
+    x_kx = np.einsum("i,kij,j->k", x, risk_stack, x)
     deltas = (
         2.0 * eta_teacher * alpha[..., None] * x_ke
         - eta_teacher**2 * (alpha[..., None] ** 2 + teacher_variance) * x_kx
@@ -185,7 +186,7 @@ def simulate_one(
     eta = float(config["eta"])
     eta_teacher = float(config["eta_teacher"])
     teacher_variance = float(config["teacher_variance"])
-    risk_matrices = transported_risk_matrices(_fourth_moments(config), eta, HORIZON)
+    risk_matrices = np.stack(transported_risk_matrices(_fourth_moments(config), eta, HORIZON))
     g_count, p_count, c_count = len(GAMMAS), len(POLICIES), len(costs)
     theta = np.zeros((g_count, p_count, c_count, 2), dtype=float)
     objective = np.zeros((g_count, c_count, p_count), dtype=float)
