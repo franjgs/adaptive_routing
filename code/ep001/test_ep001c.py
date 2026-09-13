@@ -125,6 +125,15 @@ class EP001CProtocolTests(unittest.TestCase):
                 seeds=c.CONFIRMATION_SEEDS, split="discovery", output_dir=Path("/tmp/never"),
                 cost_grid_path=Path("/tmp/never-grid"),
             )
+
+    def test_discovery_cost_grid_is_deterministic_and_nonnegative(self) -> None:
+        configs = {index: synthetic_config(index) for index in range(76)}
+        with patch.object(c, "ROUNDS", 8):
+            first = c.discovery_cost_candidates(configs, self.calibrations)
+            second = c.discovery_cost_candidates(configs, self.calibrations)
+        np.testing.assert_array_equal(first, second)
+        self.assertEqual(first[0], 0.0)
+        self.assertTrue(np.all(np.diff(first) > 0))
         with self.assertRaises(ValueError):
             c.run_split(
                 configs={0: self.config}, calibrations=self.calibrations, costs=self.costs,

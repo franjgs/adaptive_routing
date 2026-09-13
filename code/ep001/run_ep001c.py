@@ -276,7 +276,9 @@ def discovery_cost_candidates(configs: dict[int, dict], calibrations: dict[float
     P0/P1/P2/P3 valuation quantiles (10,25,50,75,90,99) plus zero and a
     discovery-maximum high-cost endpoint.  It never uses confirmation data.
     """
-    values: list[np.ndarray] = []
+    total_values = len(PRIMARY_CONFIGS) * len(DISCOVERY_SEEDS) * ROUNDS * len(GAMMAS) * len(POLICIES)
+    values = np.empty(total_values, dtype=float)
+    cursor = 0
     for config_id in PRIMARY_CONFIGS:
         config = configs[config_id]
         eta = float(config["eta"])
@@ -286,24 +288,46 @@ def discovery_cost_candidates(configs: dict[int, dict], calibrations: dict[float
         for seed in DISCOVERY_SEEDS:
             inputs, noise, _ = exogenous_stream(config, seed)
             theta = np.zeros(2, dtype=float)
+            states = np.empty((ROUNDS, 2), dtype=float)
             for round_index, x in enumerate(inputs):
-                for gamma in GAMMAS:
-                    scalar = calibrations[gamma].config_o[config_id].c
-                    values.append(np.stack(local_values(
-                        theta, x, teacher_variance=teacher_variance, eta_teacher=eta_teacher,
-                        gamma=gamma, risk_matrices=risk_matrices, scalar_c=scalar,
-                    )))
-                due = round_index - DELAY
-                if due >= 0:
+                states[round_index] = theta
+                due = feedback_due_index(round_index)
+                if due is not None:
                     x_due = inputs[due]
                     y_due = float(W_STAR @ x_due + noise[due])
                     theta += eta * x_due * (y_due - theta @ x_due)
-    positive = np.concatenate(values).reshape(-1)
-    positive = positive[np.isfinite(positive) & (positive > 0)]
-    if not positive.size:
+            error = states - W_STAR
+            alpha = np.einsum("ni,ni->n", error, inputs)
+            x_ke = np.einsum("ni,kij,nj->nk", inputs, np.stack(risk_matrices[:HORIZON]), error)
+            x_kx = np.einsum("ni,kij,nj->nk", inputs, np.stack(risk_matrices[:HORIZON]), inputs)
+            deltas = (
+                2.0 * eta_teacher * alpha[:, None] * x_ke
+                - eta_teacher**2 * (alpha[:, None] ** 2 + teacher_variance) * x_kx
+            )
+            for gamma in GAMMAS:
+                powers = gamma ** np.arange(HORIZON)
+                static = powers.sum() * deltas[:, 0]
+                reference = deltas @ powers
+                scalar = calibrations[gamma].config_o[config_id].c
+                block = np.column_stack((
+                    alpha**2 - teacher_variance,
+                    alpha**2 - teacher_variance + gamma * static,
+                    alpha**2 - teacher_variance + gamma * scalar * static,
+                    alpha**2 - teacher_variance + gamma * reference,
+                )).reshape(-1)
+                values[cursor:cursor + block.size] = block
+                cursor += block.size
+    if cursor != values.size:
+        raise AssertionError("discovery cost-grid buffer underfilled")
+    positive = np.isfinite(values) & (values > 0)
+    positive_count = int(positive.sum())
+    if not positive_count:
         raise RuntimeError("discovery has no positive valuation for a cost grid")
-    quantile_values = np.quantile(positive, (0.10, 0.25, 0.50, 0.75, 0.90, 0.99))
-    return np.unique(np.r_[0.0, quantile_values, positive.max() * 1.01])
+    high = float(values[positive].max())
+    values[~positive] = np.inf
+    positions = np.rint((positive_count - 1) * np.asarray((0.10, 0.25, 0.50, 0.75, 0.90, 0.99))).astype(int)
+    values.partition(positions)
+    return np.unique(np.r_[0.0, values[positions], high * 1.01])
 
 
 def write_cost_grid(output_dir: Path, costs: np.ndarray) -> Path:
