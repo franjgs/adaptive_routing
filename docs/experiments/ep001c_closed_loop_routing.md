@@ -4,6 +4,12 @@ Status: preregistration draft
 Scope: synthetic closed-loop experiment extending EP001-A/B/B2
 Purpose: test whether explicitly valuing the future learning consequence of consulting the expensive predictor improves sequential routing performance once different routing policies are allowed to generate different learner trajectories.
 
+## Pre-execution amendment history
+
+The original preregistration was frozen in commit `157765a249aab85e55a3e0984ba96d54710f5650` with SHA-256 `8340ee815f2862f8b6d5bdc2d841e4c11b789a9cb1d6a8dbbb1e9bc3da0e44b8`.
+
+Before any EP001-C implementation, discovery, confirmation, scalar fitting, or inspection of an EP001-C result, an omission was identified: the trajectory length \(T\) was referenced but not specified. This amendment fixes \(T=2000\) sequential operational rounds per trajectory. It is a protocol-completeness correction, not a result-driven modification. The choice is consistent with the numerical scale already used in EP001, but EP001-A does not scientifically determine \(T\).
+
 ⸻
 
 1. Motivation
@@ -491,6 +497,14 @@ Primary discount factors remain
 
 The same (H) and (\gamma) must be used consistently by P1, P2 and P3.
 
+The sequential operational trajectory length is fixed at
+
+\[
+T=2000.
+\]
+
+Every policy is evaluated for exactly 2000 sequential operational rounds per trajectory. This is a fixed EP001-C design parameter, not a discovery-tuned parameter.
+
 ⸻
 
 13. Query-cost sweep
@@ -624,7 +638,7 @@ For each policy and cost:
 * distribution of consecutive query runs;
 * distribution of intervals between queries.
 
-Report the following fixed temporal segments: early (first third of the evaluated trajectory), middle (second third), and late (final third). For each segment, report query rate, objective/loss contribution, and policy disagreement. These are diagnostics only and do not replace the primary whole-trajectory objective.
+Report the following fixed temporal segments: early \(t=1,\ldots,666\), middle \(t=667,\ldots,1333\), and late \(t=1334,\ldots,2000\). Their lengths are respectively 666, 667, and 667 rounds. For each segment, report query rate, objective/loss contribution, and policy disagreement. These are diagnostics only and do not replace the primary whole-trajectory objective.
 
 ⸻
 
