@@ -64,6 +64,7 @@ La etapa de revisión bibliográfica y formulación da paso al diseño experimen
 ## Organización
 
 - `docs/literature/`: documentación de la revisión bibliográfica.
+- `docs/literature/applied_novelty_audit.md`: auditoría de novedad aplicada y dominio candidato posterior a EP001-B2.
 - `docs/theory/`: documentación de la formulación teórica.
 - `docs/research_log.md`: registro de decisiones científicas.
 - `references/bibliography.bib`: bibliografía común con diez entradas verificadas; el inventario distingue evidencia local y metadatos verificados aportados por el investigador.

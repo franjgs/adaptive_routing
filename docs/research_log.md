@@ -529,3 +529,31 @@ Se congela [EP001-B2 — Scalar reducibility of transported adaptation value](ex
 - No se establece un margen arbitrario de equivalencia ni de pass/fail. Las conclusiones quedan condicionadas a la rejilla sintética y al surrogate; no prueban superioridad operacional ni autorizan avanzar automáticamente a EP001-C.
 
 La comprobación final documental confirma compatibilidad con el horizonte, descuento, dominio de costes y claves RNG existentes; no identifica una contradicción que impida implementar el protocolo. Las discrepancias históricas de redacción sobre independencia y la columna `median_delta_c` de EP001-B ya están delimitadas en el protocolo y no se heredan como definiciones de B2. Antes de esta congelación no se ha ajustado ningún escalar B2, ejecutado ningún análisis B2 ni inspeccionado resultados de reducibilidad confirmatoria para configs 0–75. No se autorizan nuevas simulaciones para B2; cualquier ejecución posterior requiere autorización separada y utiliza exclusivamente los datos preservados. Teoría, paper y resultados EP001-A/B permanecen intactos.
+
+## Applied novelty gate after EP001-B2 — 2026-09-13
+
+EP001-B2 demotes exact state-dependent transport $K_k$ as the empirical centerpiece. Before any EP001-C, the project therefore moves to an applied novelty gate. Cloud-edge forecasting is currently the strongest candidate application because delayed reliable ground truth arrives naturally and independently of routing. CE-CoLSM (ICC 2026) is the current anchor prior-art and novelty threat.
+
+The surviving candidate gap is not cloud-edge collaboration or distillation itself. It is whether the query decision should explicitly value the future learning consequence of the queried supervision. No claim of practical scalar “persistence” is made: B2 supports only configuration-specific scalar compressibility in the frozen synthetic grid. Closed-loop evaluation will be required before making operational claims. The applied audit is preserved in `docs/literature/applied_novelty_audit.md`.
+
+## Standing research direction: complementary timescales under concept drift — 2026-09-13
+
+The broader project must not collapse into a narrow cloud-edge routing problem.
+
+**Established core.** The established problem structure comprises a cheap/adaptive predictor F and an expensive/more capable predictor D; selective routing with query cost; the possibility that D supplies the current operational response and its output supervises F; reliable Y arriving later independently of routing; and the decomposition into immediate value plus future learning value. The transported-effect theory and the EP001-A/B/B2 findings remain part of this established project record, with their documented scopes and limitations.
+
+**Dynamic condition to be covered.** The environment or regime may change over time. Consequently, relative model performance, query value and learning value may also change. This condition motivates the broader direction but is not yet a new formal model or experimental result.
+
+**Open working hypotheses, not an established architecture.** Future work may study adaptation under concept drift through models with complementary timescales and capabilities:
+
+- fast, shallow, rapidly adaptable models;
+- slow, deep, more capable models;
+- dynamic redistribution of their roles according to individual and collective performance;
+- under sufficiently strong regime change, replacement or regeneration of one or more models may be preferable to transferring knowledge from obsolete models.
+
+Two candidate adaptation scales organize these open hypotheses:
+
+1. **Intra-regime:** routing/querying and adaptation of existing models.
+2. **Inter-regime:** drift detection, role redistribution, retraining, replacement, or creation of new models.
+
+CE-CoLSM and traffic forecasting are currently a candidate testbed for the applied gate, not the definition of the research problem.
