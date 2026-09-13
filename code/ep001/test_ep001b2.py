@@ -1,10 +1,14 @@
 """Synthetic-only EP001-B2 validation. Never opens preserved experiment files."""
 import unittest
 from unittest.mock import patch
+from pathlib import Path
+import json
+import tempfile
 import numpy as np
 
 import analyze_ep001b2 as b
 from analyze_ep001b import transport_values
+import run_ep001b2_discovery as discovery
 
 
 class B2Tests(unittest.TestCase):
@@ -250,6 +254,44 @@ class B2Tests(unittest.TestCase):
         with self.assertRaises(ValueError):b.validate_structure(raw,manifest)
         raw['query_id'][1]=1;raw['split'][0]=1
         with self.assertRaises(ValueError):b.validate_structure(raw,manifest)
+
+    def test_discovery_artifact_round_trip_and_confirmation_gate(self):
+        configs=tuple(range(76));fits=tuple(b.ScalarFit(1.,0.,((1.,1.),),'synthetic') for _ in configs)
+        calibrations=[b.Calibration(gamma,configs,fits[0],fits[0],fits,fits,fits[0],fits,
+                                    fits[0],fits[0],fits,fits) for gamma in b.GAMMAS]
+        audit=dict(candidate_cases=1,finite_cases=1,excluded_nonfinite_cases=0,
+                   by_configuration=[],run_manifest_sha256='synthetic',
+                   raw_archive_filename='synthetic.npz',raw_archive_bytes=1,
+                   unselected_rows_materialized=False)
+        with patch.object(discovery.b2,'calibrate_discovery',side_effect=calibrations):
+            raw=dict(seed=np.zeros(76,dtype=int),split=np.zeros(76,dtype=int),
+                     config_id=np.arange(76),delta_now=np.ones(76),deltas=np.ones((76,11)))
+            artifact=discovery.build_artifact(raw,audit)
+        payload=discovery.artifact_bytes(artifact)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'calibration.json';path.write_bytes(payload)
+            loaded,restored=discovery.load_frozen_discovery_artifact(
+                path,discovery.sha256_bytes(payload))
+            self.assertEqual(discovery.artifact_bytes(loaded),payload)
+            self.assertEqual(restored[.5],calibrations[0])
+            with self.assertRaises(ValueError):
+                discovery.load_frozen_discovery_artifact(path,'0'*64)
+            changed=json.loads(payload);changed['population']['confirmation_records_used']=True
+            path.write_text(json.dumps(changed))
+            with self.assertRaises(ValueError):discovery.load_frozen_discovery_artifact(path)
+
+    def test_discovery_range_selection_is_primary_discovery_only(self):
+        ranges=discovery.discovery_ranges(primary_configs=2,discovery_seeds=2,
+                                           total_seeds=3,rows_per_seed=2)
+        self.assertEqual(ranges,[(0,4),(6,10)])
+        source=np.arange(12,dtype=np.int16)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'source.npz';np.savez_compressed(path,value=source)
+            with np.load(path,allow_pickle=False) as check:
+                self.assertEqual(check['value'].tolist(),source.tolist())
+            with discovery.zipfile.ZipFile(path) as archive:
+                selected=discovery.read_selected_member(archive,'value',ranges,12)
+        self.assertEqual(selected.tolist(),[0,1,2,3,6,7,8,9])
 
 
 if __name__=='__main__':
