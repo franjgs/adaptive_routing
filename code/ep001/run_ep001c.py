@@ -270,6 +270,118 @@ def simulate_one(
     }
 
 
+def _batch_local_values(
+    theta: np.ndarray, x: np.ndarray, *, teacher_variance: float, eta_teacher: float,
+    gamma: float, risk_stack: np.ndarray, scalar_c: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Reference valuations for theta[seed, policy, cost, parameter]."""
+    error = theta - W_STAR
+    alpha = np.einsum("spci,si->spc", error, x)
+    x_ke = np.einsum("si,kij,spcj->spck", x, risk_stack[:HORIZON], error)
+    x_kx = np.einsum("si,kij,sj->sk", x, risk_stack[:HORIZON], x)
+    deltas = (
+        2.0 * eta_teacher * alpha[..., None] * x_ke
+        - eta_teacher**2 * (alpha[..., None] ** 2 + teacher_variance) * x_kx[:, None, None, :]
+    )
+    powers = gamma ** np.arange(HORIZON)
+    static = float(powers.sum()) * deltas[..., 0]
+    reference = np.einsum("spck,k->spc", deltas, powers)
+    now = alpha**2 - teacher_variance
+    return now, now + gamma * static, now + gamma * scalar_c * static, now + gamma * reference
+
+
+def simulate_config_seeds(
+    config: dict, seeds: tuple[int, ...], costs: np.ndarray,
+    calibrations: dict[float, b2.Calibration],
+) -> dict[str, np.ndarray]:
+    """Vectorized paired simulation of every seed for one configuration.
+
+    The vectorization changes only execution speed: each seed remains an
+    independent stored trajectory and all policies within it share its exact
+    exogenous stream.
+    """
+    costs = np.asarray(costs, dtype=float)
+    if not seeds or any(seed not in (*DISCOVERY_SEEDS, *CONFIRMATION_SEEDS) for seed in seeds):
+        raise ValueError("invalid EP001-C seed set")
+    streams = [exogenous_stream(config, seed) for seed in seeds]
+    inputs = np.stack([item[0] for item in streams])
+    target_noise = np.stack([item[1] for item in streams])
+    teacher_noise = np.stack([item[2] for item in streams])
+    seed_count, cost_count = len(seeds), len(costs)
+    eta, eta_teacher = float(config["eta"]), float(config["eta_teacher"])
+    teacher_variance = float(config["teacher_variance"])
+    risk_stack = np.stack(transported_risk_matrices(_fourth_moments(config), eta, HORIZON))
+    theta = np.zeros((len(GAMMAS), seed_count, len(POLICIES), cost_count, 2), dtype=float)
+    core_shape = (seed_count, len(GAMMAS), cost_count, len(POLICIES))
+    objective = np.zeros(core_shape); prediction = np.zeros(core_shape); query_cost = np.zeros(core_shape)
+    queries = np.zeros(core_shape); final_risk = np.zeros(core_shape)
+    segment_shape = (seed_count, 3, len(GAMMAS), cost_count, len(POLICIES))
+    segment_objective = np.zeros(segment_shape); segment_prediction = np.zeros(segment_shape)
+    segment_query = np.zeros(segment_shape); segment_queries = np.zeros(segment_shape)
+    pair_shape = (seed_count, len(GAMMAS), cost_count, len(PAIR_NAMES))
+    disagreement = np.zeros((seed_count, 3, len(GAMMAS), cost_count, len(PAIR_NAMES)))
+    first = np.full(pair_shape, -1, dtype=np.int16)
+    divergence_sum = np.zeros(pair_shape)
+    pair_indices = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
+    for round_index in range(ROUNDS):
+        x = inputs[:, round_index]
+        y = np.einsum("i,si->s", W_STAR, x) + target_noise[:, round_index]
+        d_response = np.einsum("i,si->s", W_STAR, x) + np.sqrt(teacher_variance) * teacher_noise[:, round_index]
+        segment = temporal_segment(round_index)
+        for gamma_index, gamma in enumerate(GAMMAS):
+            scalar = calibrations[gamma].config_o[int(config["config_id"])].c
+            by_rule = _batch_local_values(
+                theta[gamma_index], x, teacher_variance=teacher_variance, eta_teacher=eta_teacher,
+                gamma=gamma, risk_stack=risk_stack, scalar_c=scalar,
+            )
+            values = np.stack([by_rule[index][:, index] for index in range(len(POLICIES))], axis=1)
+            action = values > costs[None, None, :]
+            pred = np.einsum("spci,si->spc", theta[gamma_index], x)
+            loss = np.where(action, (d_response[:, None, None] - y[:, None, None]) ** 2,
+                            (pred - y[:, None, None]) ** 2)
+            qcost = action * costs[None, None, :]
+            weighted_prediction = (gamma ** round_index) * loss.transpose(0, 2, 1)
+            weighted_query = (gamma ** round_index) * qcost.transpose(0, 2, 1)
+            prediction[:, gamma_index] += weighted_prediction
+            query_cost[:, gamma_index] += weighted_query
+            objective[:, gamma_index] += weighted_prediction + weighted_query
+            queries[:, gamma_index] += action.transpose(0, 2, 1)
+            segment_prediction[:, segment, gamma_index] += weighted_prediction
+            segment_query[:, segment, gamma_index] += weighted_query
+            segment_objective[:, segment, gamma_index] += weighted_prediction + weighted_query
+            segment_queries[:, segment, gamma_index] += action.transpose(0, 2, 1)
+            for pair_index, (left, right) in enumerate(pair_indices):
+                different = action[:, left] != action[:, right]
+                disagreement[:, segment, gamma_index, :, pair_index] += different
+                first_slice = first[:, gamma_index, :, pair_index]
+                unseen = (first_slice < 0) & different
+                first_slice[unseen] = round_index + 1
+            pseudo = eta_teacher * x[:, None, None, :] * (d_response[:, None, None] - pred)[..., None]
+            theta[gamma_index] += action[..., None] * pseudo
+            due = feedback_due_index(round_index)
+            if due is not None:
+                x_due = inputs[:, due]
+                y_due = np.einsum("i,si->s", W_STAR, x_due) + target_noise[:, due]
+                due_pred = np.einsum("spci,si->spc", theta[gamma_index], x_due)
+                theta[gamma_index] += eta * x_due[:, None, None, :] * (y_due[:, None, None] - due_pred)[..., None]
+            for pair_index, (left, right) in enumerate(pair_indices):
+                divergence_sum[:, gamma_index, :, pair_index] += np.linalg.norm(
+                    theta[gamma_index, :, left] - theta[gamma_index, :, right], axis=-1
+                )
+    final_risk[:] = np.sum((theta - W_STAR) ** 2, axis=-1).transpose(1, 0, 3, 2)
+    final_divergence = np.empty(pair_shape)
+    for pair_index, (left, right) in enumerate(pair_indices):
+        final_divergence[..., pair_index] = np.linalg.norm(theta[:, :, left] - theta[:, :, right], axis=-1).transpose(1, 0, 2)
+    return {
+        "objective": objective, "prediction_loss": prediction, "query_cost": query_cost,
+        "queries": queries, "final_risk": final_risk, "segment_objective": segment_objective,
+        "segment_prediction_loss": segment_prediction, "segment_query_cost": segment_query,
+        "segment_queries": segment_queries, "disagreements": disagreement,
+        "first_divergence": first, "mean_state_divergence": divergence_sum / ROUNDS,
+        "final_state_divergence": final_divergence,
+    }
+
+
 def discovery_cost_candidates(configs: dict[int, dict], calibrations: dict[float, b2.Calibration]) -> np.ndarray:
     """Discovery-only reference valuations along the no-query feedback trajectory.
 
@@ -402,10 +514,9 @@ def run_split(
     storage = {name: np.empty(shape, dtype=np.int16 if name == "first_divergence" else float)
                for name, shape in shapes.items()}
     for c_index, config_id in enumerate(PRIMARY_CONFIGS):
-        for s_index, seed in enumerate(seeds):
-            result = simulate_one(configs[config_id], seed, costs, calibrations)
-            for name in storage:
-                storage[name][c_index, s_index] = result[name]
+        result = simulate_config_seeds(configs[config_id], seeds, costs, calibrations)
+        for name in storage:
+            storage[name][c_index] = result[name]
     output_dir.mkdir(parents=True, exist_ok=False)
     metrics_path = output_dir / f"{split}_trajectory_metrics.npz"
     np.savez_compressed(

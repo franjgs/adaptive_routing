@@ -118,6 +118,13 @@ class EP001CProtocolTests(unittest.TestCase):
         self.assertTrue(np.all(result["queries"][:, 1] == 0))
         self.assertEqual(result["first_divergence"].shape[-1], len(c.PAIR_NAMES))
 
+    def test_seed_batch_matches_single_trajectory_execution(self) -> None:
+        with patch.object(c, "ROUNDS", 8):
+            single = c.simulate_one(self.config, 0, self.costs, self.calibrations)
+            batch = c.simulate_config_seeds(self.config, (0,), self.costs, self.calibrations)
+        for name, value in single.items():
+            np.testing.assert_allclose(batch[name][0], value)
+
     def test_discovery_confirmation_isolation(self) -> None:
         with self.assertRaises(ValueError):
             c.run_split(
