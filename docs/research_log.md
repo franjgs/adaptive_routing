@@ -1,6 +1,12 @@
 # Research log
 
-Decision 010 establece el estado científico vigente: cierra la cuestión estructural de persistencia/inversión bajo isotropía de segundo orden y congela la teoría principal para el primer ciclo experimental. Las decisiones anteriores conservan su contexto histórico: siguen vigentes la auditoría y las cautelas de Decision 006, el protocolo y resultados de Decision 007, la revisión y limitaciones de Decision 008 y el transporte común de Decision 009. Los problemas abiertos de esos checkpoints se actualizan en Decision 010.
+Decision 011 establece el estado científico vigente: la formulación general de
+valor futuro de aprendizaje se juzga reducible a decisión secuencial estándar
+con estado aumentado. Decision 010 conserva su alcance: cierra la cuestión
+estructural de persistencia/inversión bajo isotropía de segundo orden y congela
+la teoría lineal-cuadrática principal. Las decisiones anteriores conservan su
+contexto histórico; los resultados EP001 y sus limitaciones no se reinterpretan
+por la reducción conceptual de Decision 011.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -624,3 +630,107 @@ reproduction command are retained in the small tracked README at its artifact
 location. The discovery calibration report and B2 confirmation manifests also
 retain the same SHA-256. This is repository maintenance, not a scientific
 amendment or a rerun of EP001-B2.
+
+## Decision 011 — General future-learning-value formulation judged reducible to standard sequential decision theory
+
+Fecha: 2026-09-14.
+
+### 1. Decision
+
+**KNOWN RESULT / conceptual conclusion.** Se abandona como hipótesis de
+novedad fundamental que valorar conjuntamente la utilidad operacional presente
+de consultar a (D) y su efecto de aprendizaje futuro constituya una nueva
+estructura de teoría de decisión. La formulación general cabe en un problema
+estándar de decisión secuencial con estado aumentado. Esta es una conclusión de
+correspondencia conceptual y bibliográfica; no es un teorema nuevo del proyecto
+ni afirma que una implementación práctica sea fácil.
+
+### 2. Correspondencia formal
+
+Para una aplicación concreta, un estado suficiente (S_t) puede contener los
+parámetros/estado actual de (F), el contexto (x_t), feedback fiable
+pendiente por retardos, información de dinámica o distribución futura de
+contextos y cualquier variable adicional necesaria para hacer Markov el
+proceso. Las acciones son (F), usar el predictor barato, y (D), consultar y
+usar el predictor caro.
+
+Al elegir (D), se observa una respuesta operacional (Z_t), se sustituye la
+respuesta actual de (F), se paga el coste de consulta y (Z_t) puede entrar
+en la transición como pseudo-supervisión imperfecta que actualiza (F). Más
+tarde puede llegar (Y_t), feedback fiable exógeno e independiente de haber
+consultado (D). Que la misma variable (Z_t) aparezca en el coste inmediato
+y en el kernel de transición no es una obstrucción matemática; tampoco lo es
+la imperfección de (D). El retraso de (Y_t) se representa incluyendo la
+información pendiente necesaria en el estado.
+
+La comparación exacta es Bellman:
+
+```text
+Q_t(s,F) - Q_t(s,D)
+= diferencia de coste/pérdida inmediata
++ gamma × diferencia de continuation value.
+```
+
+El continuation value incorpora automáticamente aprendizaje beneficioso o
+perjudicial, distribución/reutilización futura, routing y costes futuros,
+divergencia de trayectorias, feedback retardado y no estacionariedad cuando el
+estado/modelo los representa adecuadamente.
+
+### 3. Test conceptual decisivo
+
+Considérese dos consultas (a,b) con igual beneficio y coste inmediatos e
+igual capacidad de aprendizaje, pero con diferente frecuencia o relevancia de
+reutilización futura. Esto no descubre una estructura adicional: una
+continuation value correctamente especificada ya prefiere la acción cuyo cambio
+de estado produce mayor utilidad futura. Expected Error Reduction y métodos
+posteriores orientados a predicción ya valoran una consulta frente a una
+distribución futura/test de inputs. Por tanto no se introduce ni se asume una
+factorización universal “learnability × future relevance”.
+
+### 4. Marcos relevantes
+
+**KNOWN RESULT / framework correspondence.** Los marcos relevantes incluyen
+Expected Error Reduction; Value of Information y active learning
+decision-theoretic; Knowledge Gradient como especialización más limitada;
+sequential Bayesian optimal experimental design; MDP/POMDP y formulaciones
+Bayes-adaptive; y dual control, donde una acción puede tener a la vez efecto
+presente e informativo/adaptativo para decisiones futuras. No se afirma que un
+artículo previo reproduzca exactamente toda la arquitectura operacional de este
+proyecto; eso no es necesario para la reducción teórica.
+
+### 5. Consecuencia científica
+
+El novelty gate de la formulación teórica general falla: ni el doble uso
+operacional/formativo de una consulta, ni la falibilidad de (D), ni el
+feedback fiable exógeno con retardo constituyen por sí mismos una nueva
+estructura. Queda degradada cualquier formulación que sugiera que “beneficio
+operacional actual + consecuencia observable de aprendizaje futuro” sea el gap
+teórico principal.
+
+### 6. Pregunta abierta restante
+
+**OPEN QUESTION.** Puede existir un problema más estrecho, principalmente
+algorítmico/computacional: construir una aproximación computable, observable y
+suficientemente precisa del verdadero policy-dependent continuation-value
+advantage de consultar (D) en adquisición adaptativa de supervisión/model
+routing, y demostrar mejora closed-loop frente a baselines fuertes. No se
+declara novedoso este posible gap; requiere una auditoría bibliográfica
+específica antes de formular teoría o experimentos.
+
+### 7. Estado experimental
+
+**EMPIRICAL EVIDENCE.** EP001 permanece cerrado. El veredicto formal de
+EP001-C sigue siendo **AMBIGUOUS**: P3 es un surrogate local
+reference-coupled, no un oracle del continuation value policy-dependent; sus
+resultados positivos, dañinos y nulos conservan exactamente sus alcances. El
+experimento no demuestra que future-learning value sea inútil ni útil en
+general. No se inicia EP001-D ni se rehabilita (K_k) como dirección
+principal; sólo podrá recuperarse si una formulación algorítmica o aplicación
+concreta lo necesita.
+
+### 8. Siguiente acción
+
+Realizar una auditoría bibliográfica estrecha sobre aproximaciones prácticas,
+computables y observables al continuation value en adaptive supervision
+acquisition y model routing, antes de diseñar cualquier nuevo experimento,
+aplicación o desarrollo matemático.
