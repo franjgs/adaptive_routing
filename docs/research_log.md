@@ -1,12 +1,14 @@
 # Research log
 
-Decision 011 establece el estado científico vigente: la formulación general de
-valor futuro de aprendizaje se juzga reducible a decisión secuencial estándar
-con estado aumentado. Decision 010 conserva su alcance: cierra la cuestión
-estructural de persistencia/inversión bajo isotropía de segundo orden y congela
-la teoría lineal-cuadrática principal. Las decisiones anteriores conservan su
-contexto histórico; los resultados EP001 y sus limitaciones no se reinterpretan
-por la reducción conceptual de Decision 011.
+Decision 012 establece el estado metodológico vigente: después de la reducción
+conceptual de Decision 011, el posible gap algorítmico queda sólo
+provisionalmente **partially occupied** y requiere una auditoría estrecha de
+RL-based active learning y métodos próximos. Decision 011 conserva su alcance:
+la formulación general de valor futuro de aprendizaje se juzga reducible a
+decisión secuencial estándar con estado aumentado. Decision 010 conserva su
+alcance estructural sobre la teoría lineal-cuadrática. Las decisiones anteriores
+mantienen su contexto histórico; los resultados EP001 y sus limitaciones no se
+reinterpretan por estos checkpoints bibliográficos.
 
 ## Decision 001 — Elección de las líneas de investigación
 
@@ -734,3 +736,106 @@ Realizar una auditoría bibliográfica estrecha sobre aproximaciones prácticas,
 computables y observables al continuation value en adaptive supervision
 acquisition y model routing, antes de diseñar cualquier nuevo experimento,
 aplicación o desarrollo matemático.
+
+## Decision 012 — Narrow algorithmic audit after Bellman/RL antecedents
+
+Fecha: 2026-09-14.
+
+### 1. Estado y decisión
+
+**PROVISIONAL STATUS: B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET
+ESTABLISHED.** Tras Decision 011, se inicia una auditoría más estrecha de
+aproximaciones computables al policy-dependent continuation-value advantage de
+adquirir supervisión o consultar un modelo. No se declara un nuevo gap ni se
+abre una nueva línea experimental. La decisión es suspender cualquier
+formulación de novedad algorítmica hasta completar la auditoría siguiente.
+
+### 2. Antecedentes que bloquean claims generales
+
+**KNOWN RESULT.** Existen trabajos de active learning basado en reinforcement
+learning que tratan la adquisición de supervisión como decisión secuencial y
+aproximan el action value de consultar mediante Q-learning/DQN y métodos
+afines. Por tanto, no es defendible afirmar como novedad general que se
+aproxima con Bellman/RL el valor futuro de adquirir supervisión porque modifica
+un learner que seguirá utilizándose.
+
+También están ocupados, a nivel de familias, Expected Error Reduction,
+Value-of-Information/decision-theoretic active learning, y surrogates locales
+de cambio de modelo o salida --incluidas familias EMOC--; learning-to-defer y
+model routing cubren la selección operacional entre modelos/expertos. La
+existencia de estas familias no prueba por sí sola que resuelvan adecuadamente
+la intersección concreta del proyecto.
+
+Fang, Li y Cohn, *Learning how to Active Learn: A Deep Reinforcement Learning
+Approach*; Woodward y Finn, *Active One-shot Learning*; y literatura posterior
+de RL-based active learning se registran aquí sólo como **candidatos pendientes
+de verificación bibliográfica y metodológica**. Esta entrada no añade una cita,
+DOI ni afirmación primaria sobre su protocolo, resultados o equivalencia exacta.
+
+### 3. Intersección bajo auditoría
+
+**HYPOTHESIS.** Puede quedar un problema algorítmico en la intersección de
+adaptive supervision acquisition y adaptive model routing: el predictor barato
+y adaptativo (F) compite operacionalmente con un predictor/experto caro y
+falible (D); si se consulta (D), su salida sirve a la vez de respuesta
+operacional actual y pseudo-supervisión inmediata para (F); feedback fiable
+(Y_t) llega más tarde de modo exógeno e independiente del routing; y el update
+puede afectar predicciones y routing futuros. No se sabe si esta conjunción ya
+está cubierta ni si los métodos próximos son metodológica y computacionalmente
+satisfactorios.
+
+La cantidad de referencia, si un problema concreto la exige, sería el verdadero
+continuation-value advantage policy-dependent
+
+```text
+Delta Q_t = Q(S_t,D) - Q(S_t,F).
+```
+
+No se afirma que una aproximación computable u observable de esta cantidad sea
+novedosa, disponible o necesaria.
+
+### 4. Regla de auditoría
+
+**KNOWN METHODOLOGICAL RULE.** La existencia de antecedente no equivale a que
+el problema esté satisfactoriamente resuelto. Cada antecedente peligroso se
+auditará en cuatro niveles:
+
+1. **Conceptual coverage:** si formula el mismo protocolo o sólo comparte
+   componentes.
+2. **Methodological adequacy:** objetivo estimado, estado, reward, horizonte,
+   observaciones, supuestos, información disponible al decidir y justificación
+   de la aproximación al continuation value.
+3. **Experimental validity:** baselines, igualdad de presupuesto/coste, splits,
+   tuning, seeds, incertidumbre, ablations, sensibilidad, leakage, información
+   oracle y correspondencia entre experimento y mecanismo atribuido.
+4. **Effective result:** tamaño/materialidad de mejora, comparación con
+   heurísticas y baselines fuertes, coste computacional, generalización y
+   comportamiento con teacher noise, feedback fiable retrasado, adaptación
+   online y acoplamiento policy/learner cuando sean relevantes.
+
+No se llamará un experimento ``trucado'' sin evidencia. Las críticas se
+formularán con términos observables y concretos, por ejemplo protocol
+sesgado, información privilegiada/oracle, baseline débil, tuning desigual,
+leakage, evidencia estadística insuficiente o interpretación causal/mecánica no
+sustentada.
+
+### 5. Consecuencia para teoría y experimentos
+
+**EMPIRICAL EVIDENCE.** EP001 permanece cerrado y EP001-C sigue siendo
+**AMBIGUOUS**. Sus resultados positivos, nulos y dañinos no se reinterpretan.
+P3 continúa siendo un surrogate local reference-coupled, no un oracle del
+continuation value policy-dependent. Esta auditoría no inicia EP001-D ni
+rehabilita (K_k) como dirección principal; sólo podría recuperarse ante una
+necesidad explícita de una formulación algorítmica o aplicación concreta.
+
+### 6. Siguiente acción
+
+Completar la auditoría bibliográfica de la intersección entre learning-to-defer
+y active learning, teacher querying, online/adaptive knowledge distillation,
+model routing con adaptación online, selective prediction con feedback,
+adquisición de expertos y RL-based active learning. Para cada antecedente se
+reconstruirá: problema, objetivo matemático, cantidad aproximada, método,
+información disponible al decidir, coste computacional, protocolo experimental,
+baselines, resultado efectivo, límites empíricos y relación con este protocolo.
+No se diseñarán experimentos, teoría adicional ni una aplicación antes de
+completar esta auditoría.

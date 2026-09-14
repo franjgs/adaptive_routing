@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-14
 Repository HEAD represented: `a36f3930aba027d26a2b79ca082d1a7a5375aea8`
-Handover version: 2.1
+Handover version: 2.2
 
 ## 0. Purpose and evidence hierarchy
 
@@ -54,10 +54,11 @@ independently of routing. The objective is task loss plus consultation cost.
 
 **Current scientific question.**
 
-> Is there a scientifically distinct, computationally practical and observable
-> approximation to the policy-dependent continuation-value advantage of
-> consulting (D), which improves adaptive-supervision/model-routing decisions
-> against strong baselines?
+> Is the narrow intersection of adaptive-supervision acquisition and adaptive
+> model routing already satisfactorily solved, or is there a practically
+> computable and observable approximation to the policy-dependent
+> continuation-value advantage of consulting (D) that remains methodologically
+> and empirically open?
 
 The broader fact that a query can have immediate operational value and alter
 future learning is now treated as a standard sequential-decision structure, not
@@ -73,13 +74,22 @@ future learning consequences is representable by standard sequential decision
 theory with an appropriately augmented state. It is not, by itself, a new
 decision-theoretic structure or a defensible primary novelty claim.
 
-### Algorithmic hypothesis — not established
+### Algorithmic hypothesis — provisionally partially occupied
 
-There may be a practical gap in computing or estimating, from observable
-information, a sufficiently accurate approximation to the true
-policy-dependent continuation-value advantage of consulting (D), and in
-showing a closed-loop cost--performance benefit against strong baselines. This
-is not yet claimed novel; it requires a focused literature audit.
+The first narrow audit finds that reinforcement-learning-based active learning
+already treats supervision acquisition as a sequential action-value problem,
+while EER and local model/output-change surrogates already approximate future
+learning consequences and learning-to-defer/model routing cover the current
+operational decision. This blocks any claim that Bellman/RL approximation of
+future supervision value is new in general.
+
+**Provisional status: B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET
+ESTABLISHED.** A possible remaining issue is whether existing methods provide a
+computable, observable, and methodologically adequate approximation to the
+true policy-dependent continuation advantage for the particular protocol where
+the costly output both replaces the current response and pseudo-updates an
+adaptive cheap predictor. This is a hypothesis under focused audit, not a
+novelty claim.
 
 ### Not established / not claimed
 
@@ -92,6 +102,10 @@ is not yet claimed novel; it requires a focused literature audit.
 - EP001 does not solve a full policy-dependent continuation/Q-value problem.
 - No universal factorization such as “learnability \(\times\) future relevance”
   is established or assumed.
+- The presence of RL/Q-learning active-learning predecessors does not, by
+  itself, establish that this narrow operational intersection is solved; their
+  conceptual coverage, information requirements, methodology, and experiments
+  must be audited.
 
 ## 4. Established mathematical results
 
@@ -382,6 +396,51 @@ algorithmic/computational question, not an established gap.
 (K_k) as a main direction. Recover (K_k) only if a concrete application or
 new approximation problem specifically requires it.
 
+### Literature audit checkpoint — algorithmic continuation-value approaches — 2026-09-14
+
+**Question examined.** After the general Bellman reduction, is approximating
+the future value of acquiring supervision by Bellman/RL itself a defensible
+algorithmic novelty claim?
+
+**KNOWN RESULT.** Reinforcement-learning-based active learning formulates
+supervision acquisition as a sequential decision and approximates an action
+value for querying, including with Q-learning/DQN-style methods. EER and
+model-change/output-change surrogates (including EMOC-type families) also
+provide computable, more local proxies for the future effect of acquiring
+supervision. Learning-to-defer and model routing cover operational selection
+between predictors or experts. Therefore, “use Bellman/RL because a queried
+label changes a learner that will be used later” is not an available novelty
+claim.
+
+The names Fang, Li and Cohn, *Learning how to Active Learn: A Deep
+Reinforcement Learning Approach*; Woodward and Finn, *Active One-shot
+Learning*; and later RL-based active-learning work are **candidates pending
+bibliographic and methodological verification** in the repository. They are
+not yet primary local evidence for a claim about their exact protocol or
+results.
+
+**HYPOTHESIS.** The narrower intersection may remain insufficiently solved:
+at each round an expensive, fallible (D) supplies the operational response
+and the same output is immediate pseudo-supervision for (F), while delayed
+reliable (Y_t) arrives exogenously and the induced update can alter later
+routing. It is not established that this conjunction is novel, nor that no
+existing method estimates an adequate continuation advantage for it.
+
+**Audit rule.** Existence of prior work is not equivalent to the problem being
+satisfactorily solved. Each dangerous antecedent must be assessed separately
+for (1) conceptual coverage, (2) methodological adequacy of the estimated
+quantity and information available at decision time, (3) experimental
+validity, and (4) effective result relative to strong, equally tuned baselines
+and computational cost. Deficiencies must be named specifically (for example,
+privileged/oracle information, leakage, weak baseline, unequal tuning,
+inadequate uncertainty, or unsupported mechanistic interpretation), never
+called ``tricked'' without evidence.
+
+**PROVISIONAL STATUS: B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET
+ESTABLISHED.** The next action is the focused audit, not mathematics or an
+experiment. Do not start EP001-D or rehabilitate (K_k) unless a concrete
+algorithmic or application need survives that audit.
+
 ## 6. Demoted or rejected directions
 
 ### General future-learning value as a new decision principle — rejected
@@ -465,11 +524,12 @@ Bellman comparison between immediate and future learning effects.
 
 The previous candidate that explicitly pricing the future learning consequence
 of the same queried supervision was itself a new decision principle is
-superseded by Decision 011. The remaining question is whether an approximation
-to the true policy-dependent continuation-value advantage can be computed from
-observable signals, is sufficiently accurate, and changes an applied
-cost--performance frontier. Neither novelty nor practical value is established;
-the required audit is narrower and algorithmic.
+superseded by Decision 011. The additional audit checkpoint finds general
+RL/Bellman supervision acquisition and local future-learning surrogates already
+occupied. The remaining question is only whether existing methods adequately
+cover the specified adaptive-routing/pseudo-supervision protocol. Neither
+novelty nor practical value is established; the required audit is narrower,
+algorithmic, and adversarial.
 
 ## 8. Current application status
 
@@ -530,19 +590,21 @@ components, not as a robust practical contribution. Decision 011 further
 rejects treating generic future-learning valuation as a new theoretical
 principle: it belongs inside a correctly specified continuation value.
 
-**OPEN QUESTION.** A forecasting-like application may still expose a hard
-computational/observability problem in approximating that continuation value,
-but neither a selected application nor a novel or winning routing
-representation exists.
+**OPEN QUESTION.** It remains unknown whether the narrow intersection has a
+methodologically adequate practical solution. A forecasting-like application
+may expose an observable computational problem, but neither an application nor
+a novel or winning routing representation exists.
 
 ## 10. Current scientific decision point
 
-EP001 is closed. The next team decision is whether any concrete application
-has a credible **algorithmic/computational novelty gate**: routing-independent
-delayed ground truth where relevant, genuine consultation cost, observable
-signals sufficient to approximate a policy-dependent continuation advantage,
-and a distinction from strong VoI/EER, active-distillation, sequential-routing,
-and confidence-plus-distillation baselines.
+EP001 is closed. The immediate decision is whether the focused literature
+audit leaves any credible **algorithmic/computational novelty gate** after
+RL-based active learning, EER/EMOC-type surrogates, learning-to-defer, online
+teacher querying, adaptive distillation, selective prediction with feedback,
+and model routing are examined at the protocol level. A concrete application
+is relevant only if it has routing-independent delayed ground truth where
+needed, genuine consultation cost, observable decision-time signals, and a
+clear distinction from strong baselines.
 
 This requires a focused bibliographic audit before a problem formulation or
 implementation. If no candidate meets that bar, stop or substantially reframe
@@ -553,8 +615,9 @@ transport extension as a substitute for this decision.
 
 ### NEXT
 
-1. Conduct a narrow literature audit of practical/observable approximations to
-   policy-dependent continuation value in adaptive supervision acquisition and
+1. Conduct the fixed four-level audit (conceptual coverage, methodological
+   adequacy, experimental validity, effective result) of practical/observable
+   continuation-value approximations in adaptive supervision acquisition and
    model routing.
 2. Only if that audit leaves a candidate, assess an application protocol and
    data availability; separate observable facts from hypotheses.
@@ -567,6 +630,8 @@ transport extension as a substitute for this decision.
 - No new \(K_k\) derivation without an application-driven need.
 - No claim that “immediate value + future learning value” is a new
   decision-theoretic structure.
+- No claim that Bellman/RL estimation of future supervision value is new in
+  general.
 - No universal “learnability \(\times\) future relevance” factorization.
 - No claim that concept drift has been solved.
 - No claim that energy/load/traffic forecasting has validated the method.
@@ -577,8 +642,8 @@ transport extension as a substitute for this decision.
 ## 12. Where to reconstruct the full scientific history
 
 - `docs/research_log.md`: chronological decisions, supersessions, freezes, and
-  repository-maintenance provenance, including Decision 011's reducibility
-  audit.
+  repository-maintenance provenance, including Decisions 011--012 and their
+  reducibility/algorithmic-audit boundaries.
 - `docs/theory/primary_notes.md`: full derivations, assumptions,
   counterexample, theorems, and limits of Decisions 007--010.
 - `docs/literature/primary_novelty_review.md` and
@@ -602,6 +667,7 @@ transport extension as a substitute for this decision.
 |---|---|---|
 | Theory Decisions 007--010 | `docs/theory/primary_notes.md` | Frozen after `fd5c956` |
 | General formulation audit | `docs/research_log.md`, Decision 011 | Reducible; 2026-09-14 |
+| Narrow algorithmic audit | `docs/research_log.md`, Decision 012 | Provisional B; 2026-09-14 |
 | EP001-A | `summary/ep001a_summary.json`, `raw_ep001a.npz` | Closed; `74d754c` |
 | EP001-B | `ep001b/ep001b_report.json` | Closed; `b08aa63` |
 | B2 protocol | `docs/experiments/ep001b2_scalar_reducibility.md` | Frozen; `09404c9` |
@@ -634,6 +700,10 @@ provenance/reproduction instructions are in
   consequence does not by itself create a new decision theory; a sufficient
   sequential state and its continuation value already contain both. Do not
   assume a product factorization of learning effect and future reuse.
+- **Audit lesson.** Prior work can invalidate priority without showing that a
+  problem is satisfactorily solved. Record the exact objective, approximation,
+  decision-time information, computational cost, protocol, and evidence before
+  treating any close method as either equivalent or inadequate.
 - **Inference-unit lesson.** Cases/checkpoints/time steps sharing an SGD
   trajectory are not independent; confirmation preserves full trajectories and
   shared quartet dependence.
