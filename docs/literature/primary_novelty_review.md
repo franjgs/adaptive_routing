@@ -1,6 +1,15 @@
 # Primary novelty review
 
-Documento de trabajo para falsar la novedad de **Adaptive Cost-Aware Routing with Learning Value**. Estado vigente: Decision 007 (2026-09-11), delayed reliable feedback and geometric adaptation value. La auditoría dirigida de Decision 006 mantiene su alcance y la búsqueda amplia sigue pausada. El protocolo retrasado ya está fijado; el siguiente problema es la evolución contrafactual durante el retardo. La hipótesis amplia original ya no es defendible. La línea permanece activa; su novedad no está establecida.
+Documento de trabajo histórico para falsar la novedad de **Adaptive Cost-Aware
+Routing with Learning Value**. Las conclusiones de las Decisions 005--007 y la
+auditoría dirigida conservan su alcance documentado, pero ya no describen el
+estado vigente. Decision 011 (2026-09-14) reduce la formulación general a
+decisión secuencial estándar; Decision 012 abre una auditoría estrecha de
+precedentes RL/Bellman y métodos algorítmicos próximos, con estado provisional
+**B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET ESTABLISHED**. Consulte
+`consolidation_inventory.md` para el ledger actual. Ninguna frase histórica de
+este documento que diga ``No direct equivalent'' demuestra ausencia de
+antecedentes ni autoriza un claim de novedad.
 
 ## Evidencia comunicada de la segunda revisión
 

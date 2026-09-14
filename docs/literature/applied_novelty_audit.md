@@ -3,6 +3,15 @@
 **Date:** 2026-09-13
 **Status:** working research note
 
+> **Current-status note (Decision 011--012, 2026-09-14).** This note predates
+> the general sequential-decision reducibility audit and the narrow
+> RL/Bellman-method audit. Its candidate-gap language is historical, not a
+> surviving novelty claim or authorization for an application experiment. The
+> current status is **B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET
+> ESTABLISHED**; see `consolidation_inventory.md` and `docs/research_log.md`.
+> In particular, the suggested ``oracle future-value policy'' below is not an
+> approved experiment design and must not override the frozen EP001-C boundary.
+
 ## Core conclusion
 
 Cloud–edge traffic forecasting is currently the strongest application candidate because delayed reliable ground truth arrives naturally and independently of the query decision. CE-CoLSM (ICC 2026) is the anchor prior art and a serious novelty threat: it already combines selective cloud inference with later distillation of the edge model. Therefore novelty cannot be claimed for cloud querying, hard-sample routing, or cloud-to-edge retraining itself.

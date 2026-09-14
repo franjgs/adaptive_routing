@@ -29,9 +29,104 @@ There are **thirteen PDF files representing twelve distinct works** in `docs/lit
 
 ## Missing PDFs and bibliography status
 
-All twelve inventoried works now have local PDFs. The newly added Kapoor–Horvitz–Basu PDF is distinct from the Gaussian-process object-categorization paper. No specific paper has been identified here for the remaining family-level topics (sequential L2D, information-directed routing, active knowledge distillation, contextual bandits, dual control/POMDP), so their PDF coverage cannot be claimed complete.
+All twelve works in the historical Decision-006 table now have local PDFs. The newly added Kapoor–Horvitz–Basu PDF is distinct from the Gaussian-process object-categorization paper. The Decision-012 ledger below adds further primary PDFs and identified leads; it does not claim complete coverage for sequential L2D, information-directed routing, active knowledge distillation, contextual bandits, dual control/POMDP, or RL-based active learning.
 
-`references/bibliography.bib` now contains ten entries: `gao2011active`, `roy2001toward`, `kapoor2007selective`, `gangrade2021online`, `hoque2021thriftydagger`, `rida2026tracer`, and the four Decision 006 additions `sogawa2013active`, `sekhari2023selective`, `hanneke2021toward`, `dekel2012selective`. Sekhari is an `inproceedings` entry for NeurIPS 2023, not merely an arXiv entry. Two inventory records still lack entries: *Active Learning with Gaussian Processes for Object Categorization* and Anita Krishnakumar's *Active Learning Literature Survey*.
+`references/bibliography.bib` now contains thirteen entries: `gao2011active`, `roy2001toward`, `kapoor2007selective`, `gangrade2021online`, `hoque2021thriftydagger`, `rida2026tracer`, the four Decision 006 additions `sogawa2013active`, `sekhari2023selective`, `hanneke2021toward`, `dekel2012selective`, and the primary-source-verified Decision 012 additions `firouzkouhi2025crsail`, `luccioli2025llm`, and `wang2025mixllm`. Sekhari is an `inproceedings` entry for NeurIPS 2023, not merely an arXiv entry. Two older inventory records still lack entries: *Active Learning with Gaussian Processes for Object Categorization* and Anita Krishnakumar's *Active Learning Literature Survey*.
+
+## Decision 012 continuation-value audit ledger
+
+**Current status:** **B — PARTIALLY OCCUPIED / ALGORITHMIC GAP NOT YET
+ESTABLISHED.** This section is the maintainable working ledger for the narrow
+post-Decision-011 audit. It supersedes neither the historical Decisions 005--006
+tables below nor their verified observations; it records what still needs to be
+checked under the new four-level protocol.
+
+### Review conventions
+
+The six-property target protocol is abbreviated as follows:
+
+- **P1:** a routing choice is made before the final operational response;
+- **P2:** costly (D) replaces cheap (F) on that current case;
+- **P3:** the same (D) response immediately pseudo-supervises (F);
+- **P4:** the update changes (F) for future cases;
+- **P5:** reliable (Y_t) arrives later, exogenously and independently of
+  whether (D) was queried;
+- **P6:** routing aims to account for the policy-dependent future consequence
+  of the current pseudo-update.
+
+`Yes`, `No`, and `not established` describe only what the cited source or
+existing review establishes. They never establish absence of an unreported
+property. For works not yet read from their primary source, properties are
+**unassessed**. Review labels have these meanings:
+
+- **identified:** bibliographic lead only;
+- **primary source obtained:** an original paper is available locally, but its
+  technical and experimental claims have not been assessed fully;
+- **preliminarily reviewed:** source/abstract/method overview assessed, without
+  a complete four-level critical review;
+- **critically reviewed:** all four Decision-012 levels below have been
+  assessed and the source/provenance is recorded.
+
+The four required levels are: (1) **conceptual coverage**, (2)
+**methodological adequacy** of objective, state, reward, information and
+approximation, (3) **experimental validity** (budgets, baselines, tuning,
+uncertainty, ablations, leakage and mechanism), and (4) **effective result**
+(materiality, robustness, generalization and computational cost). Existence of
+a paper establishes neither that the target problem is solved nor that its
+experiments support the mechanism authors attribute to it.
+
+### Verified primary sources newly incorporated
+
+| Work / full citation | Venue/status and identifier | Family; relevant mechanism | P1--P6 coverage established so far | Important limits relative to the target protocol | Review status and provenance | Current relevance |
+| --- | --- | --- | --- | --- | --- | --- |
+| Arad Firouzkouhi, Omid Mirzaeedodangeh, and Lars Lindemann (2025), *Sample-Efficient Expert Query Control in Active Imitation Learning via Conformal Prediction* | arXiv:2512.00453v1, cs.RO, 29 Nov. 2025; local PDF `Sample-Efficient Expert Query Control in Active Imitation Learning via Conformal Prediction_2512.00453v1.pdf`; BibTeX `firouzkouhi2025crsail` | Active imitation learning. CRSAIL measures K-nearest expert-state novelty, fixes a conformal quantile threshold, queries expert actions for selected visited states, adds them to the expert dataset, and retrains the learner. | P4 **Yes**. P1/P2/P3/P5/P6 **No or not established** by the preliminary reading: expert labels are requested post hoc after learner rollout episodes rather than used as a current operational replacement; its rule is local state novelty, not a Bellman continuation estimate. | Expert actions are training labels, not demonstrated as the same current answer that replaces (F). No delayed exogenous reliable (Y_t) protocol was established. The reported results cannot yet be used to judge the four-level adequacy of the field. | **Preliminarily reviewed.** Local primary PDF: abstract, introduction, formulation, and references. Its stated comparisons include DAgger, EnsembleDAgger and ThriftyDAgger; complete experimental-validity review remains pending. | Strong bridge to active imitation learning and a direct warning against treating expert-query-plus-retraining as new. |
+| Viviana Luccioli, Rithika Iyengar, Ryan Panley, Flora Haberkorn, Xiaoyu Ge, Leland Crane, Nitish Sinha, and Seung Jung Lee (2025), *LLM on a Budget: Active Knowledge Distillation for Efficient Classification of Large Text Corpora* | Finance and Economics Discussion Series 2025-108, Board of Governors of the Federal Reserve System; DOI: 10.17016/FEDS.2025.108; local PDF `Active Knowledge Distillation for Efficient Classification of Large Text Corpora_2025108pap.pdf`; BibTeX `luccioli2025llm` | Active knowledge distillation. A costly LLM labels selected training samples for cheaper students. M-RARU is randomized uncertainty-based accept/reject sampling. | P4 **Yes**. P1/P2/P3/P5/P6 **No or not established** by preliminary reading: teacher calls construct a student training set; they are not shown to replace the student operationally on the same routed case or to estimate a continuation value. | The source describes itself as preliminary FEDS staff material. Its stated principal comparator is random sampling; this does not establish superiority over strong active-learning, routing, or continuation-value baselines. No Bellman routing, delayed reliable (Y_t), or teacher-noise protocol was established. | **Preliminarily reviewed.** Local primary PDF front matter, abstract, introduction, related-work and stated comparator. | Direct teacher/student cost analogue; blocks a broad claim that selectively querying costly teachers to train cheaper models is new. |
+
+| Xinyuan Wang, Yanchi Liu, Wei Cheng, Xujiang Zhao, Zhengzhang Chen, Wenchao Yu, Yanjie Fu, and Haifeng Chen (2025), *MixLLM: Dynamic Routing in Mixed Large Language Models* | NAACL HLT 2025, Volume 1: Long Papers, pp. 10912--10922; local PDF `Dynamic Routing in Mixed Large Language Models 2025.naacl-long.545.pdf`; BibTeX `wang2025mixllm` | Model routing. The paper describes dynamic contextual-bandit query-to-LLM assignment using lightweight models for quality/cost prediction and continual training. | P1--P6 **not established** by the first-page/abstract inspection. It establishes dynamic cost/quality/latency routing and continual system training, not that a routed expensive output pseudo-supervises a cheap learner or that the router values its update-induced continuation effect. | The stated headline trade-off cannot yet be assessed for fair cost matching, feedback provenance, learner-update coupling, or causal mechanism without a full critical review. | **Primary source obtained; not yet preliminarily reviewed beyond first-page/abstract inspection.** | Relevant model-routing comparator; prevents treating dynamic cost/quality routing or continual training as new. |
+
+### Identified high-priority leads awaiting primary-source verification
+
+The records below are intentionally not added to `references/bibliography.bib`
+unless a primary source is obtained and metadata are checked. Titles, years,
+venues and identifiers are retained only to the extent supplied by a local
+primary source's reference list or by the current audit brief.
+
+| Work / currently verified metadata | Family and reason for inclusion | P1--P6 status | Review status / provenance | Required next check |
+| --- | --- | --- | --- | --- |
+| Nicholas Roy and Andrew McCallum (2001), *Toward Optimal Active Learning through Monte Carlo Estimation of Error Reduction*, ICML; `roy2001toward` | EER; explicitly values future predictive error after label acquisition and learner update. | Existing Decision-006 record: P3/P4 **Yes**; P1/P2/P5/P6 do not follow. | **Preliminarily reviewed under the pre-Decision-012 targeted scope.** Local primary PDF and `primary_novelty_review.md`; not yet critical under the four-level rubric above. | Reassess the four Decision-012 levels, especially computational cost and target/test-distribution assumptions. |
+| Ashish Kapoor, Eric Horvitz, and Sumit Basu (2007), *Selective Supervision: Guiding Supervised Learning with Decision-Theoretic Active Learning*, IJCAI-07; `kapoor2007selective` | Decision-theoretic selective supervision with label and classifier-use costs. | Existing record: future supervision value is covered; P1/P2 and the exact delayed-routing protocol are not established. | **Preliminarily reviewed / bibliographically verified.** Local PDF and existing inventory. | Reconstruct objective, available information, and empirical protocol before treating it as a close solution. |
+| Andreas Freytag, Erik Rodner, and Joachim Denzler, Expected Model Output Change (EMOC) | Model/output-change active-learning surrogate. | **Unassessed.** EMOC is relevant as a local computable future-learning proxy, not evidence of P1--P6 coverage. | **Identified.** Correct primary bibliographic record remains to be verified; no BibTeX entry added. | Obtain the primary EMOC paper and resolve inconsistent secondary citation metadata before recording venue/identifier or claims. |
+| Meng Fang, Yuan Li, and Trevor Cohn (2017), *Learning how to Active Learn: A Deep Reinforcement Learning Approach*, EMNLP 2017 | RL-based active learning: the audit brief identifies an MDP with acquisition action and Q-learning/DQN action-value approximation. | **Unassessed at paper level.** The stated broad conceptual precedence blocks claiming Q/Bellman supervision acquisition as new; exact P1--P6 coverage requires source review. | **Identified.** Candidate pending primary bibliographic and methodological verification; no BibTeX entry added. | Obtain/read primary source; audit state, reward, learner update, decision-time observations, DQN training/evaluation and baselines. |
+| Mark Woodward and Chelsea Finn, *Active One-shot Learning* | RL/Q-learning label-requesting with recurrent memory/future predictions, per audit brief. | **Unassessed at paper level.** It is conceptually close but requests ground truth rather than an operational (D) response plus pseudo-supervision. | **Identified.** Candidate pending primary verification; no BibTeX entry added. | Verify exact publication metadata, protocol, Q objective and experimental evidence. |
+| Bickford Smith et al. (2023), *Prediction-Oriented Bayesian Active Learning* | EPIG is relevant to future/test-input distribution and therefore to any ``future relevance'' intuition. | **Unassessed.** | **Identified.** Candidate pending primary verification; no BibTeX entry added. | Verify full authorship, venue/status, EPIG objective and computational assumptions. |
+| Mozannar and Sontag (2020), *Consistent Estimators for Learning to Defer to an Expert*; Narasimhan et al. (2022), *Post-hoc Estimators for Learning to Defer to an Expert*; Mozannar et al. (2023), *Who Should Predict? Exact Algorithms For Learning to Defer to Humans* | Learning-to-defer: operational selection between learner and expert. | **Unassessed.** Operational routing is conceptually relevant; pseudo-supervision/update and continuation value are not established from titles. | **Identified.** Candidate set pending primary sources; no BibTeX entries added. | Verify exact metadata and whether any method updates the deferred learner online from expert outputs. |
+| Montreuil et al. (AISTATS 2026), *Online Learning-to-Defer with Varying Experts* | Streaming/online expert routing. | **Unassessed.** The audit brief identifies online adaptation/routing but does not establish pseudo-supervision of (F). | **Identified.** Candidate pending primary verification. | Verify venue, authors, objective, feedback, expert dynamics and information assumptions. |
+| BEST-Route (ICML 2025) | Model-routing reference. | **Unassessed.** Test-time routing alone does not establish future learner updating. | **Identified.** No reliable full citation available in the repository. | Locate and verify the primary paper before adding a bibliographic record. |
+| S. Ross, G. Gordon, and D. Bagnell (2011), *A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning*, AISTATS, pp. 627--635 | DAgger; expert labels are aggregated and learner is retrained. | **Unassessed under P1--P6.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source; distinguish online control timing from pseudo-label routing. |
+| J. Zhang and K. Cho (2016), *Query-Efficient Imitation Learning for End-to-End Autonomous Driving*, arXiv:1605.06450 | SafeDAgger. | **Unassessed.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source and verify intervention/retraining protocol. |
+| R. Hoque et al. (2021), *LazyDAgger: Reducing Context Switching in Interactive Imitation Learning*, CASE 2021, pp. 502--509 | Active imitation-learning query gate. | **Unassessed.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source; audit threshold information and fair budget comparison. |
+| Ryan Hoque et al. (2021), *ThriftyDAgger: Budget-Aware Novelty and Risk Gating for Interactive Imitation Learning*, CoRL 2021; `hoque2021thriftydagger` | Priority active imitation-learning comparator. The local CRSAIL paper states it combines novelty/risk gating and uses a Q-network for safety assessment. | Existing review establishes current control plus learning demonstrations, but P6 as a continuation-value estimate is **not established**. | **Primary source obtained; preliminary review exists.** Local PDF, Decision 006, and CRSAIL related work. | Highest-priority critical review: reconstruct Q-network target/state, intervention timing, reward/safety signal, budgets, baselines and ablations. |
+| K. Menda, K. Driggs-Campbell, and M. J. Kochenderfer (2019), *EnsembleDAgger: A Bayesian Approach to Safe Imitation Learning*, IROS 2019, pp. 5041--5048 | Ensemble/safety-gated active imitation learning. | **Unassessed.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source. |
+| R. Hoque et al. (2023), *Fleet-DAgger: Interactive Robot Fleet Learning with Scalable Human Supervision*, CoRL/PMLR, pp. 368--380 | Fleet active imitation learning. | **Unassessed.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source and verify shared/fleet feedback assumptions. |
+| E. Biré, A. Kobanda, L. Denoyer, and R. Portelas (2024), *Efficient Active Imitation Learning with Random Network Distillation*, arXiv:2411.01894 | RNDAgger local novelty proxy. | **Unassessed.** | **Identified from CRSAIL's primary reference list.** | Obtain primary source; compare novelty signal with future-value claims. |
+| M. Zhao, R. Simmons, H. Admoni, A. Ramdas, and A. Bajcsy (2024), *Conformalized Interactive Imitation Learning: Handling Expert Shift and Intermittent Feedback*, arXiv:2410.08852 | ConformalDAgger / intermittent-feedback lead. | **Unassessed.** The author names beyond initials require direct verification; no BibTeX entry is added. | **Identified from CRSAIL's primary reference list.** | Obtain primary source and verify authorship, feedback timing and whether it is relevant beyond expert-shift detection. |
+| Viviana Luccioli et al. (2025), *LLM on a Budget* (above); Q. Zhang, Z.-D. Chen, X.-C. Li, and D.-C. Zhan (2023), *Active Knowledge Distillation*, arXiv:2305.15535; A. Kuznetsov et al. (2021), *Active Knowledge Distillation*, arXiv:2112.00122; D. Kothadiya et al. (2022), *Task-Agnostic Active Learning for Final-Layer Fine-Tuning*, arXiv:2210.08323 | Active knowledge distillation/data selection. | **Unassessed** except for Luccioli et al. above. | The latter three are **identified from Luccioli et al.'s primary reference list**; no primary copy is yet in the repository. | Obtain primary sources and audit which teacher outputs, costs, student updates and baselines are actually used. |
+| F. D. Palo, P. Singhi, and B. Fadlallah (2024), *Performance-Guided LLM Knowledge Distillation for Efficient Text Classification at Scale* | Performance-guided KD lead. | **Unassessed.** | **Identified from Luccioli et al.'s primary reference list**, which gives an Amazon Science URL; no primary copy has been verified here. | Obtain and verify the source before inferring objective, venue/status, or results. |
+
+### Evidence boundary for the next pass
+
+The dangerous broad claims are already unavailable: the general Bellman
+formulation (Decision 011), future/test-distribution-sensitive supervision
+value, RL action-value learning for supervision acquisition, active expert
+querying with learner updates, active knowledge distillation, and operational
+defer/routing all have precedence. This does **not** make the exact six-property
+protocol solved. It only creates a burden of proof: any surviving algorithmic
+question must show, against these sources, both a real methodological
+deficiency and a material improvement under a fair operational-cost protocol.
+
+No evidence in this ledger changes the frozen EP001-C verdict (**AMBIGUOUS**),
+turns P3 into a Bellman/closed-loop oracle, opens EP001-D, or rehabilitates
+(K_k) as a main direction.
 
 ### Local verification evidence and omitted fields
 
